@@ -4,13 +4,34 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.example.project_sy43.ui.theme.Project_SY43Theme
 
 class MainActivity : ComponentActivity() {
@@ -19,29 +40,68 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             Project_SY43Theme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = Color(0xFF007782)
+                )
+                {
+                    Login()
                 }
             }
         }
     }
-}
+    @Composable
+    fun Login() {
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
+        var text by remember { mutableStateOf("") } // État pour gérer l'entrée utilisateur
+        val image = painterResource(R.drawable.baseline_account_circle_24)
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    Project_SY43Theme {
-        Greeting("Android")
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(24.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Image(
+                painter = image,
+                contentDescription = null,
+                modifier = Modifier.size(120.dp) // Sets the image size
+            )
+            Spacer(modifier = Modifier.height(24.dp))
+            TextField(
+                value = text,
+                onValueChange = { text = it },
+                placeholder = { Text("Username") },
+                shape = RoundedCornerShape(16.dp), // Définit des coins arrondis
+                modifier = Modifier
+                    .fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+            TextField(
+                value = text,
+                onValueChange = { text = it },
+                placeholder = { Text("Password") },
+                shape = RoundedCornerShape(16.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(24.dp))
+            Button(
+                onClick = {
+                }, colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.White, // Couleur d'arrière-plan du bouton
+                    contentColor = Color(0xFF007782)    // Couleur du texte
+                ), shape = RoundedCornerShape(16.dp),
+                modifier = Modifier
+                    .fillMaxWidth() // Le bouton occupe toute la largeur
+            )
+            {
+                Text(
+                    text = "Login"
+                )
+            }
+        }
     }
 }
