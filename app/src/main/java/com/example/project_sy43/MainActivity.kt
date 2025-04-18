@@ -90,6 +90,7 @@ class MainActivity : ComponentActivity() {
             Spacer(modifier = Modifier.height(24.dp))
             Button(
                 onClick = {
+
                 }, colors = ButtonDefaults.buttonColors(
                     containerColor = Color.White, // Couleur d'arrière-plan du bouton
                     contentColor = Color(0xFF007782)    // Couleur du texte
