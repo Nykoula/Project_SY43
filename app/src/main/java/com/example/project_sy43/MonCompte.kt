@@ -7,6 +7,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircleOutline
@@ -20,10 +21,14 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.layout.size
+import androidx.compose.ui.Alignment
 
 class MonCompte : ComponentActivity(){
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -41,39 +46,90 @@ class MonCompte : ComponentActivity(){
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.SpaceEvenly
                             ){
-                                IconButton(onClick = { }) {
-                                    Icon(
-                                        imageVector = Icons.Filled.Home,
-                                        contentDescription = "Localized description",
-                                        tint = Color(0xFF007782)
+                                Column (
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.Center
+                                ){
+                                    IconButton(onClick = { }) {
+                                        Icon(
+                                            imageVector = Icons.Filled.Home,
+                                            contentDescription = "Home icon",
+                                            tint = Color(0xFF007782),
+                                            modifier = Modifier.size(32.dp)
+                                        )
+                                    }
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                    Text(
+                                        text = "Accueil",
+                                        color = Color(0xFF007782)
                                     )
                                 }
 
-                                IconButton(onClick = { }) {
-                                    Icon(
-                                        imageVector = Icons.Filled.Search,
-                                        contentDescription = "Localized description"
+                                Column (
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.Center
+                                ) {
+                                    IconButton(onClick = { }) {
+                                        Icon(
+                                            imageVector = Icons.Filled.Search,
+                                            contentDescription = "Search icon",
+                                            modifier = Modifier.size(32.dp)
+                                        )
+                                    }
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                    Text(
+                                        text = "Search"
                                     )
                                 }
 
-                                IconButton(onClick = { }) {
-                                    Icon(
-                                        imageVector = Icons.Filled.AddCircleOutline,
-                                        contentDescription = "Localized description"
+                                Column (
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.Center
+                                ) {
+                                    IconButton(onClick = { }) {
+                                        Icon(
+                                            imageVector = Icons.Filled.AddCircleOutline,
+                                            contentDescription = "Sell icon",
+                                            modifier = Modifier.size(32.dp)
+                                        )
+                                    }
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                    Text(
+                                        text = "Sell"
                                     )
                                 }
 
-                                IconButton(onClick = { }) {
-                                    Icon(
-                                        imageVector = Icons.Filled.MailOutline,
-                                        contentDescription = "Localized description"
+                                Column (
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.Center
+                                ) {
+                                    IconButton(onClick = { }) {
+                                        Icon(
+                                            imageVector = Icons.Filled.MailOutline,
+                                            contentDescription = "Message icon",
+                                            modifier = Modifier.size(32.dp)
+                                        )
+                                    }
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                    Text(
+                                        text = "Message"
                                     )
                                 }
 
-                                IconButton(onClick = { }) {
-                                    Icon(
-                                        imageVector = Icons.Filled.PersonOutline,
-                                        contentDescription = "Localized description"
+                                Column (
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.Center
+                                ) {
+                                    IconButton(onClick = { }) {
+                                        Icon(
+                                            imageVector = Icons.Filled.PersonOutline,
+                                            contentDescription = "Profil icon",
+                                            modifier = Modifier.size(32.dp)
+                                        )
+                                    }
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                    Text(
+                                        text = "Profil"
                                     )
                                 }
                             }
