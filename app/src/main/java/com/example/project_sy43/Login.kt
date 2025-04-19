@@ -16,11 +16,15 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -36,6 +40,8 @@ import androidx.compose.material3.Surface
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 
 class Login : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -43,7 +49,6 @@ class Login : ComponentActivity() {
         setContent {
             Surface(
                 modifier = Modifier.fillMaxSize(),
-                //color = Color(0xFF007782)
                 color = Color.White
             ){
                 LoginScreen()
@@ -59,6 +64,8 @@ class Login : ComponentActivity() {
         val image = painterResource(R.drawable.baseline_account_circle_24)
 
         val context = LocalContext.current
+
+        var isPasswordVisible by remember { mutableStateOf(false) } // État pour basculer visibilité
 
         if (context is ComponentActivity) {
 
@@ -76,21 +83,50 @@ class Login : ComponentActivity() {
                     colorFilter = ColorFilter.tint(Color(0xFF007782))
                 )
                 Spacer(modifier = Modifier.height(24.dp))
+
                 OutlinedTextField(
                     value = username,
                     onValueChange = { username = it },
                     modifier = Modifier
                         .fillMaxWidth(),
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.Default.Email,
+                            contentDescription = null,
+                            tint = Color(0xFF007782)
+                        )
+                    },
                     placeholder = { Text("Username") }
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
+
                 OutlinedTextField(
                     value = password,
                     onValueChange = { password = it },
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.Default.Lock, // Icône de cadenas
+                            contentDescription = "Password Icon",
+                            tint = Color(0xFF007782)
+                        )
+                    },
+                    placeholder = { Text("Password") },
+                    trailingIcon = {
+                        IconButton(
+                            onClick = { isPasswordVisible = !isPasswordVisible } // Bascule visibilité
+                        ) {
+                            Icon(
+                                imageVector = if (isPasswordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                                contentDescription = if (isPasswordVisible) "Hide password" else "Show password",
+                                tint = Color.Gray
+                            )
+                        }
+                    },
                     modifier = Modifier
                         .fillMaxWidth(),
-                    placeholder = { Text("Password") }
+                    visualTransformation = if (isPasswordVisible) androidx.compose.ui.text.input.VisualTransformation.None
+                    else androidx.compose.ui.text.input.PasswordVisualTransformation(), // Texte masqué ou non
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))

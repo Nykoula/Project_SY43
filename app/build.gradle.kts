@@ -71,4 +71,7 @@ dependencies {
     // https://firebase.google.com/docs/android/setup#available-libraries
 
     //implementation("androidx.compose.material3:material3:1.2.0-alpha08")
+    implementation("androidx.compose.material:material-icons-core:1.4.3")
+    implementation("androidx.compose.material:material-icons-extended:1.4.3")
+
 }
