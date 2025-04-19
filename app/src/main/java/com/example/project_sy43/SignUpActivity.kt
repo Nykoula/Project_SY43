@@ -22,7 +22,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.material3.Text
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.IconButton
@@ -42,7 +44,6 @@ class SignUpActivity : ComponentActivity() {
             val context = LocalContext.current
             Scaffold(
                 modifier = Modifier.fillMaxSize(),
-                //containerColor = Color(0xFF007782),
                 containerColor = Color.White,
                 topBar = {
                     TopAppBar(
@@ -89,8 +90,9 @@ class SignUpActivity : ComponentActivity() {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.Top,
+                .verticalScroll(rememberScrollState()) // Permet de scroller si le contenu dépasse
+                .padding(top = 80.dp) // padding de la top bar
+                .padding(16.dp), // padding local
             horizontalAlignment = Alignment.CenterHorizontally
         ){
             OutlinedTextField(
