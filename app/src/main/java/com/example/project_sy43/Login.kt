@@ -1,11 +1,14 @@
 package com.example.project_sy43
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,6 +18,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -29,6 +33,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.material3.Surface
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
 
 class Login : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -36,7 +43,8 @@ class Login : ComponentActivity() {
         setContent {
             Surface(
                 modifier = Modifier.fillMaxSize(),
-                color = Color(0xFF007782)
+                //color = Color(0xFF007782)
+                color = Color.White
             ){
                 LoginScreen()
             }
@@ -64,34 +72,37 @@ class Login : ComponentActivity() {
                 Image(
                     painter = image,
                     contentDescription = null,
-                    modifier = Modifier.size(120.dp) // Sets the image size
+                    modifier = Modifier.size(120.dp), // Sets the image size
+                    colorFilter = ColorFilter.tint(Color(0xFF007782))
                 )
                 Spacer(modifier = Modifier.height(24.dp))
-                TextField(
+                OutlinedTextField(
                     value = username,
                     onValueChange = { username = it },
-                    placeholder = { Text("Username") },
-                    shape = RoundedCornerShape(16.dp), // Définit des coins arrondis
                     modifier = Modifier
-                        .fillMaxWidth()
+                        .fillMaxWidth(),
+                    placeholder = { Text("Username") }
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
-                TextField(
+                OutlinedTextField(
                     value = password,
                     onValueChange = { password = it },
-                    placeholder = { Text("Password") },
-                    shape = RoundedCornerShape(16.dp),
                     modifier = Modifier
-                        .fillMaxWidth()
+                        .fillMaxWidth(),
+                    placeholder = { Text("Password") }
                 )
+
+                Spacer(modifier = Modifier.height(16.dp))
+                Text("Forgot password ?")
+
                 Spacer(modifier = Modifier.height(24.dp))
                 Button(
                     onClick = {
 
                     }, colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.White, // Couleur d'arrière-plan du bouton
-                        contentColor = Color(0xFF007782)    // Couleur du texte
+                        containerColor = Color(0xFF007782), // Couleur d'arrière-plan du bouton
+                        contentColor = Color.White    // Couleur du texte
                     ), shape = RoundedCornerShape(16.dp),
                     modifier = Modifier
                         .fillMaxWidth() // Le bouton occupe toute la largeur
@@ -106,8 +117,8 @@ class Login : ComponentActivity() {
                     onClick = {
                         context.finish()
                     }, colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.White, // Couleur d'arrière-plan du bouton
-                        contentColor = Color(0xFF007782)    // Couleur du texte
+                        containerColor = Color(0xFF007782), // Couleur d'arrière-plan du bouton
+                        contentColor = Color.White // Couleur du texte
                     ), shape = RoundedCornerShape(16.dp),
                     modifier = Modifier
                         .fillMaxWidth() // Le bouton occupe toute la largeur
@@ -115,6 +126,25 @@ class Login : ComponentActivity() {
                 {
                     Text(
                         text = "Go back"
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+                Row(
+                    horizontalArrangement = Arrangement.Center
+                ){
+                    Text(
+                        text = "Don't have an account ? "
+                    )
+                    Text(
+                        text = "Sign up",
+                        fontWeight = FontWeight.Bold, // Définit le texte en gras
+                        textDecoration = TextDecoration.Underline,
+                        modifier = Modifier.clickable {
+                            // Naviguer vers la page d'inscription
+                            val intent = Intent(context, SignUpActivity::class.java)
+                            context.startActivity(intent)
+                        }
                     )
                 }
             }
