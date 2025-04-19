@@ -42,6 +42,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
+import com.google.firebase.auth.FirebaseAuth
 
 class Login : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -58,14 +59,13 @@ class Login : ComponentActivity() {
 
     @Composable
     fun LoginScreen() {
-
-        var username by remember { mutableStateOf("") }// État pour gérer l'entrée utilisateur
+        val context = LocalContext.current
+        var email by remember { mutableStateOf("") }// État pour gérer l'entrée utilisateur
         var password by remember { mutableStateOf("") }
         val image = painterResource(R.drawable.baseline_account_circle_24)
-
-        val context = LocalContext.current
-
         var isPasswordVisible by remember { mutableStateOf(false) } // État pour basculer visibilité
+        var errorMessage by remember { mutableStateOf("") }
+        val authentification = FirebaseAuth.getInstance()
 
         if (context is ComponentActivity) {
 
@@ -82,11 +82,12 @@ class Login : ComponentActivity() {
                     modifier = Modifier.size(120.dp), // Sets the image size
                     colorFilter = ColorFilter.tint(Color(0xFF007782))
                 )
+
                 Spacer(modifier = Modifier.height(24.dp))
 
                 OutlinedTextField(
-                    value = username,
-                    onValueChange = { username = it },
+                    value = email,
+                    onValueChange = { email = it },
                     modifier = Modifier
                         .fillMaxWidth(),
                     leadingIcon = {
@@ -129,13 +130,40 @@ class Login : ComponentActivity() {
                     else androidx.compose.ui.text.input.PasswordVisualTransformation(), // Texte masqué ou non
                 )
 
+                if (errorMessage.isNotEmpty()) {
+                    Text(
+                        text = errorMessage,
+                        color = Color.Red,
+                        modifier = Modifier.padding(bottom = 16.dp)
+                    )
+                }
+
                 Spacer(modifier = Modifier.height(16.dp))
                 Text("Forgot password ?")
 
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(16.dp))
                 Button(
                     onClick = {
+                        // Étape 1 : Vérifier que les champs ne sont pas vides
+                        if (email.isEmpty() || password.isEmpty()) {
+                            errorMessage = "Veuillez compléter les champs requis."
+                            return@Button
+                        }
 
+                        // Étape 2 : Vérifier l'authentification Firebase
+                        authentification.signInWithEmailAndPassword(email, password)
+                            .addOnCompleteListener { task ->
+                                if (task.isSuccessful) {
+                                    // Redirection vers la page Mon Compte
+                                    errorMessage = "" // Réinitialise le message d'erreur
+                                    val intent = Intent(context, MonCompte::class.java)
+                                    context.startActivity(intent)
+                                    context.finish()
+                                } else {
+                                    // Email ou mot de passe invalide
+                                    errorMessage = "Email ou mot de passe invalide."
+                                }
+                            }
                     }, colors = ButtonDefaults.buttonColors(
                         containerColor = Color(0xFF007782), // Couleur d'arrière-plan du bouton
                         contentColor = Color.White    // Couleur du texte
@@ -148,7 +176,7 @@ class Login : ComponentActivity() {
                         text = "Login"
                     )
                 }
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(16.dp))
                 Button(
                     onClick = {
                         context.finish()

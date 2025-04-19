@@ -54,6 +54,13 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.navigation.compose)
+    implementation(libs.firebase.auth.ktx)
+    implementation(libs.firebase.firestore.ktx)
+    implementation(libs.firebase.auth)
+    implementation(libs.androidx.credentials)
+    implementation(libs.androidx.credentials.play.services.auth)
+    implementation(libs.googleid)
+    implementation(libs.firebase.firestore)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -74,4 +81,6 @@ dependencies {
     implementation("androidx.compose.material:material-icons-core:1.4.3")
     implementation("androidx.compose.material:material-icons-extended:1.4.3")
 
+    implementation("com.google.firebase:firebase-auth-ktx:22.0.0")
+    implementation("com.google.firebase:firebase-firestore-ktx:25.0.0")
 }
