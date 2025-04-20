@@ -1,10 +1,8 @@
 package com.example.project_sy43
 
 import android.os.Bundle
-import android.provider.MediaStore
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -17,14 +15,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.AddCircleOutline
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.MailOutline
-import androidx.compose.material.icons.filled.PersonOutline
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -39,8 +30,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import android.app.Activity
-import android.content.Intent
 import android.net.Uri
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -48,20 +37,31 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import android.os.Environment
 import android.util.Log
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.material.icons.outlined.ChildCare
+import androidx.compose.material.icons.outlined.KeyboardArrowDown
+import androidx.compose.material.icons.outlined.KeyboardArrowUp
+import androidx.compose.material.icons.outlined.Man
+import androidx.compose.material.icons.outlined.Woman
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Divider
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.MenuDefaults
+import androidx.compose.material3.MenuItemColors
 import androidx.compose.runtime.getValue
 import androidx.core.content.FileProvider
 import java.io.File
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
+import com.google.firebase.Firebase
+import com.google.firebase.firestore.firestore
+import com.google.firebase.storage.storage
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -116,11 +116,55 @@ class Sell : ComponentActivity() {
         )
     }
 
+    fun uploadPhotoToFirebase(uri: Uri, onUploadSuccess: (String) -> Unit) {
+        val storage = Firebase.storage
+        val storageRef = storage.reference
+        val photoRef = storageRef.child("Post/${uri.lastPathSegment}")
+
+        photoRef.putFile(uri)
+            .addOnSuccessListener {
+                photoRef.downloadUrl.addOnSuccessListener { url ->
+                    onUploadSuccess(url.toString()) // URL publique de la photo
+                }
+            }
+            .addOnFailureListener { exception ->
+                Log.e("FirebaseUpload", "Échec du téléversement : $exception")
+            }
+    }
+
+    fun saveArticleToFirestore(title: String, description: String, price: String, photoUrl: String)
+    {
+        val db = Firebase.firestore
+        val article = hashMapOf(
+            "title" to title,
+            "description" to description,
+            "price" to price,
+            "photos" to photoUrl
+        )
+
+        db.collection("Post")
+            .add(article)
+            .addOnSuccessListener { documentReference ->
+                Log.d("Firestore", "Article enregistré avec ID : ${documentReference.id}")
+            }
+            .addOnFailureListener { exception ->
+                Log.e("Firestore", "Erreur lors de l'enregistrement : $exception")
+            }
+    }
+
     @Composable
     fun SellScreen(modifier: Modifier = Modifier) {
         val context = LocalContext.current
         var title by remember { mutableStateOf("") }
         var description by remember { mutableStateOf("") }
+        var category by remember { mutableStateOf("") }
+        var size by remember { mutableStateOf("") }
+        var couleur by remember { mutableStateOf("") }
+        var brand by remember { mutableStateOf("") }
+        var price by remember { mutableStateOf("") }
+        var clothes by remember { mutableStateOf("") }
+
+        var expanded by remember { mutableStateOf(false) }
         val photoList = remember { mutableStateListOf<Uri>() }//Uniform Resource Identifier)
 
         val launcher = rememberLauncherForActivityResult(
@@ -144,8 +188,7 @@ class Sell : ComponentActivity() {
             ) {
                 Button(
                     onClick = {
-                        val uri =
-                            generateUniqueUri(context) // Générer une URI unique pour chaque photo
+                        val uri = generateUniqueUri(context) // Générer une URI unique pour chaque photo
                         launcher.launch(uri)
                         photoList.add(uri) // Ajouter l'URI à la liste
                     },
@@ -155,8 +198,7 @@ class Sell : ComponentActivity() {
                     ),
                     shape = RoundedCornerShape(16.dp),
                     modifier = Modifier
-                        .border(
-                            2.dp,
+                        .border( 2.dp,
                             Color(0xFF007782),
                             RoundedCornerShape(16.dp)
                         ) // Contour bleu arrondit de 2 dp
@@ -169,22 +211,88 @@ class Sell : ComponentActivity() {
                             modifier = Modifier.size(24.dp) // Sets icon size
                         )
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text(
-                            text = "Add pictures"
-                        )
+                        Text( text = "Add pictures" )
                     }
                 }
 
                 Spacer(modifier = Modifier.width(16.dp))
                 InputFields("Title", "ex: Blue T-shirt",
                     value = title, onValueChange = { title = it })
+
                 Spacer(modifier = Modifier.width(16.dp))
                 InputFields("Description", "ex: worn a few times, true to size",
                     value = description, onValueChange = { description = it })
 
+                Spacer(modifier = Modifier.width(16.dp))
+                InputFields("Prix", "0,00 €",
+                    value = price, onValueChange = { price = it })
+
+                Spacer(modifier = Modifier.width(16.dp))
+
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                ) {
+
+                    Button(onClick = { expanded = !expanded },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFF007782),
+                            contentColor = Color.White
+                        )
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(text = "Category")
+                            Spacer(modifier = Modifier.weight(1f))
+                            Icon(
+                                imageVector = if (expanded) Icons.Outlined.KeyboardArrowUp else Icons.Outlined.KeyboardArrowDown,
+                                contentDescription = "Arrow"
+                            )
+                        }
+                    }
+
+                    DropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false },
+                        modifier = Modifier
+                            .fillMaxWidth() // Étend le menu déroulant sur toute la largeur du conteneur
+                            .background(Color(0xFF007782))
+                    ) {
+                        // First section
+                        DropdownMenuItem(
+                            text = { Text(text = "Woman", color = Color.White) },
+                            leadingIcon = { Icon(Icons.Outlined.Woman, contentDescription = null, tint = Color.White) },
+                            onClick = { /* Do something... */ }
+                        )
+
+                        Divider(thickness = 1.dp, color = Color.Gray)
+
+                        // Second section
+                        DropdownMenuItem(
+                            text = { Text(text = "Man", color = Color.White) },
+                            leadingIcon = { Icon(Icons.Outlined.Man, contentDescription = null, tint = Color.White) },
+                            onClick = { /* Do something... */ }
+                        )
+
+                        //HorizontalDivider()
+                        Divider(thickness = 1.dp, color = Color.Gray)
+
+                        // Third section
+                        DropdownMenuItem(
+                            text = { Text(text = "Children", color = Color.White) },
+                            leadingIcon = { Icon(Icons.Outlined.ChildCare, contentDescription = null, tint = Color.White) },
+                            onClick = { /* Do something... */ }
+                        )
+                    }
+                }
+
                 Button(
                     onClick = {
-
+                        if (photoList.isNotEmpty()) {
+                            uploadPhotoToFirebase(photoList.first()) { photoUrl ->
+                                saveArticleToFirestore(title, description, price, photoUrl)
+                            }
+                        }
                     }, // Contour bleu de 2 dp
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color.White,
@@ -195,9 +303,7 @@ class Sell : ComponentActivity() {
                         .border(2.dp, Color(0xFF007782), RoundedCornerShape(16.dp))
                 ) {
 
-                    Text(
-                        text = "Add"
-                    )
+                    Text( text = "Add" )
                 }
             }
         }
