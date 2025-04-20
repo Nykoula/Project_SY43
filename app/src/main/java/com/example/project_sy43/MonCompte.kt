@@ -29,6 +29,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.layout.size
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.vector.ImageVector
 
 class MonCompte : ComponentActivity(){
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -46,122 +47,41 @@ class MonCompte : ComponentActivity(){
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.SpaceEvenly
                             ){
-                                Column (
-                                    horizontalAlignment = Alignment.CenterHorizontally,
-                                    verticalArrangement = Arrangement.Center
-                                ){
-                                    IconButton(onClick = { }) {
-                                        Icon(
-                                            imageVector = Icons.Filled.Home,
-                                            contentDescription = "Home icon",
-                                            tint = Color(0xFF007782),
-                                            modifier = Modifier.size(32.dp)
-                                        )
-                                    }
-                                    Spacer(modifier = Modifier.height(8.dp))
-                                    Text(
-                                        text = "Accueil",
-                                        color = Color(0xFF007782)
-                                    )
-                                }
-
-                                Column (
-                                    horizontalAlignment = Alignment.CenterHorizontally,
-                                    verticalArrangement = Arrangement.Center
-                                ) {
-                                    IconButton(onClick = { }) {
-                                        Icon(
-                                            imageVector = Icons.Filled.Search,
-                                            contentDescription = "Search icon",
-                                            modifier = Modifier.size(32.dp)
-                                        )
-                                    }
-                                    Spacer(modifier = Modifier.height(8.dp))
-                                    Text(
-                                        text = "Search"
-                                    )
-                                }
-
-                                Column (
-                                    horizontalAlignment = Alignment.CenterHorizontally,
-                                    verticalArrangement = Arrangement.Center
-                                ) {
-                                    IconButton(onClick = { }) {
-                                        Icon(
-                                            imageVector = Icons.Filled.AddCircleOutline,
-                                            contentDescription = "Sell icon",
-                                            modifier = Modifier.size(32.dp)
-                                        )
-                                    }
-                                    Spacer(modifier = Modifier.height(8.dp))
-                                    Text(
-                                        text = "Sell"
-                                    )
-                                }
-
-                                Column (
-                                    horizontalAlignment = Alignment.CenterHorizontally,
-                                    verticalArrangement = Arrangement.Center
-                                ) {
-                                    IconButton(onClick = { }) {
-                                        Icon(
-                                            imageVector = Icons.Filled.MailOutline,
-                                            contentDescription = "Message icon",
-                                            modifier = Modifier.size(32.dp)
-                                        )
-                                    }
-                                    Spacer(modifier = Modifier.height(8.dp))
-                                    Text(
-                                        text = "Message"
-                                    )
-                                }
-
-                                Column (
-                                    horizontalAlignment = Alignment.CenterHorizontally,
-                                    verticalArrangement = Arrangement.Center
-                                ) {
-                                    IconButton(onClick = { }) {
-                                        Icon(
-                                            imageVector = Icons.Filled.PersonOutline,
-                                            contentDescription = "Profil icon",
-                                            modifier = Modifier.size(32.dp)
-                                        )
-                                    }
-                                    Spacer(modifier = Modifier.height(8.dp))
-                                    Text(
-                                        text = "Profil"
-                                    )
-                                }
+                                onglet(Icons.Filled.Home, "Accueil", "Home icon", Color(0xFF007782))
+                                onglet(Icons.Filled.Search, "Search", "Search icon", Color.Black)
+                                onglet(Icons.Filled.AddCircleOutline, "Sell", "Sell icon", Color.Black)
+                                onglet(Icons.Filled.MailOutline, "Message", "Message icon", Color.Black)
+                                onglet(Icons.Filled.PersonOutline, "Profile", "Profil icon", Color.Black)
                             }
                         }
                     )
                 }
-                /*topBar = {
-                    TopAppBar(
-                        colors = TopAppBarDefaults.topAppBarColors(
-                            containerColor = Color(0xFF007782),
-                            titleContentColor = Color.White,
-                        ),
-                        title = { Text("Sign Up") },
-                        navigationIcon = {
-                            IconButton(onClick = {
-                                if (context is ComponentActivity) {
-                                    context.finish()
-                                }
-                            }) {
-                                Icon(
-                                    //imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                    imageVector = Icons.Filled.ArrowBack,
-                                    contentDescription = "Go back",
-                                    tint = Color.White
-                                )
-                            }
-                        }
-                    )
-                }*/
+
             ) { innerPadding ->
                 MonCompteScreen(modifier = Modifier.padding(innerPadding))
             }
+        }
+    }
+
+    @Composable
+    fun onglet(icon: ImageVector, text: String, description: String, color: Color) {
+        Column (
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ){
+            IconButton(onClick = { }) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = description,
+                    tint = color,
+                    modifier = Modifier.size(32.dp)
+                )
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = text,
+                color = color
+            )
         }
     }
 
