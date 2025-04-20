@@ -1,5 +1,6 @@
 package com.example.project_sy43
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
@@ -47,11 +48,11 @@ class MonCompte : ComponentActivity(){
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.SpaceEvenly
                             ){
-                                onglet(Icons.Filled.Home, "Accueil", "Home icon", Color(0xFF007782))
-                                onglet(Icons.Filled.Search, "Search", "Search icon", Color.Black)
-                                onglet(Icons.Filled.AddCircleOutline, "Sell", "Sell icon", Color.Black)
-                                onglet(Icons.Filled.MailOutline, "Message", "Message icon", Color.Black)
-                                onglet(Icons.Filled.PersonOutline, "Profile", "Profil icon", Color.Black)
+                                onglet(Icons.Filled.Home, "Home", "Home icon", Color(0xFF007782), MonCompte::class.java)
+                                onglet(Icons.Filled.Search, "Search", "Search icon", Color.Black, Sell::class.java)//A CHANGER
+                                onglet(Icons.Filled.AddCircleOutline, "Sell", "Sell icon", Color.Black, Sell::class.java)//A CHANGER
+                                onglet(Icons.Filled.MailOutline, "Message", "Message icon", Color.Black, Sell::class.java)//A CHANGER
+                                onglet(Icons.Filled.PersonOutline, "Profile", "Profil icon", Color.Black, MainActivity::class.java)//A CHANGER
                             }
                         }
                     )
@@ -64,12 +65,16 @@ class MonCompte : ComponentActivity(){
     }
 
     @Composable
-    fun onglet(icon: ImageVector, text: String, description: String, color: Color) {
+    fun onglet(icon: ImageVector, text: String, description: String, color: Color, activityClass: Class<*>) {
+        val context = LocalContext.current
         Column (
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ){
-            IconButton(onClick = { }) {
+            IconButton(onClick = {
+                val intent = Intent(context, activityClass)
+                context.startActivity(intent)
+            }) {
                 Icon(
                     imageVector = icon,
                     contentDescription = description,

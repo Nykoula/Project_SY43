@@ -15,6 +15,7 @@
         <activity android:name=".Login"/>
         <activity android:name=".SignUpActivity"/>
         <activity android:name=".MonCompte"/>
+        <activity android:name=".Sell"/>
         <activity
             android:name=".MainActivity"
             android:exported="true"
