@@ -176,79 +176,11 @@ class Sell : ComponentActivity() {
                 }
 
                 Spacer(modifier = Modifier.width(16.dp))
-
-                //InputFields()
-                Column(
-                    modifier = Modifier.padding(16.dp)
-                ) {
-                    Text(
-                        text = "Title"
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    BasicTextField(
-                        value = title,
-                        onValueChange = { newText -> title = newText }, // Met à jour le texte
-                        decorationBox = { innerTextField ->
-                            Column {
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(bottom = 4.dp) // Espacement entre le texte et la ligne
-                                ) {
-                                    if (title.isEmpty()) {
-                                        Text(
-                                            text = "ex: Blue T-shirt", // Placeholder visible
-                                            color = Color.Gray,
-                                            modifier = Modifier.fillMaxWidth()
-                                        )
-                                    }
-                                    innerTextField() // Champ de texte réel
-                                }
-                                Divider( // Ligne grise sous le champ
-                                    thickness = 1.dp,
-                                    color = Color.Gray
-                                )
-                            }
-                        }
-                    )
-                }
-
+                InputFields("Title", "ex: Blue T-shirt",
+                    value = title, onValueChange = { title = it })
                 Spacer(modifier = Modifier.width(16.dp))
-
-                Column(
-                    modifier = Modifier.padding(16.dp)
-                ) {
-                    Text(
-                        text = "Description"
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    BasicTextField(
-                        value = title,
-                        onValueChange = { newText -> title = newText }, // Met à jour le texte
-                        decorationBox = { innerTextField ->
-                            Column {
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(bottom = 4.dp) // Espacement entre le texte et la ligne
-                                ) {
-                                    if (title.isEmpty()) {
-                                        Text(
-                                            text = "ex: worn a few times, true to size", // Placeholder visible
-                                            color = Color.Gray,
-                                            modifier = Modifier.fillMaxWidth()
-                                        )
-                                    }
-                                    innerTextField() // Champ de texte réel
-                                }
-                                Divider( // Ligne grise sous le champ
-                                    thickness = 1.dp,
-                                    color = Color.Gray
-                                )
-                            }
-                        }
-                    )
-                }
+                InputFields("Description", "ex: worn a few times, true to size",
+                    value = description, onValueChange = { description = it })
 
                 Button(
                     onClick = {
@@ -271,18 +203,21 @@ class Sell : ComponentActivity() {
         }
     }
 
-    /*@Composable
-    fun InputFields(modifier: Modifier = Modifier) {
+    @Composable
+    fun InputFields(label: String,
+                    placeholder: String,
+                    value: String, // La valeur actuelle du champ
+                    onValueChange: (String) -> Unit) {// Callback pour mettre à jour la valeur) {
         Column(
             modifier = Modifier.padding(16.dp)
         ) {
             Text(
-                text = "Title"
+                text = label
             )
             Spacer(modifier = Modifier.height(8.dp))
             BasicTextField(
-                value = title,
-                onValueChange = { newText -> title = newText }, // Met à jour le texte
+                value = value,
+                onValueChange = onValueChange, // Met à jour le texte
                 decorationBox = { innerTextField ->
                     Column {
                         Box(
@@ -290,9 +225,9 @@ class Sell : ComponentActivity() {
                                 .fillMaxWidth()
                                 .padding(bottom = 4.dp) // Espacement entre le texte et la ligne
                         ) {
-                            if (title.isEmpty()) {
+                            if (value.isEmpty()) {
                                 Text(
-                                    text = "ex: Blue T-shirt", // Placeholder visible
+                                    text = placeholder, // Placeholder visible
                                     color = Color.Gray,
                                     modifier = Modifier.fillMaxWidth()
                                 )
@@ -307,6 +242,5 @@ class Sell : ComponentActivity() {
                 }
             )
         }
-    }*/
-
+    }
 }
