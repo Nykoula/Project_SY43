@@ -39,6 +39,7 @@ import android.os.Environment
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -54,11 +55,13 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.MenuItemColors
+import androidx.compose.material3.RadioButton
 import androidx.compose.runtime.getValue
 import androidx.core.content.FileProvider
 import java.io.File
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.vector.ImageVector
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.firestore
 import com.google.firebase.storage.storage
@@ -157,14 +160,15 @@ class Sell : ComponentActivity() {
         val context = LocalContext.current
         var title by remember { mutableStateOf("") }
         var description by remember { mutableStateOf("") }
-        var category by remember { mutableStateOf("") }
-        var size by remember { mutableStateOf("") }
+        var category by remember { mutableStateOf("Category") }
+        var size by remember { mutableStateOf("Size") }
         var couleur by remember { mutableStateOf("") }
         var brand by remember { mutableStateOf("") }
         var price by remember { mutableStateOf("") }
         var clothes by remember { mutableStateOf("") }
 
-        var expanded by remember { mutableStateOf(false) }
+        var expandedCategory by remember { mutableStateOf(false) }
+        var expandedSize by remember { mutableStateOf(false) }
         val photoList = remember { mutableStateListOf<Uri>() }//Uniform Resource Identifier)
 
         val launcher = rememberLauncherForActivityResult(
@@ -235,56 +239,99 @@ class Sell : ComponentActivity() {
                         .padding(16.dp)
                 ) {
 
-                    Button(onClick = { expanded = !expanded },
+                    Button(onClick = { expandedCategory = !expandedCategory },
                         colors = ButtonDefaults.buttonColors(
                             containerColor = Color(0xFF007782),
                             contentColor = Color.White
                         )
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(text = "Category")
+                            Text(text = category)
                             Spacer(modifier = Modifier.weight(1f))
                             Icon(
-                                imageVector = if (expanded) Icons.Outlined.KeyboardArrowUp else Icons.Outlined.KeyboardArrowDown,
+                                imageVector = if (expandedCategory) Icons.Outlined.KeyboardArrowUp else Icons.Outlined.KeyboardArrowDown,
                                 contentDescription = "Arrow"
                             )
                         }
                     }
 
                     DropdownMenu(
-                        expanded = expanded,
-                        onDismissRequest = { expanded = false },
+                        expanded = expandedCategory,
+                        onDismissRequest = { expandedCategory = false },
                         modifier = Modifier
                             .fillMaxWidth() // Étend le menu déroulant sur toute la largeur du conteneur
                             .background(Color(0xFF007782))
                     ) {
-                        // First section
-                        DropdownMenuItem(
-                            text = { Text(text = "Woman", color = Color.White) },
-                            leadingIcon = { Icon(Icons.Outlined.Woman, contentDescription = null, tint = Color.White) },
-                            onClick = { /* Do something... */ }
-                        )
 
-                        Divider(thickness = 1.dp, color = Color.Gray)
-
-                        // Second section
-                        DropdownMenuItem(
-                            text = { Text(text = "Man", color = Color.White) },
-                            leadingIcon = { Icon(Icons.Outlined.Man, contentDescription = null, tint = Color.White) },
-                            onClick = { /* Do something... */ }
-                        )
-
-                        //HorizontalDivider()
-                        Divider(thickness = 1.dp, color = Color.Gray)
-
-                        // Third section
-                        DropdownMenuItem(
-                            text = { Text(text = "Children", color = Color.White) },
-                            leadingIcon = { Icon(Icons.Outlined.ChildCare, contentDescription = null, tint = Color.White) },
-                            onClick = { /* Do something... */ }
-                        )
+                        listOf(
+                            "Woman" to Icons.Outlined.Woman,
+                            "Man" to Icons.Outlined.Man,
+                            "Children" to Icons.Outlined.ChildCare
+                        ).forEach { (text, icon) ->
+                            DropdownMenuItem(
+                                text = { Text(text = text, color = Color.White) },
+                                leadingIcon = { Icon(imageVector = icon, contentDescription = null, tint = Color.White) },
+                                onClick = {
+                                    category = text // Met à jour la catégorie sélectionnée
+                                    expandedCategory = false // Ferme le menu
+                                }
+                            )
+                            Divider(thickness = 1.dp, color = Color.Gray)
+                        }
                     }
                 }
+
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                ) {
+                    Button(onClick = { expandedSize = !expandedSize },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFF007782),
+                            contentColor = Color.White
+                        )
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(text = size)
+                            Spacer(modifier = Modifier.weight(1f))
+                            Icon(
+                                imageVector = if (expandedSize) Icons.Outlined.KeyboardArrowUp else Icons.Outlined.KeyboardArrowDown,
+                                contentDescription = "Arrow"
+                            )
+                        }
+                    }
+
+                    DropdownMenu(
+                        expanded = expandedSize,
+                        onDismissRequest = { expandedSize = false },
+                        modifier = Modifier
+                            .fillMaxWidth() // Étend le menu déroulant sur toute la largeur du conteneur
+                            .background(Color(0xFF007782))
+                    ) {
+
+                        listOf("XXXS/30/2", "XXS/32/4", "XS/34/6", "S/36/8", "M/38/10", "L/40/12", "XL/42/14", "XXL/44/16", "XXXL/46/18", "4XL/48/20", "5XL/50/22", "6XL/52/24", "7XL/54/26", "8XL/56/28", "9XL/58/30", "Unique size", "other"
+                        ).forEach { selectedSize ->
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.fillMaxWidth().clickable {
+                                    size = selectedSize // Met à jour la sélection
+                                    expandedSize = false // Ferme le menu
+                                }
+                            ){
+                                Text(text = selectedSize, color = Color.White)
+                                Spacer(modifier = Modifier.weight(1f))
+                                RadioButton(
+                                    selected = (size == selectedSize),
+                                    onClick = { size = selectedSize }
+                                )
+                            }
+                            Divider(thickness = 1.dp, color = Color.Gray)
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.width(16.dp))
 
                 Button(
                     onClick = {
