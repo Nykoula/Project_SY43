@@ -40,6 +40,7 @@ import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -53,6 +54,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.MenuItemColors
 import androidx.compose.material3.RadioButton
@@ -62,6 +64,9 @@ import java.io.File
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.constraintlayout.compose.Wrap
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.firestore
 import com.google.firebase.storage.storage
@@ -166,9 +171,11 @@ class Sell : ComponentActivity() {
         var brand by remember { mutableStateOf("") }
         var price by remember { mutableStateOf("") }
         var clothes by remember { mutableStateOf("") }
+        var state by remember { mutableStateOf("State") }
 
         var expandedCategory by remember { mutableStateOf(false) }
         var expandedSize by remember { mutableStateOf(false) }
+        var expandedState by remember { mutableStateOf(false) }
         val photoList = remember { mutableStateListOf<Uri>() }//Uniform Resource Identifier)
 
         val launcher = rememberLauncherForActivityResult(
@@ -324,6 +331,91 @@ class Sell : ComponentActivity() {
                                 RadioButton(
                                     selected = (size == selectedSize),
                                     onClick = { size = selectedSize }
+                                )
+                            }
+                            Divider(thickness = 1.dp, color = Color.Gray)
+                        }
+                    }
+                }
+
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                ) {
+                    Button(onClick = { expandedState = !expandedState },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFF007782),
+                            contentColor = Color.White
+                        )
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween, // Répartit les éléments
+                            modifier = Modifier
+                                .fillMaxWidth()
+                        ) {
+                            Text(text = state)
+                            Spacer(modifier = Modifier.weight(1f))
+                            Icon(
+                                imageVector = if (expandedState) Icons.Outlined.KeyboardArrowUp else Icons.Outlined.KeyboardArrowDown,
+                                contentDescription = "Arrow"
+                            )
+                        }
+                    }
+
+                    DropdownMenu(
+                        expanded = expandedState,
+                        onDismissRequest = { expandedState = false },
+                        modifier = Modifier
+                            .fillMaxWidth() // Étend le menu déroulant sur toute la largeur du conteneur
+                            .background(Color(0xFF007782))
+                    ) {
+
+                        listOf("Neuf avec étiquette" to "Article neuf, jamais porté/utilisé avec " +
+                                "étiquettes ou dans son emballage d'origine.",
+                            "Neuf sans étiquette" to "Article neuf, jamais porté/utilisé sans " +
+                                    "étiquettes ni emballage d'origine.",
+                            "Très bon état" to "Article très peu porté/utilisé qui peut " +
+                                    "présenter de légères imperfections, " +
+                                    "mais qui reste en très bon état. Précise " +
+                                    "avec des photos et une description " +
+                                    "détaillée, les défauts de ton article.",
+                            "Bon état" to "Article porté/utilisé quelques fois, " +
+                                    "présentant des imperfections et des " +
+                                    "signes d'usure. Précise avec des " +
+                                    "photos et une description détaillée, les " +
+                                    "défauts de ton article.",
+                            "Satisfaisant" to "Article porté/utilisé plusieurs fois, " +
+                                    "présentant des imperfections et des " +
+                                    "signes d'usure. Précise avec des " +
+                                    "photos et une description détaillée, les " +
+                                    "défauts de ton article."
+                        ).forEach { (titleState, descriptionState) ->
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.fillMaxWidth().clickable {
+                                    state = titleState // Met à jour la sélection
+                                    expandedState = false // Ferme le menu
+                                }
+                            ){
+                                Column (
+
+                                ){
+                                    Text(text = titleState,
+                                        color = Color.White,
+                                        style = MaterialTheme.typography.bodyLarge,
+                                        fontWeight = FontWeight.Bold)
+                                    Text(text = descriptionState,
+                                        color = Color.White,
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        maxLines = Int.MAX_VALUE, // Permet d'avoir autant de lignes que nécessaire
+                                        overflow = TextOverflow.Ellipsis) // Assure que le texte passe bien à la ligne)
+                                }
+                                Spacer(modifier = Modifier.weight(1f))
+                                RadioButton(
+                                    selected = (state == titleState),
+                                    onClick = { state = titleState }
                                 )
                             }
                             Divider(thickness = 1.dp, color = Color.Gray)
