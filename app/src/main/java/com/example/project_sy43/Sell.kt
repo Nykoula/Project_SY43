@@ -247,7 +247,7 @@ class Sell : ComponentActivity() {
                     value = description, onValueChange = { description = it })
 
                 Spacer(modifier = Modifier.width(16.dp))
-                InputFields("Prix", "0,00 €",
+                InputFields("Price", "0,00 €",
                     value = price, onValueChange = { price = it })
 
                 Spacer(modifier = Modifier.width(16.dp))

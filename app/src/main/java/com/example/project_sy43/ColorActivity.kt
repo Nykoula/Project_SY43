@@ -7,9 +7,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,11 +16,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.outlined.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -31,7 +27,6 @@ import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -49,6 +44,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.lazy.items
 
 @OptIn(ExperimentalMaterial3Api::class)
 class ColorActivity : ComponentActivity() {
@@ -91,43 +87,49 @@ class ColorActivity : ComponentActivity() {
     fun displayColor(modifier: Modifier) {
         var selectedColors by remember { mutableStateOf(setOf<String>()) }
 
-        Column(modifier = modifier
-            .padding(16.dp)
-            .fillMaxSize() // Prend tout l'espace disponible
-            .verticalScroll(rememberScrollState()) // Permet de scroller si le contenu dépasse
-        ) { // Ajoute une colonne pour organiser les éléments
-            Text(text = "Sélectionne 2 couleurs maximum")
+        LazyColumn(
+            modifier = modifier
+                .padding(16.dp)
+                .fillMaxSize() // Prend tout l'espace disponible
+        ) {
+            item {
+                Text(text = "Sélectionne 2 couleurs maximum")
+                Spacer(modifier = Modifier.height(16.dp))
+            }
 
-            listOf(
-                "Black" to Color.Black,
-                "Marron" to Color(0xFF8B4513),
-                "Gris" to Color.Gray,
-                "Beige" to Color(0xFFF5DEB3),
-                "Fushia" to Color.Magenta,
-                "Purple" to Color(0xFF800080),
-                "Red" to Color.Red,
-                "Yellow" to Color.Yellow,
-                "Blue" to Color.Blue,
-                "Green" to Color.Green,
-                "Orange" to Color(0xFFFFA500),
-                "White" to Color.White,
-                "Silver" to Color(0xFFC0C0C0),
-                "Gold" to Color(0xFFFFD700),
-                "Multicolored" to Color.Unspecified,
-                "Khaki" to Color(0xFFF0E68C),
-                "Turquoise" to Color(0xFF40E0D0),
-                "Cream" to Color(0xFFFFFDD0),
-                "Apricot" to Color(0xFFFFDAB9),
-                "Coral" to Color(0xFFFF7F50),
-                "Burgundy" to Color(0xFF800020),
-                "Pink" to Color(0xFFFFC0CB),
-                "Lilac" to Color(0xFFC8A2C8),
-                "Light blue" to Color(0xFFADD8E6),
-                "Navy blue" to Color(0xFF000080),
-                "Dark green" to Color(0xFF006400),
-                "Mustard yellow" to Color(0xFFD4AF37),
-                "Menthe" to Color(0xFF98FF98)
-            ).forEach { (couleur, code) ->
+
+            items(
+                listOf(
+                    "Black" to Color.Black,
+                    "Marron" to Color(0xFF8B4513),
+                    "Gris" to Color.Gray,
+                    "Beige" to Color(0xFFF5DEB3),
+                    "Fushia" to Color.Magenta,
+                    "Purple" to Color(0xFF800080),
+                    "Red" to Color.Red,
+                    "Yellow" to Color.Yellow,
+                    "Blue" to Color.Blue,
+                    "Green" to Color.Green,
+                    "Orange" to Color(0xFFFFA500),
+                    "White" to Color.White,
+                    "Silver" to Color(0xFFC0C0C0),
+                    "Gold" to Color(0xFFFFD700),
+                    "Multicolored" to Color.Unspecified,
+                    "Khaki" to Color(0xFFF0E68C),
+                    "Turquoise" to Color(0xFF40E0D0),
+                    "Cream" to Color(0xFFFFFDD0),
+                    "Apricot" to Color(0xFFFFDAB9),
+                    "Coral" to Color(0xFFFF7F50),
+                    "Burgundy" to Color(0xFF800020),
+                    "Pink" to Color(0xFFFFC0CB),
+                    "Lilac" to Color(0xFFC8A2C8),
+                    "Light blue" to Color(0xFFADD8E6),
+                    "Navy blue" to Color(0xFF000080),
+                    "Dark green" to Color(0xFF006400),
+                    "Mustard yellow" to Color(0xFFD4AF37),
+                    "Menthe" to Color(0xFF98FF98)
+                )
+            ) { (couleur, code) ->
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.fillMaxWidth()
@@ -138,17 +140,24 @@ class ColorActivity : ComponentActivity() {
                             .size(24.dp) // Taille du cercle
                             .clip(CircleShape) // Rend la forme circulaire
                             .background(code) // Change en fonction de la couleur
-                            .then(if (code == Color.White) {
-                                Modifier.border(2.dp, Color.Black, CircleShape)
-                            } else if (couleur == "Multicolored"){
-                                Modifier.background(
-                                    Brush.radialGradient(
-                                    colors = listOf(Color.Red, Color.Yellow, Color.Blue, Color.Green)
-                                ))
-                            }
-                            else {
-                                Modifier
-                            }) // Ajoute une bordure seulement si la couleur est blanche
+                            .then(
+                                if (code == Color.White) {
+                                    Modifier.border(2.dp, Color.Black, CircleShape)
+                                } else if (couleur == "Multicolored") {
+                                    Modifier.background(
+                                        Brush.radialGradient(
+                                            colors = listOf(
+                                                Color.Red,
+                                                Color.Yellow,
+                                                Color.Blue,
+                                                Color.Green
+                                            )
+                                        )
+                                    )
+                                } else {
+                                    Modifier
+                                }
+                            ) // Ajoute une bordure seulement si la couleur est blanche
                     )
                     Spacer(modifier = Modifier.width(16.dp))
                     Text(text = couleur, fontWeight = FontWeight.Bold)
@@ -168,30 +177,33 @@ class ColorActivity : ComponentActivity() {
                 }
                 Divider(thickness = 1.dp, color = Color.Gray)
             }
+            item {
 
-            Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
-            Box(
-                modifier = Modifier.fillMaxWidth(),
-                contentAlignment = Alignment.Center // Centre son contenu automatiquement
-            ){
-                Button(
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF007782),
-                        contentColor = Color.White
-                    ),
-                    onClick = {
-                        val resultIntent = Intent()
-                        resultIntent.putStringArrayListExtra(
-                            "selectedColors",
-                            ArrayList(selectedColors.toList())
-                        ) //conversion en ArrayList<String>
-                        setResult(Activity.RESULT_OK, resultIntent)
-                        finish() // Ferme l'activité et retourne le résultat
-                    }) {
-                    Text(text = "Terminé")
+                Box(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentAlignment = Alignment.Center // Centre son contenu automatiquement
+                ) {
+                    Button(
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFF007782),
+                            contentColor = Color.White
+                        ),
+                        onClick = {
+                            val resultIntent = Intent()
+                            resultIntent.putStringArrayListExtra(
+                                "selectedColors",
+                                ArrayList(selectedColors.toList())
+                            ) //conversion en ArrayList<String>
+                            setResult(Activity.RESULT_OK, resultIntent)
+                            finish() // Ferme l'activité et retourne le résultat
+                        }) {
+                        Text(text = "Terminé")
+                    }
                 }
             }
         }
+
     }
 }
