@@ -1,5 +1,7 @@
 package com.example.project_sy43
 
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -47,6 +49,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.outlined.ChildCare
 import androidx.compose.material.icons.outlined.KeyboardArrowDown
+import androidx.compose.material.icons.outlined.KeyboardArrowRight
 import androidx.compose.material.icons.outlined.KeyboardArrowUp
 import androidx.compose.material.icons.outlined.Man
 import androidx.compose.material.icons.outlined.Woman
@@ -55,18 +58,14 @@ import androidx.compose.material3.Divider
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.MenuDefaults
-import androidx.compose.material3.MenuItemColors
 import androidx.compose.material3.RadioButton
 import androidx.compose.runtime.getValue
 import androidx.core.content.FileProvider
 import java.io.File
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.constraintlayout.compose.Wrap
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.firestore
 import com.google.firebase.storage.storage
@@ -167,7 +166,7 @@ class Sell : ComponentActivity() {
         var description by remember { mutableStateOf("") }
         var category by remember { mutableStateOf("Category") }
         var size by remember { mutableStateOf("Size") }
-        var couleur by remember { mutableStateOf("") }
+        var couleur by remember { mutableStateOf(setOf<String>()) }
         var brand by remember { mutableStateOf("") }
         var price by remember { mutableStateOf("") }
         var clothes by remember { mutableStateOf("") }
@@ -176,6 +175,7 @@ class Sell : ComponentActivity() {
         var expandedCategory by remember { mutableStateOf(false) }
         var expandedSize by remember { mutableStateOf(false) }
         var expandedState by remember { mutableStateOf(false) }
+        var expandedColor by remember { mutableStateOf(false) }
         val photoList = remember { mutableStateListOf<Uri>() }//Uniform Resource Identifier)
 
         val launcher = rememberLauncherForActivityResult(
@@ -185,6 +185,18 @@ class Sell : ComponentActivity() {
                 Log.d("Photo", "Image enregistrée :")
             } else {
                 Log.d("Photo", "Échec de la capture de l'image.")
+            }
+        }
+
+        val launcherColor = rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.StartActivityForResult()
+        ) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                val data = result.data
+                val selectedColors = data?.getStringArrayListExtra("selectedColors")?.toSet() ?: emptySet() //récupere les couleurs
+                couleur = selectedColors // Stocke les couleurs choisies
+            } else {
+                Log.d("ColorFail", "Échec du choix des couleurs.")
             }
         }
 
@@ -421,6 +433,25 @@ class Sell : ComponentActivity() {
                             Divider(thickness = 1.dp, color = Color.Gray)
                         }
                     }
+                }
+
+                Row {
+                    Text(text = "Color")
+                    Spacer(modifier = Modifier.weight(1f))
+                    Icon(
+                        imageVector = Icons.Outlined.KeyboardArrowRight,
+                        contentDescription = "Arrow",
+                        modifier = Modifier.clickable {
+                            val intentColor = Intent(context, ColorActivity::class.java)
+                            launcherColor.launch(intentColor)
+                        }
+                    )
+//                    couleur.forEach{
+//                        it ->
+//                        Column {
+//                            Text(text = it)
+//                        }
+//                    }
                 }
 
                 Spacer(modifier = Modifier.width(16.dp))
