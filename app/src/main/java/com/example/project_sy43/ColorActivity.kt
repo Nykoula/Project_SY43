@@ -204,6 +204,5 @@ class ColorActivity : ComponentActivity() {
                 }
             }
         }
-
     }
 }

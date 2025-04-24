@@ -139,13 +139,20 @@ class Sell : ComponentActivity() {
             }
     }
 
-    fun saveArticleToFirestore(title: String, description: String, price: String, photoUrl: String)
+    fun saveArticleToFirestore(title: String, description: String, price: String, category: String,
+                               size: String, state: String, couleurs: Set<String>,
+                               matieres: Set<String>, photoUrl: String)
     {
         val db = Firebase.firestore
         val article = hashMapOf(
             "title" to title,
             "description" to description,
-            "price" to price,
+            "price" to price, //"" : nom dans la database
+            "category" to category, // to : nom de la variable
+            "size" to size,
+            "state" to state,
+            "color" to couleurs,//color est de type array dans la database
+            "material" to matieres,//material est de type array dans la database
             "photos" to photoUrl
         )
 
@@ -166,7 +173,8 @@ class Sell : ComponentActivity() {
         var description by remember { mutableStateOf("") }
         var category by remember { mutableStateOf("Category") }
         var size by remember { mutableStateOf("Size") }
-        var couleur by remember { mutableStateOf(setOf<String>()) }
+        var couleurs by remember { mutableStateOf(setOf<String>()) }
+        var matieres by remember { mutableStateOf(setOf<String>()) }
         var brand by remember { mutableStateOf("") }
         var price by remember { mutableStateOf("") }
         var clothes by remember { mutableStateOf("") }
@@ -175,7 +183,6 @@ class Sell : ComponentActivity() {
         var expandedCategory by remember { mutableStateOf(false) }
         var expandedSize by remember { mutableStateOf(false) }
         var expandedState by remember { mutableStateOf(false) }
-        var expandedColor by remember { mutableStateOf(false) }
         val photoList = remember { mutableStateListOf<Uri>() }//Uniform Resource Identifier)
 
         val launcher = rememberLauncherForActivityResult(
@@ -194,9 +201,21 @@ class Sell : ComponentActivity() {
             if (result.resultCode == Activity.RESULT_OK) {
                 val data = result.data
                 val selectedColors = data?.getStringArrayListExtra("selectedColors")?.toSet() ?: emptySet() //récupere les couleurs
-                couleur = selectedColors // Stocke les couleurs choisies
+                couleurs = selectedColors // Stocke les couleurs choisies
             } else {
                 Log.d("ColorFail", "Échec du choix des couleurs.")
+            }
+        }
+
+        val launcherMatiere = rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.StartActivityForResult()
+        ) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                val data = result.data
+                val selectedMatieres = data?.getStringArrayListExtra("selectedMatieres")?.toSet() ?: emptySet() //récupere les matières
+                matieres = selectedMatieres // Stocke les matières choisies
+            } else {
+                Log.d("MatiereFail", "Échec du choix des matières.")
             }
         }
 
@@ -329,7 +348,9 @@ class Sell : ComponentActivity() {
                             .background(Color(0xFF007782))
                     ) {
 
-                        listOf("XXXS/30/2", "XXS/32/4", "XS/34/6", "S/36/8", "M/38/10", "L/40/12", "XL/42/14", "XXL/44/16", "XXXL/46/18", "4XL/48/20", "5XL/50/22", "6XL/52/24", "7XL/54/26", "8XL/56/28", "9XL/58/30", "Unique size", "other"
+                        listOf("XXXS/30/2", "XXS/32/4", "XS/34/6", "S/36/8", "M/38/10", "L/40/12",
+                            "XL/42/14", "XXL/44/16", "XXXL/46/18", "4XL/48/20", "5XL/50/22",
+                            "6XL/52/24", "7XL/54/26", "8XL/56/28", "9XL/58/30", "Unique size", "other"
                         ).forEach { selectedSize ->
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
@@ -435,18 +456,22 @@ class Sell : ComponentActivity() {
                     }
                 }
 
-                Row {
+                Row (
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                        .clickable {
+                            val intentColor = Intent(context, ColorActivity::class.java)
+                            launcherColor.launch(intentColor)
+                        }
+                ){
                     Text(text = "Color")
                     Spacer(modifier = Modifier.weight(1f))
                     Icon(
                         imageVector = Icons.Outlined.KeyboardArrowRight,
-                        contentDescription = "Arrow",
-                        modifier = Modifier.clickable {
-                            val intentColor = Intent(context, ColorActivity::class.java)
-                            launcherColor.launch(intentColor)
-                        }
+                        contentDescription = "Arrow"
                     )
-//                    couleur.forEach{
+//                    couleurs.forEach{
 //                        it ->
 //                        Column {
 //                            Text(text = it)
@@ -455,12 +480,34 @@ class Sell : ComponentActivity() {
                 }
 
                 Spacer(modifier = Modifier.width(16.dp))
+                Divider(thickness = 1.dp, color = Color.Gray)
+                Spacer(modifier = Modifier.width(16.dp))
+
+                Row (
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                        .clickable {
+                            val intentMatiere = Intent(context, Matieres::class.java)
+                            launcherMatiere.launch(intentMatiere)
+                        }
+                ){
+                    Text(text = "Matières")
+                    Spacer(modifier = Modifier.weight(1f))
+                    Icon(
+                        imageVector = Icons.Outlined.KeyboardArrowRight,
+                        contentDescription = "Arrow"
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(16.dp))
 
                 Button(
                     onClick = {
                         if (photoList.isNotEmpty()) {
                             uploadPhotoToFirebase(photoList.first()) { photoUrl ->
-                                saveArticleToFirestore(title, description, price, photoUrl)
+                                saveArticleToFirestore(title, description, price, category,
+                                    size, state, couleurs, matieres, photoUrl)
                             }
                         }
                     }, // Contour bleu de 2 dp
