@@ -140,7 +140,7 @@ class Sell : ComponentActivity() {
     }
 
     fun saveArticleToFirestore(title: String, description: String, price: String, category: String,
-                               size: String, state: String, couleurs: Set<String>,
+                               size: Set<String>, state: String, couleurs: Set<String>,
                                matieres: Set<String>, photoUrl: String)
     {
         val db = Firebase.firestore
@@ -169,23 +169,28 @@ class Sell : ComponentActivity() {
     @Composable
     fun SellScreen(modifier: Modifier = Modifier) {
         val context = LocalContext.current
+
+        //pour stocker le résultat de l'utilisateur
         var title by remember { mutableStateOf("") }
         var description by remember { mutableStateOf("") }
         var category by remember { mutableStateOf("Category") }
-        var size by remember { mutableStateOf("Size") }
         var couleurs by remember { mutableStateOf(setOf<String>()) }
         var matieres by remember { mutableStateOf(setOf<String>()) }
+        var size by remember { mutableStateOf(setOf<String>()) }
         var brand by remember { mutableStateOf("") }
         var price by remember { mutableStateOf("") }
         var clothes by remember { mutableStateOf("") }
         var state by remember { mutableStateOf("State") }
+        var colis by remember { mutableStateOf("Format du colis") }
 
+        //état pour chaque menu déroulant
         var expandedCategory by remember { mutableStateOf(false) }
-        var expandedSize by remember { mutableStateOf(false) }
+        var expandedSize by remember { mutableStateOf(false) }//a supp
         var expandedState by remember { mutableStateOf(false) }
+        var expandedColis by remember { mutableStateOf(false) }
         val photoList = remember { mutableStateListOf<Uri>() }//Uniform Resource Identifier)
 
-        val launcher = rememberLauncherForActivityResult(
+        val launcherPicture = rememberLauncherForActivityResult(
             contract = ActivityResultContracts.TakePicture()//TakePicture() pour ouvrir l'appareil photo
         ) { success ->
             if (success) {
@@ -219,6 +224,18 @@ class Sell : ComponentActivity() {
             }
         }
 
+        val launcherSize = rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.StartActivityForResult()
+        ) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                val data = result.data
+                val selectedSize = data?.getStringArrayListExtra("selectedSize")?.toSet() ?: emptySet() //récupere les matières
+                size = selectedSize // Stocke les matières choisies
+            } else {
+                Log.d("SizeFail", "Échec du choix de la taille.")
+            }
+        }
+
         if (context is ComponentActivity) {
             Column(
                 modifier = Modifier
@@ -228,10 +245,11 @@ class Sell : ComponentActivity() {
                     .padding(16.dp), // padding local
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
+                //Bouton pour ajouter une image
                 Button(
                     onClick = {
                         val uri = generateUniqueUri(context) // Générer une URI unique pour chaque photo
-                        launcher.launch(uri)
+                        launcherPicture.launch(uri)
                         photoList.add(uri) // Ajouter l'URI à la liste
                     },
                     colors = ButtonDefaults.buttonColors(
@@ -246,6 +264,7 @@ class Sell : ComponentActivity() {
                         ) // Contour bleu arrondit de 2 dp
                 ) {
                     Row {
+                        // icône + text du bouton
                         Icon(
                             imageVector = Icons.Filled.Add,
                             contentDescription = "add pictures",
@@ -271,12 +290,14 @@ class Sell : ComponentActivity() {
 
                 Spacer(modifier = Modifier.width(16.dp))
 
+                //boutons de menu déroulant
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(16.dp)
                 ) {
 
+                    //Bouton catégorie
                     Button(onClick = { expandedCategory = !expandedCategory },
                         colors = ButtonDefaults.buttonColors(
                             containerColor = Color(0xFF007782),
@@ -319,58 +340,7 @@ class Sell : ComponentActivity() {
                     }
                 }
 
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp)
-                ) {
-                    Button(onClick = { expandedSize = !expandedSize },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFF007782),
-                            contentColor = Color.White
-                        )
-                    ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(text = size)
-                            Spacer(modifier = Modifier.weight(1f))
-                            Icon(
-                                imageVector = if (expandedSize) Icons.Outlined.KeyboardArrowUp else Icons.Outlined.KeyboardArrowDown,
-                                contentDescription = "Arrow"
-                            )
-                        }
-                    }
-
-                    DropdownMenu(
-                        expanded = expandedSize,
-                        onDismissRequest = { expandedSize = false },
-                        modifier = Modifier
-                            .fillMaxWidth() // Étend le menu déroulant sur toute la largeur du conteneur
-                            .background(Color(0xFF007782))
-                    ) {
-
-                        listOf("XXXS/30/2", "XXS/32/4", "XS/34/6", "S/36/8", "M/38/10", "L/40/12",
-                            "XL/42/14", "XXL/44/16", "XXXL/46/18", "4XL/48/20", "5XL/50/22",
-                            "6XL/52/24", "7XL/54/26", "8XL/56/28", "9XL/58/30", "Unique size", "other"
-                        ).forEach { selectedSize ->
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier.fillMaxWidth().clickable {
-                                    size = selectedSize // Met à jour la sélection
-                                    expandedSize = false // Ferme le menu
-                                }
-                            ){
-                                Text(text = selectedSize, color = Color.White)
-                                Spacer(modifier = Modifier.weight(1f))
-                                RadioButton(
-                                    selected = (size == selectedSize),
-                                    onClick = { size = selectedSize }
-                                )
-                            }
-                            Divider(thickness = 1.dp, color = Color.Gray)
-                        }
-                    }
-                }
-
+                //bouton état
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -397,6 +367,7 @@ class Sell : ComponentActivity() {
                         }
                     }
 
+                    //liste des choix du menu déroulant
                     DropdownMenu(
                         expanded = expandedState,
                         onDismissRequest = { expandedState = false },
@@ -456,6 +427,7 @@ class Sell : ComponentActivity() {
                     }
                 }
 
+                //ligne pour la couleur
                 Row (
                     modifier = Modifier
                         .fillMaxWidth()
@@ -483,6 +455,7 @@ class Sell : ComponentActivity() {
                 Divider(thickness = 1.dp, color = Color.Gray)
                 Spacer(modifier = Modifier.width(16.dp))
 
+                //ligne pour le choix des matières
                 Row (
                     modifier = Modifier
                         .fillMaxWidth()
@@ -498,6 +471,99 @@ class Sell : ComponentActivity() {
                         imageVector = Icons.Outlined.KeyboardArrowRight,
                         contentDescription = "Arrow"
                     )
+                }
+
+                Spacer(modifier = Modifier.width(16.dp))
+                Divider(thickness = 1.dp, color = Color.Gray)
+                Spacer(modifier = Modifier.width(16.dp))
+
+                //ligne pour la taille
+                Row (
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                        .clickable {
+                            val intentSize = Intent(context, Matieres::class.java)
+                            launcherSize.launch(intentSize)
+                        }
+                ){
+                    Text(text = "Size")
+                    Spacer(modifier = Modifier.weight(1f))
+                    Icon(
+                        imageVector = Icons.Outlined.KeyboardArrowRight,
+                        contentDescription = "Arrow"
+                    )
+                }
+
+                //liste déroulante pour le format du colis
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                ) {
+                    Button(onClick = { expandedColis = !expandedColis },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFF007782),
+                            contentColor = Color.White
+                        )
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween, // Répartit les éléments
+                            modifier = Modifier
+                                .fillMaxWidth()
+                        ) {
+                            Text(text = colis)
+                            Spacer(modifier = Modifier.weight(1f))
+                            Icon(
+                                imageVector = if (expandedColis) Icons.Outlined.KeyboardArrowUp else Icons.Outlined.KeyboardArrowDown,
+                                contentDescription = "Arrow"
+                            )
+                        }
+                    }
+
+                    //liste des choix du menu déroulant
+                    DropdownMenu(
+                        expanded = expandedColis,
+                        onDismissRequest = { expandedColis = false },
+                        modifier = Modifier
+                            .fillMaxWidth() // Étend le menu déroulant sur toute la largeur du conteneur
+                            .background(Color(0xFF007782))
+                    ) {
+
+                        listOf("Petit" to "Convient pour un article qui tient dans une grande enveloppe.",
+                            "Moyen" to "Convient pour un article qui tient dans une boîte à chaussurs.",
+                            "Grand" to "Convient pour un article qui tient dans un carton de déménagement."
+                        ).forEach { (titleColis, descriptionColis) ->
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.fillMaxWidth().clickable {
+                                    colis = titleColis // Met à jour la sélection
+                                    expandedColis = false // Ferme le menu
+                                }
+                            ){
+                                Column (
+
+                                ){
+                                    Text(text = titleColis,
+                                        color = Color.White,
+                                        style = MaterialTheme.typography.bodyLarge,
+                                        fontWeight = FontWeight.Bold)
+                                    Text(text = descriptionColis,
+                                        color = Color.White,
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        maxLines = Int.MAX_VALUE, // Permet d'avoir autant de lignes que nécessaire
+                                        overflow = TextOverflow.Ellipsis) // Assure que le texte passe bien à la ligne)
+                                }
+                                Spacer(modifier = Modifier.weight(1f))
+                                RadioButton(
+                                    selected = (state == titleColis),
+                                    onClick = { state = titleColis }
+                                )
+                            }
+                            Divider(thickness = 1.dp, color = Color.Gray)
+                        }
+                    }
                 }
 
                 Spacer(modifier = Modifier.width(16.dp))
