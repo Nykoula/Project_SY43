@@ -45,6 +45,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.outlined.ChildCare
@@ -59,11 +60,13 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
+import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.runtime.getValue
 import androidx.core.content.FileProvider
 import java.io.File
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import com.google.firebase.Firebase
@@ -268,6 +271,7 @@ class Sell : ComponentActivity() {
                         Icon(
                             imageVector = Icons.Filled.Add,
                             contentDescription = "add pictures",
+
                             tint = Color(0xFF007782), // Sets icon color
                             modifier = Modifier.size(24.dp) // Sets icon size
                         )
@@ -344,22 +348,24 @@ class Sell : ComponentActivity() {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(16.dp)
+                        .padding(horizontal = 16.dp, vertical = 8.dp)
                 ) {
-                    Button(onClick = { expandedState = !expandedState },
+                    Button(
+                        onClick = { expandedState = !expandedState },
                         colors = ButtonDefaults.buttonColors(
                             containerColor = Color(0xFF007782),
                             contentColor = Color.White
-                        )
+                        ),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(8.dp)) // pour arrondir et éviter les débordements
                     ) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.SpaceBetween, // Répartit les éléments
-                            modifier = Modifier
-                                .fillMaxWidth()
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            modifier = Modifier.fillMaxWidth()
                         ) {
                             Text(text = state)
-                            Spacer(modifier = Modifier.weight(1f))
                             Icon(
                                 imageVector = if (expandedState) Icons.Outlined.KeyboardArrowUp else Icons.Outlined.KeyboardArrowDown,
                                 contentDescription = "Arrow"
@@ -367,65 +373,61 @@ class Sell : ComponentActivity() {
                         }
                     }
 
-                    //liste des choix du menu déroulant
                     DropdownMenu(
                         expanded = expandedState,
                         onDismissRequest = { expandedState = false },
                         modifier = Modifier
-                            .fillMaxWidth() // Étend le menu déroulant sur toute la largeur du conteneur
+                            .fillMaxWidth()
                             .background(Color(0xFF007782))
                     ) {
-
-                        listOf("Neuf avec étiquette" to "Article neuf, jamais porté/utilisé avec " +
-                                "étiquettes ou dans son emballage d'origine.",
-                            "Neuf sans étiquette" to "Article neuf, jamais porté/utilisé sans " +
-                                    "étiquettes ni emballage d'origine.",
-                            "Très bon état" to "Article très peu porté/utilisé qui peut " +
-                                    "présenter de légères imperfections, " +
-                                    "mais qui reste en très bon état. Précise " +
-                                    "avec des photos et une description " +
-                                    "détaillée, les défauts de ton article.",
-                            "Bon état" to "Article porté/utilisé quelques fois, " +
-                                    "présentant des imperfections et des " +
-                                    "signes d'usure. Précise avec des " +
-                                    "photos et une description détaillée, les " +
-                                    "défauts de ton article.",
-                            "Satisfaisant" to "Article porté/utilisé plusieurs fois, " +
-                                    "présentant des imperfections et des " +
-                                    "signes d'usure. Précise avec des " +
-                                    "photos et une description détaillée, les " +
-                                    "défauts de ton article."
+                        listOf(
+                            "Neuf avec étiquette" to "Article neuf, jamais porté/utilisé avec étiquettes ou dans son emballage d'origine.",
+                            "Neuf sans étiquette" to "Article neuf, jamais porté/utilisé sans étiquettes ni emballage d'origine.",
+                            "Très bon état" to "Article très peu porté/utilisé avec de légères imperfections.",
+                            "Bon état" to "Article porté/utilisé quelques fois avec signes d’usure.",
+                            "Satisfaisant" to "Article porté/utilisé plusieurs fois, avec imperfections visibles."
                         ).forEach { (titleState, descriptionState) ->
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier.fillMaxWidth().clickable {
-                                    state = titleState // Met à jour la sélection
-                                    expandedState = false // Ferme le menu
-                                }
-                            ){
-                                Column (
-
-                                ){
-                                    Text(text = titleState,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable {
+                                        state = titleState
+                                        expandedState = false
+                                    }
+                                    .padding(8.dp)
+                            ) {
+                                Column(
+                                    modifier = Modifier.weight(1f)
+                                ) {
+                                    Text(
+                                        text = titleState,
                                         color = Color.White,
                                         style = MaterialTheme.typography.bodyLarge,
-                                        fontWeight = FontWeight.Bold)
-                                    Text(text = descriptionState,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                    Text(
+                                        text = descriptionState,
                                         color = Color.White,
                                         style = MaterialTheme.typography.bodyMedium,
-                                        maxLines = Int.MAX_VALUE, // Permet d'avoir autant de lignes que nécessaire
-                                        overflow = TextOverflow.Ellipsis) // Assure que le texte passe bien à la ligne)
+                                        maxLines = Int.MAX_VALUE,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
                                 }
-                                Spacer(modifier = Modifier.weight(1f))
                                 RadioButton(
                                     selected = (state == titleState),
-                                    onClick = { state = titleState }
+                                    onClick = { state = titleState },
+                                    colors = RadioButtonDefaults.colors(
+                                        selectedColor = Color.White,
+                                        unselectedColor = Color.White
+                                    )
                                 )
                             }
                             Divider(thickness = 1.dp, color = Color.Gray)
                         }
                     }
                 }
+
 
                 //ligne pour la couleur
                 Row (
@@ -501,7 +503,8 @@ class Sell : ComponentActivity() {
                         .fillMaxWidth()
                         .padding(16.dp)
                 ) {
-                    Button(onClick = { expandedColis = !expandedColis },
+                    Button(
+                        onClick = { expandedColis = !expandedColis },
                         colors = ButtonDefaults.buttonColors(
                             containerColor = Color(0xFF007782),
                             contentColor = Color.White
@@ -527,46 +530,56 @@ class Sell : ComponentActivity() {
                         expanded = expandedColis,
                         onDismissRequest = { expandedColis = false },
                         modifier = Modifier
-                            .fillMaxWidth() // Étend le menu déroulant sur toute la largeur du conteneur
+                            .fillMaxWidth()
                             .background(Color(0xFF007782))
+                            .padding(horizontal = 8.dp) // évite le débordement
                     ) {
-
-                        listOf("Petit" to "Convient pour un article qui tient dans une grande enveloppe.",
-                            "Moyen" to "Convient pour un article qui tient dans une boîte à chaussurs.",
+                        listOf(
+                            "Petit" to "Convient pour un article qui tient dans une grande enveloppe.",
+                            "Moyen" to "Convient pour un article qui tient dans une boîte à chaussures.",
                             "Grand" to "Convient pour un article qui tient dans un carton de déménagement."
                         ).forEach { (titleColis, descriptionColis) ->
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier.fillMaxWidth().clickable {
-                                    colis = titleColis // Met à jour la sélection
-                                    expandedColis = false // Ferme le menu
-                                }
-                            ){
-                                Column (
-
-                                ){
-                                    Text(text = titleColis,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable {
+                                        colis = titleColis
+                                        expandedColis = false
+                                    }
+                                    .padding(8.dp) // marge intérieure
+                            ) {
+                                Column(
+                                    modifier = Modifier.weight(1f)
+                                ) {
+                                    Text(
+                                        text = titleColis,
                                         color = Color.White,
                                         style = MaterialTheme.typography.bodyLarge,
-                                        fontWeight = FontWeight.Bold)
-                                    Text(text = descriptionColis,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                    Text(
+                                        text = descriptionColis,
                                         color = Color.White,
                                         style = MaterialTheme.typography.bodyMedium,
-                                        maxLines = Int.MAX_VALUE, // Permet d'avoir autant de lignes que nécessaire
-                                        overflow = TextOverflow.Ellipsis) // Assure que le texte passe bien à la ligne)
+                                        maxLines = Int.MAX_VALUE,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
                                 }
-                                Spacer(modifier = Modifier.weight(1f))
                                 RadioButton(
-                                    selected = (state == titleColis),
-                                    onClick = { state = titleColis }
+                                    selected = (colis == titleColis),
+                                    onClick = { colis = titleColis },
+                                    colors = RadioButtonDefaults.colors(
+                                        selectedColor = Color.White,
+                                        unselectedColor = Color.White
+                                    )
                                 )
                             }
                             Divider(thickness = 1.dp, color = Color.Gray)
                         }
                     }
                 }
-
-                Spacer(modifier = Modifier.width(16.dp))
+                    Spacer(modifier = Modifier.width(16.dp))
 
                 Button(
                     onClick = {

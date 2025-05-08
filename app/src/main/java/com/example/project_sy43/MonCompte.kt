@@ -49,10 +49,10 @@ class MonCompte : ComponentActivity(){
                                 horizontalArrangement = Arrangement.SpaceEvenly
                             ){
                                 onglet(Icons.Filled.Home, "Home", "Home icon", Color(0xFF007782), MonCompte::class.java)
-                                onglet(Icons.Filled.Search, "Search", "Search icon", Color.Black, Sell::class.java)//A CHANGER
+                                onglet(Icons.Filled.Search, "Search", "Search icon", Color.Black, MonCompte::class.java)//A CHANGER
                                 onglet(Icons.Filled.AddCircleOutline, "Sell", "Sell icon", Color.Black, Sell::class.java)//A CHANGER
-                                onglet(Icons.Filled.MailOutline, "Message", "Message icon", Color.Black, Sell::class.java)//A CHANGER
-                                onglet(Icons.Filled.PersonOutline, "Profile", "Profil icon", Color.Black, MainActivity::class.java)//A CHANGER
+                                onglet(Icons.Filled.MailOutline, "Message", "Message icon", Color.Black, MonCompte::class.java)//A CHANGER
+                                onglet(Icons.Filled.PersonOutline, "Profile", "Profil icon", Color.Black, MonCompte::class.java)//A CHANGER
                             }
                         }
                     )

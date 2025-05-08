@@ -53,6 +53,7 @@ class MainActivity : ComponentActivity() {
         }
     }
     @Composable
+
     fun Accueil() {
         val context = LocalContext.current
 
