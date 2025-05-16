@@ -485,7 +485,7 @@ class Sell : ComponentActivity() {
                         .fillMaxWidth()
                         .padding(16.dp)
                         .clickable {
-                            val intentSize = Intent(context, Matieres::class.java)
+                            val intentSize = Intent(context, Size::class.java)
                             launcherSize.launch(intentSize)
                         }
                 ){
