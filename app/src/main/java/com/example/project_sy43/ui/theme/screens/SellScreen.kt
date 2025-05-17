@@ -75,23 +75,24 @@ import java.io.File
 
 @Composable
 fun SellScreen(navController: NavController, sellViewModel: SellViewModel = viewModel()) {
+
     val context = LocalContext.current
+
     //pour stocker le résultat de l'utilisateur
-    var title by remember { mutableStateOf("") }
-    var description by remember { mutableStateOf("") }
-    var category by remember { mutableStateOf("Category") }
-    var couleurs by remember { mutableStateOf(setOf<String>()) }
-    var matieres by remember { mutableStateOf(setOf<String>()) }
-    var size by remember { mutableStateOf(setOf<String>()) }
-    var brand by remember { mutableStateOf("") }
-    var price by remember { mutableStateOf("") }
-    var clothes by remember { mutableStateOf("") }
-    var state by remember { mutableStateOf("State") }
-    var colis by remember { mutableStateOf("Format du colis") }
+    var title by sellViewModel.productTitle
+    var description by sellViewModel.productDescription
+    var category by sellViewModel.selectedCategory
+    var couleurs by sellViewModel.selectedColors
+    var matieres by sellViewModel.selectedMaterial
+    var size by sellViewModel.selectedSize
+    var price by sellViewModel.productPrice
+    var state by sellViewModel.selectedState
+    var colis by sellViewModel.selectedColis
+    //var brand by remember { mutableStateOf("") }
+    //var clothes by remember { mutableStateOf("") }
 
     //état pour chaque menu déroulant
     var expandedCategory by remember { mutableStateOf(false) }
-    var expandedSize by remember { mutableStateOf(false) }//a supp
     var expandedState by remember { mutableStateOf(false) }
     var expandedColis by remember { mutableStateOf(false) }
     val photoList = remember { mutableStateListOf<Uri>() }//Uniform Resource Identifier)
@@ -103,45 +104,6 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
             Log.d("Photo", "Image enregistrée :")
         } else {
             Log.d("Photo", "Échec de la capture de l'image.")
-        }
-    }
-
-    val launcherColor = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        if (result.resultCode == Activity.RESULT_OK) {
-            val data = result.data
-            val selectedColors = data?.getStringArrayListExtra("selectedColors")?.toSet()
-                ?: emptySet() //récupere les couleurs
-            couleurs = selectedColors // Stocke les couleurs choisies
-        } else {
-            Log.d("ColorFail", "Échec du choix des couleurs.")
-        }
-    }
-
-    val launcherMatiere = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        if (result.resultCode == Activity.RESULT_OK) {
-            val data = result.data
-            val selectedMatieres = data?.getStringArrayListExtra("selectedMatieres")?.toSet()
-                ?: emptySet() //récupere les matières
-            matieres = selectedMatieres // Stocke les matières choisies
-        } else {
-            Log.d("MatiereFail", "Échec du choix des matières.")
-        }
-    }
-
-    val launcherSize = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        if (result.resultCode == Activity.RESULT_OK) {
-            val data = result.data
-            val selectedSize = data?.getStringArrayListExtra("selectedSize")?.toSet()
-                ?: emptySet() //récupere les matières
-            size = selectedSize // Stocke les matières choisies
-        } else {
-            Log.d("SizeFail", "Échec du choix de la taille.")
         }
     }
 
@@ -199,16 +161,22 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
             InputFields(
                 "Title", "ex: Blue T-shirt",
                 value = title, onValueChange = { title = it })
+            //A SUPP
+            //Text(text = sellViewModel.productTitle.value.ifEmpty { "None" })
 
             Spacer(modifier = Modifier.width(16.dp))
             InputFields(
                 "Description", "ex: worn a few times, true to size",
                 value = description, onValueChange = { description = it })
+            //A SUPP
+            //Text(text = sellViewModel.productDescription.value.ifEmpty { "None" })
 
             Spacer(modifier = Modifier.width(16.dp))
             InputFields(
                 "Price", "0,00 €",
                 value = price, onValueChange = { price = it })
+            //A SUPP
+            //Text(text = sellViewModel.productPrice.value.ifEmpty { "None" })
 
             Spacer(modifier = Modifier.width(16.dp))
 
@@ -228,7 +196,7 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
                     )
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(text = category)
+                        Text(text = if (category.isNotEmpty()) category else "Category")
                         Spacer(modifier = Modifier.weight(1f))
                         Icon(
                             imageVector = if (expandedCategory) Icons.Outlined.KeyboardArrowUp else Icons.Outlined.KeyboardArrowDown,
@@ -269,6 +237,9 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
                 }
             }
 
+            //A SUPP
+            //Text(text = sellViewModel.selectedCategory.value.ifEmpty { "None" })
+
             //bouton état
             Box(
                 modifier = Modifier
@@ -290,7 +261,7 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
                         horizontalArrangement = Arrangement.SpaceBetween,
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text(text = state)
+                        Text(text = if (state.isNotEmpty()) state else "État")
                         Icon(
                             imageVector = if (expandedState) Icons.Outlined.KeyboardArrowUp else Icons.Outlined.KeyboardArrowDown,
                             contentDescription = "Arrow"
@@ -353,6 +324,9 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
                 }
             }
 
+            //A SUPP
+            //Text(text = sellViewModel.selectedState.value.ifEmpty { "None" })
+
 
             //ligne pour la couleur
             Row(
@@ -365,17 +339,15 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
             ) {
                 Text(text = "Color")
                 Spacer(modifier = Modifier.weight(1f))
+                //A SUPP
+                val colorsText = if (sellViewModel.selectedColors.value.isEmpty()) "None"
+                else sellViewModel.selectedColors.value.joinToString(", ")
+                Text(text = colorsText)
                 Icon(
                     imageVector = Icons.Outlined.KeyboardArrowRight,
                     contentDescription = "Arrow"
                 )
-//                    couleurs.forEach{
-//                        it ->
-//                        Column {
-//                            Text(text = it)
-//                        }
-//                    }
-                //Text("Couleurs sélectionnées : ${sellViewModel.selectedColors.toList().joinToString()}")//pour tester a supprimer
+                //Text(text = "Couleurs sélectionnées : ${couleurs.joinToString()}")
 
 
             }
@@ -399,6 +371,10 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
                     imageVector = Icons.Outlined.KeyboardArrowRight,
                     contentDescription = "Arrow"
                 )
+                //A SUPP
+                val materialsText = if (sellViewModel.selectedMaterial.value.isEmpty()) "None"
+                else sellViewModel.selectedMaterial.value.joinToString(", ")
+                Text(text = materialsText)
             }
 
             Spacer(modifier = Modifier.width(16.dp))
@@ -416,6 +392,8 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
             ) {
                 Text(text = "Size")
                 Spacer(modifier = Modifier.weight(1f))
+                //A SUPP
+                Text(text = sellViewModel.selectedSize.value.ifEmpty { "None" }) // Affiche la taille ou "None"
                 Icon(
                     imageVector = Icons.Outlined.KeyboardArrowRight,
                     contentDescription = "Arrow"
@@ -441,7 +419,7 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
                         modifier = Modifier
                             .fillMaxWidth()
                     ) {
-                        Text(text = colis)
+                        Text(text = if (colis.isNotEmpty()) colis else "Format du colis")
                         Spacer(modifier = Modifier.weight(1f))
                         Icon(
                             imageVector = if (expandedColis) Icons.Outlined.KeyboardArrowUp else Icons.Outlined.KeyboardArrowDown,
@@ -504,18 +482,14 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
                     }
                 }
             }
+
+            //A SUPP
+            //Text(text = sellViewModel.selectedColis.value.ifEmpty { "None" })
+
             Spacer(modifier = Modifier.width(16.dp))
 
             Button(
                 onClick = {
-//                    if (photoList.isNotEmpty()) {
-//                        uploadPhotoToFirebase(photoList.first()) { photoUrl ->
-//                            saveArticleToFirestore(
-//                                title, description, price, category,
-//                                size, state, couleurs, matieres, photoUrl
-//                            )
-//                        }
-//                    }
                     if (sellViewModel.productPhotoUri != null) {
                         uploadPhotoToFirebase(sellViewModel.productPhotoUri!!) { photoUrl ->
                             saveArticleToFirestore(

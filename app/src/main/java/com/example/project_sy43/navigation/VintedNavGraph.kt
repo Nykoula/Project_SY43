@@ -12,6 +12,8 @@ import com.example.project_sy43.ui.theme.screens.MonCompte
 import com.example.project_sy43.ui.theme.screens.SellScreen
 import com.example.project_sy43.ui.theme.screens.SignUpScreen
 import com.example.project_sy43.ui.theme.screens.ColorScreen
+import com.example.project_sy43.ui.theme.screens.MatieresScreen
+import com.example.project_sy43.ui.theme.screens.SizeScreen
 import com.example.project_sy43.viewmodel.SellViewModel
 
 @Composable
@@ -47,11 +49,24 @@ fun VintedNavGraph(navController: NavHostController, viewModelProduct: ProductVi
         }
         composable(route = VintedScreen.Sell.name) {
             SellScreen(
-                navController = navController
+                navController = navController,
+                sellViewModel = viewModelSell
             )
         }
         composable(route = VintedScreen.ColorScreen.name) {
             ColorScreen(
+                navController = navController,
+                sellViewModel = viewModelSell
+            )
+        }
+        composable(route = VintedScreen.Matieres.name) {
+            MatieresScreen(
+                navController = navController,
+                sellViewModel = viewModelSell
+            )
+        }
+        composable(route = VintedScreen.Size.name) {
+            SizeScreen(
                 navController = navController,
                 sellViewModel = viewModelSell
             )

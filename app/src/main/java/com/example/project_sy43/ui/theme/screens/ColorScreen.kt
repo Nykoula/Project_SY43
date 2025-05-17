@@ -44,8 +44,8 @@ import com.example.project_sy43.ui.theme.components.VintedTopBar
 import com.example.project_sy43.viewmodel.SellViewModel
 
 @Composable
-fun ColorScreen(navController: NavController, sellViewModel: SellViewModel = viewModel()){
-    var selectedColors by remember { mutableStateOf(setOf<String>()) }
+fun ColorScreen(navController: NavController, sellViewModel: SellViewModel){
+    var selectedColors by sellViewModel.selectedColors
 
     Scaffold(
         topBar = {
@@ -133,10 +133,10 @@ fun ColorScreen(navController: NavController, sellViewModel: SellViewModel = vie
                         onCheckedChange = { isChecked ->
                             if (isChecked) {
                                 if (selectedColors.size < 2) {
-                                    selectedColors = selectedColors + couleur
+                                    sellViewModel.setSelectedColors(selectedColors + couleur)
                                 }
                             } else {
-                                selectedColors = selectedColors - couleur
+                                sellViewModel.setSelectedColors(selectedColors - couleur)
                             }
                         }
                     )
@@ -158,7 +158,7 @@ fun ColorScreen(navController: NavController, sellViewModel: SellViewModel = vie
                         ),
                         onClick = {
                             // Enregistrer les couleurs dans le viewmodel partagé
-                            sellViewModel.setSelectedColors(selectedColors.toList())
+                            sellViewModel.setSelectedColors(selectedColors)
                             // Retourner à l'écran précédent
                             navController.popBackStack()
                         }) {

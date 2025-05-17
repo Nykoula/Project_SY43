@@ -12,16 +12,12 @@ class SellViewModel : ViewModel(){
     var productPrice = mutableStateOf("")
     var selectedCategory = mutableStateOf("")
     var selectedState = mutableStateOf("")
-    var selectedColors = mutableStateOf<List<String>>(emptyList())
-    var selectedMaterial = mutableStateOf<List<String>>(emptyList())
+    var selectedColors = mutableStateOf(emptySet<String>())
+    var selectedMaterial = mutableStateOf(emptySet<String>())
     var selectedSize = mutableStateOf("")
     var selectedColis = mutableStateOf("")
     var productPhotoUri by mutableStateOf<Uri?>(null)
         private set
-
-    //var productPhotoUrl by mutableStateOf("")
-        //private set
-
 
     fun setProductTitle(title: String) {
         productTitle.value = title
@@ -43,11 +39,11 @@ class SellViewModel : ViewModel(){
         selectedState.value = state
     }
 
-    fun setSelectedColors(colors: List<String>) {
+    fun setSelectedColors(colors: Set<String>) {
         selectedColors.value = colors
     }
 
-    fun setSelectedMaterial(material: List<String>) {
+    fun setSelectedMaterial(material: Set<String>) {
         selectedMaterial.value = material
     }
 
@@ -70,8 +66,8 @@ class SellViewModel : ViewModel(){
         productPrice.value = ""
         selectedCategory.value = ""
         selectedState.value = ""
-        selectedColors.value = emptyList()
-        selectedMaterial.value = emptyList()
+        selectedColors.value = emptySet()
+        selectedMaterial.value = emptySet()
         selectedSize.value = ""
         selectedColis.value = ""
         productPhotoUri = null
