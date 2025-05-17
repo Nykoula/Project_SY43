@@ -10,9 +10,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -25,6 +31,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.project_sy43.ui.theme.components.VintedTopBar
@@ -48,6 +56,7 @@ fun SignUpScreen(navController: NavController){
     val calendar = Calendar.getInstance() // Récupère la date et l'heure actuelles
     val dateFormat = SimpleDateFormat("yyyy-MM-dd") // Format désiré : "2025-04-19"
     val currentDate = dateFormat.format(calendar.time) // Convertit en chaîne formatée
+    var isPasswordVisible by remember { mutableStateOf(false) } // État pour basculer visibilité
 
     var status by remember { mutableStateOf("") }
     val context = LocalContext.current
@@ -112,9 +121,22 @@ fun SignUpScreen(navController: NavController){
             OutlinedTextField(
                 value = password,
                 onValueChange = { password = it },
-                label = { Text("Password") },
-                modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text("Password") }
+                placeholder = { Text("Password") },
+                trailingIcon = {
+                    IconButton(
+                        onClick = { isPasswordVisible = !isPasswordVisible } // Bascule visibilité
+                    ) {
+                        Icon(
+                            imageVector = if (isPasswordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                            contentDescription = if (isPasswordVisible) "Hide password" else "Show password",
+                            tint = Color.Gray
+                        )
+                    }
+                },
+                modifier = Modifier
+                    .fillMaxWidth(),
+                visualTransformation = if (isPasswordVisible) VisualTransformation.None
+                else PasswordVisualTransformation(), // Texte masqué ou non
             )
             Spacer(modifier = Modifier.height(16.dp))
 
