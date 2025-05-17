@@ -609,7 +609,8 @@ class Sell : ComponentActivity() {
     fun InputFields(label: String,
                     placeholder: String,
                     value: String, // La valeur actuelle du champ
-                    onValueChange: (String) -> Unit) {// Callback pour mettre à jour la valeur) {
+                    onValueChange: (String) -> Unit)
+    {// Callback pour mettre à jour la valeur) {
         Column(
             modifier = Modifier.padding(16.dp)
         ) {
