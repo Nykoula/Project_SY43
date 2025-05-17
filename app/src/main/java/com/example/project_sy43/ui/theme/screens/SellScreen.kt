@@ -1,11 +1,8 @@
 package com.example.project_sy43.ui.theme.screens
 
-import android.app.Activity
-import android.content.Intent
 import android.net.Uri
 import android.os.Environment
 import android.util.Log
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -57,9 +54,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.example.project_sy43.ColorActivity
-import com.example.project_sy43.Matieres
-import com.example.project_sy43.Size
 import androidx.navigation.NavController
 import androidx.compose.material3.Scaffold
 import androidx.core.content.FileProvider

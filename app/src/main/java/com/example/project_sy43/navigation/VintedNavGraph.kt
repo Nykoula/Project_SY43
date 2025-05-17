@@ -13,6 +13,9 @@ import com.example.project_sy43.ui.theme.screens.SellScreen
 import com.example.project_sy43.ui.theme.screens.SignUpScreen
 import com.example.project_sy43.ui.theme.screens.ColorScreen
 import com.example.project_sy43.ui.theme.screens.MatieresScreen
+import com.example.project_sy43.ui.theme.screens.Messages
+import com.example.project_sy43.ui.theme.screens.Profile
+import com.example.project_sy43.ui.theme.screens.Search
 import com.example.project_sy43.ui.theme.screens.SizeScreen
 import com.example.project_sy43.viewmodel.SellViewModel
 
@@ -69,6 +72,30 @@ fun VintedNavGraph(navController: NavHostController, viewModelProduct: ProductVi
             SizeScreen(
                 navController = navController,
                 sellViewModel = viewModelSell
+            )
+        }
+        composable(route = VintedScreen.Search.name) {
+            Search(
+                navController = navController,
+                onCancel = {
+                    navController.popBackStack()
+                }
+            )
+        }
+        composable(route = VintedScreen.Messages.name) {
+            Messages(
+                navController = navController,
+                onCancel = {
+                    navController.popBackStack()
+                }
+            )
+        }
+        composable(route = VintedScreen.Profile.name) {
+            Profile(
+                navController = navController,
+                onCancel = {
+                    navController.popBackStack()
+                }
             )
         }
     }

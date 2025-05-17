@@ -27,8 +27,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.project_sy43.navigation.VintedScreen
-import com.example.project_sy43.ui.theme.components.VintedBottomBar
 import com.example.project_sy43.ui.theme.components.VintedTopBar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
