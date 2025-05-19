@@ -7,6 +7,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
 import com.example.project_sy43.navigation.VintedNavGraph
 import com.example.project_sy43.ui.theme.theme.Project_SY43Theme
+import com.example.project_sy43.viewmodel.PersonViewModel
 import com.example.project_sy43.viewmodel.ProductViewModel
 import com.example.project_sy43.viewmodel.SellViewModel
 
@@ -18,7 +19,8 @@ class MainActivity : ComponentActivity() {
                 val navController = rememberNavController()
                 val productViewModel: ProductViewModel = viewModel()
                 val sellViewModel: SellViewModel = viewModel()
-                VintedNavGraph(navController, productViewModel, sellViewModel)
+                val personViewModel: PersonViewModel = viewModel()
+                VintedNavGraph(navController, productViewModel, sellViewModel, personViewModel)
             }
         }
     }

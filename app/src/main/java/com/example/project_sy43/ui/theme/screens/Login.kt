@@ -38,10 +38,12 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.project_sy43.R
 import com.example.project_sy43.navigation.VintedScreen
 import com.google.firebase.auth.FirebaseAuth
 import androidx.navigation.NavController
+import com.example.project_sy43.viewmodel.PersonViewModel
 
 @Composable
 fun LoginScreen(
@@ -54,6 +56,7 @@ fun LoginScreen(
     var isPasswordVisible by remember { mutableStateOf(false) } // État pour basculer visibilité
     var errorMessage by remember { mutableStateOf("") }
     val authentification = FirebaseAuth.getInstance()
+    val personViewModel: PersonViewModel = viewModel()
 
     Column(
         modifier = Modifier
@@ -141,6 +144,7 @@ fun LoginScreen(
                     .addOnCompleteListener { task ->
                         if (task.isSuccessful) {
                             errorMessage = ""
+                            personViewModel.fetchPerson()  // récupère les données après connexion
                             navController.navigate(VintedScreen.MonCompte.name) {
                                 popUpTo(VintedScreen.Login.name) { inclusive = true }
                             }

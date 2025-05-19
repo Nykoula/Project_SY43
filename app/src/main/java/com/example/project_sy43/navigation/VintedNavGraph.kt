@@ -19,10 +19,11 @@ import com.example.project_sy43.ui.theme.screens.Profile
 import com.example.project_sy43.ui.theme.screens.Search
 import com.example.project_sy43.ui.theme.screens.Setting
 import com.example.project_sy43.ui.theme.screens.SizeScreen
+import com.example.project_sy43.viewmodel.PersonViewModel
 import com.example.project_sy43.viewmodel.SellViewModel
 
 @Composable
-fun VintedNavGraph(navController: NavHostController, viewModelProduct: ProductViewModel, viewModelSell: SellViewModel) {
+fun VintedNavGraph(navController: NavHostController, viewModelProduct: ProductViewModel, viewModelSell: SellViewModel, viewModelPerson: PersonViewModel) {
     NavHost(navController = navController, startDestination = VintedScreen.Accueil.name) {
         composable(route = VintedScreen.Accueil.name) {
             Accueil(
@@ -94,6 +95,7 @@ fun VintedNavGraph(navController: NavHostController, viewModelProduct: ProductVi
         }
         composable(route = VintedScreen.Profile.name) {
             Profile(
+                personViewModel = viewModelPerson,
                 navController = navController,
                 onCancel = {
                     navController.popBackStack()
