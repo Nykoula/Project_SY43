@@ -342,8 +342,6 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
                     contentDescription = "Arrow"
                 )
                 //Text(text = "Couleurs sélectionnées : ${couleurs.joinToString()}")
-
-
             }
 
             Spacer(modifier = Modifier.width(16.dp))

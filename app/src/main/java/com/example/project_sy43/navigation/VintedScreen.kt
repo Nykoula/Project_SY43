@@ -11,5 +11,7 @@ enum class VintedScreen {
     Size,
     Search,
     Messages,
-    Profile
+    Profile,
+    Setting,
+    Dressing
 }

@@ -12,10 +12,12 @@ import com.example.project_sy43.ui.theme.screens.MonCompte
 import com.example.project_sy43.ui.theme.screens.SellScreen
 import com.example.project_sy43.ui.theme.screens.SignUpScreen
 import com.example.project_sy43.ui.theme.screens.ColorScreen
+import com.example.project_sy43.ui.theme.screens.Dressing
 import com.example.project_sy43.ui.theme.screens.MatieresScreen
 import com.example.project_sy43.ui.theme.screens.Messages
 import com.example.project_sy43.ui.theme.screens.Profile
 import com.example.project_sy43.ui.theme.screens.Search
+import com.example.project_sy43.ui.theme.screens.Setting
 import com.example.project_sy43.ui.theme.screens.SizeScreen
 import com.example.project_sy43.viewmodel.SellViewModel
 
@@ -92,6 +94,22 @@ fun VintedNavGraph(navController: NavHostController, viewModelProduct: ProductVi
         }
         composable(route = VintedScreen.Profile.name) {
             Profile(
+                navController = navController,
+                onCancel = {
+                    navController.popBackStack()
+                }
+            )
+        }
+        composable(route = VintedScreen.Setting.name) {
+            Setting(
+                navController = navController,
+                onCancel = {
+                    navController.popBackStack()
+                }
+            )
+        }
+        composable(route = VintedScreen.Dressing.name) {
+            Dressing(
                 navController = navController,
                 onCancel = {
                     navController.popBackStack()
