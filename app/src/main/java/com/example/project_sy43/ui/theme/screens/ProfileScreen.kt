@@ -68,13 +68,9 @@ fun Profile(
                 Column {
                     //text avec nom user
                     Text(
-                        text = personViewModel.person?.firstName ?: "Nom inconnu",
+                        text = personViewModel.person?.firstName ?: "Prénom inconnu",
                         style = MaterialTheme.typography.bodyLarge
                     )
-//                    Text(
-//                        "${personViewModel.person?.firstName}",
-//                        style = MaterialTheme.typography.bodyLarge
-//                    )
                     Text(
                         text = "Voir mon dressing",
                         style = MaterialTheme.typography.bodyMedium

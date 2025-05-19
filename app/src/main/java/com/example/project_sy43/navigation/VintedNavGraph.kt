@@ -112,6 +112,7 @@ fun VintedNavGraph(navController: NavHostController, viewModelProduct: ProductVi
         }
         composable(route = VintedScreen.Dressing.name) {
             Dressing(
+                personViewModel = viewModelPerson,
                 navController = navController,
                 onCancel = {
                     navController.popBackStack()
