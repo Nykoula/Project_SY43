@@ -40,7 +40,7 @@ fun Profile(
         modifier = Modifier.fillMaxSize(),
         containerColor = Color.White,
         topBar = {
-            VintedTopBar(title = "Profil", navController)
+            VintedTopBar(title = "Profil", navController, false)
         },
         bottomBar = {
             VintedBottomBar(navController, VintedScreen.Profile)

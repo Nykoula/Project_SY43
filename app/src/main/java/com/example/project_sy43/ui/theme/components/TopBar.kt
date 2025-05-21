@@ -1,6 +1,7 @@
 package com.example.project_sy43.ui.theme.components
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.Composable
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -48,7 +49,7 @@ fun VintedTopBar(
                     navController.popBackStack()
                 }) {
                     Icon(
-                        imageVector = Icons.Filled.Close,
+                        imageVector = Icons.Filled.ArrowBack,
                         contentDescription = "Retour",
                         tint = Color.White
                     )
