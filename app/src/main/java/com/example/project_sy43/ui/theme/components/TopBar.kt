@@ -1,5 +1,9 @@
 package com.example.project_sy43.ui.theme.components
 
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.Composable
@@ -9,8 +13,11 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.project_sy43.navigation.VintedScreen
 
@@ -18,9 +25,9 @@ import com.example.project_sy43.navigation.VintedScreen
 @Composable
 fun VintedTopBar(
     title: String,
-    //onBackClick: (() -> Unit)? = null // si null, pas d'icône
     navController: NavController,
-    canGoBack: Boolean = true
+    canGoBack: Boolean = true, // si false, pas d'icône
+    description: String = ""
 ) {
 
     TopAppBar(
@@ -28,7 +35,25 @@ fun VintedTopBar(
             containerColor = Color(0xFF007782),
             titleContentColor = Color.White,
         ),
-        title = { Text(title) },
+        /*Column(
+            modifier = Modifier.fillMaxWidth()
+        ){
+            title = { Text(title) },
+            Spacer(modifier = WatchEvent.Modifier.padding(8.dp))
+            description = { Text(description) },
+        }*/
+        title = {
+            Column(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(text = title)
+                if (description.isNotEmpty()){
+                    Spacer(modifier = Modifier.padding(top = 4.dp))
+                    Text(text = description, style = MaterialTheme.typography.bodyMedium)
+                }
+            }
+        },
+
         navigationIcon = {
 //            onBackClick?.let {//redirige vers l'écran de connexion -> petit problème
 //                IconButton(onClick = it) {

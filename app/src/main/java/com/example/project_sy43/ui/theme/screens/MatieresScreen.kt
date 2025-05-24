@@ -24,6 +24,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.project_sy43.navigation.VintedScreen
+import com.example.project_sy43.ui.theme.components.ButtonBottomBar
+import com.example.project_sy43.ui.theme.components.VintedBottomBar
 import com.example.project_sy43.ui.theme.components.VintedTopBar
 import com.example.project_sy43.viewmodel.SellViewModel
 
@@ -34,7 +37,16 @@ fun MatieresScreen(navController: NavController, sellViewModel: SellViewModel) {
 
     Scaffold(
         topBar = {
-            VintedTopBar(title = "Matière (recommandé)",navController, true)
+            VintedTopBar(title = "Matière (recommandé)",navController, true, description = "Sélectionne jusqu'à 3 options")
+        },
+        bottomBar = {
+            ButtonBottomBar(
+                navController,
+                VintedScreen.Matieres,
+                onSaveClicked = {
+                    sellViewModel.setSelectedMaterial(selectedMatieres)
+                }
+            )
         }
     ) { innerPadding ->
         LazyColumn(
@@ -42,10 +54,10 @@ fun MatieresScreen(navController: NavController, sellViewModel: SellViewModel) {
                 .padding(innerPadding)
                 .fillMaxSize() // Prend tout l'espace disponible
         ) {
-            item {
+            /*item {
                 Text(text = "Sélectionne jusqu'à 3 options", color = Color.Gray)
                 Spacer(modifier = Modifier.height(16.dp))
-            }
+            }*/
 
 
             items(
@@ -87,7 +99,7 @@ fun MatieresScreen(navController: NavController, sellViewModel: SellViewModel) {
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                Box(
+                /*Box(
                     modifier = Modifier.fillMaxWidth(),
                     contentAlignment = Alignment.Center // Centre son contenu automatiquement
                 ) {
@@ -104,7 +116,7 @@ fun MatieresScreen(navController: NavController, sellViewModel: SellViewModel) {
                         }) {
                         Text(text = "Terminé")
                     }
-                }
+                }*/
             }
         }
     }

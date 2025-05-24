@@ -31,6 +31,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.project_sy43.navigation.VintedScreen
+import com.example.project_sy43.ui.theme.components.ButtonBottomBar
 import com.example.project_sy43.ui.theme.components.VintedTopBar
 import com.example.project_sy43.viewmodel.SellViewModel
 
@@ -40,7 +42,16 @@ fun ColorScreen(navController: NavController, sellViewModel: SellViewModel){
 
     Scaffold(
         topBar = {
-            VintedTopBar(title = "Color",navController, true)
+            VintedTopBar(title = "Color",navController, true, description = "Sélectionne 2 couleurs maximum")
+        },
+        bottomBar = {
+            ButtonBottomBar(
+                navController,
+                VintedScreen.ColorScreen,
+                onSaveClicked = {
+                    sellViewModel.setSelectedColors(selectedColors)
+                }
+            )
         }
     ) { innerPadding ->
         LazyColumn(
@@ -49,10 +60,10 @@ fun ColorScreen(navController: NavController, sellViewModel: SellViewModel){
                 .padding(innerPadding)
                 .fillMaxSize() // Prend tout l'espace disponible
         ) {
-            item {
+            /*item {
                 Text(text = "Sélectionne 2 couleurs maximum")
                 Spacer(modifier = Modifier.height(16.dp))
-            }
+            }*/
 
             items(
                 listOf(
@@ -138,7 +149,7 @@ fun ColorScreen(navController: NavController, sellViewModel: SellViewModel){
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                Box(
+                /*Box(
                     modifier = Modifier.fillMaxWidth(),
                     contentAlignment = Alignment.Center // Centre son contenu automatiquement
                 ) {
@@ -155,7 +166,7 @@ fun ColorScreen(navController: NavController, sellViewModel: SellViewModel){
                         }) {
                         Text(text = "Terminé")
                     }
-                }
+                }*/
             }
         }
     }
