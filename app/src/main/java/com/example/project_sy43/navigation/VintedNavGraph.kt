@@ -21,6 +21,8 @@ import com.example.project_sy43.ui.theme.screens.Setting
 import com.example.project_sy43.ui.theme.screens.SizeScreen
 import com.example.project_sy43.viewmodel.PersonViewModel
 import com.example.project_sy43.viewmodel.SellViewModel
+import com.example.project_sy43.ui.theme.screens.UpdatePassword
+import com.example.project_sy43.ui.theme.screens.UpdateProfile
 
 @Composable
 fun VintedNavGraph(navController: NavHostController, viewModelProduct: ProductViewModel, viewModelSell: SellViewModel, viewModelPerson: PersonViewModel) {
@@ -118,6 +120,12 @@ fun VintedNavGraph(navController: NavHostController, viewModelProduct: ProductVi
                     navController.popBackStack()
                 }
             )
+        }
+        composable(VintedScreen.UpdatePassword.name) {
+            UpdatePassword(navController = navController)
+        }
+        composable(VintedScreen.UpdateProfile.name) {
+            UpdateProfile(navController = navController,onCancel = {})
         }
     }
 }
