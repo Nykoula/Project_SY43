@@ -64,6 +64,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalConfiguration
+import java.security.MessageDigest
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -374,7 +375,6 @@ fun SignUpScreen(navController: NavController) {
                                         "firstName" to firstName,
                                         "age" to age,
                                         "email" to email,
-                                        "password" to password,
                                         "phoneNumber" to phoneNumber,
                                         "address" to address,
                                         "dateCreation" to currentDate,
