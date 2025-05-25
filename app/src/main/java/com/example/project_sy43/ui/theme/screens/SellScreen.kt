@@ -782,6 +782,7 @@ fun uploadPhotosToFirebase(
     }
 }
 
+
 fun saveArticleToFirestore(
     title: String,
     description: String,
@@ -794,16 +795,28 @@ fun saveArticleToFirestore(
     colis: String,
     photoUrls: List<String>
 ) {
+    // Log des valeurs pour le débogage
+    Log.d("Firestore", "Title: $title")
+    Log.d("Firestore", "Description: $description")
+    Log.d("Firestore", "Price: $price")
+    Log.d("Firestore", "Category: $category")
+    Log.d("Firestore", "State: $state")
+    Log.d("Firestore", "Couleurs: $couleurs")
+    Log.d("Firestore", "Matieres: $matieres")
+    Log.d("Firestore", "Size: $size")
+    Log.d("Firestore", "Colis: $colis")
+    Log.d("Firestore", "Photo URLs: $photoUrls")
+
     val db = Firebase.firestore
     val article = hashMapOf(
         "title" to title,
         "description" to description,
-        "price" to price,
+        "price" to price.toDoubleOrNull(), // Convertir le prix en nombre
         "category" to category,
         "size" to size,
         "state" to state,
-        "color" to couleurs,
-        "material" to matieres,
+        "color" to couleurs.toList(),
+        "material" to matieres.toList(),
         "colis" to colis,
         "photos" to photoUrls
     )
