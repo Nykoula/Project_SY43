@@ -205,7 +205,9 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
                     modifier = Modifier
                         .border(2.dp, Color(0xFF007782), RoundedCornerShape(16.dp))
                 ) {
-                    Row {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
                         Icon(
                             imageVector = Icons.Filled.Add,
                             contentDescription = "add pictures",
@@ -215,6 +217,7 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(text = "Add pictures (${photoList.size})")
                     }
+
                 }
 
                 // Menu pour choisir entre appareil photo et galerie
@@ -405,7 +408,10 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
                             }
                             RadioButton(
                                 selected = (state == titleState),
-                                onClick = { state = titleState },
+                                onClick = {
+                                    state = titleState
+                                    expandedState = false
+                                },
                                 colors = RadioButtonDefaults.colors(
                                     selectedColor = Color.White,
                                     unselectedColor = Color.White
