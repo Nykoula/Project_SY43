@@ -37,7 +37,7 @@ fun SizeScreen(navController: NavController, sellViewModel: SellViewModel) {
         LazyColumn(
             modifier = Modifier
                 .padding(innerPadding)
-                .fillMaxSize() // Prend tout l'espace disponible
+                .fillMaxSize()
         ) {
             items(
                 listOf(

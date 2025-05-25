@@ -1,5 +1,6 @@
 package com.example.project_sy43.ui.theme.screens
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -37,7 +38,7 @@ fun MatieresScreen(navController: NavController, sellViewModel: SellViewModel) {
 
     Scaffold(
         topBar = {
-            VintedTopBar(title = "Matière (recommandé)",navController, true, description = "Sélectionne jusqu'à 3 options")
+            VintedTopBar(title = "Matière (recommandé)", navController, true, description = "Sélectionne jusqu'à 3 options")
         },
         bottomBar = {
             ButtonBottomBar(
@@ -52,14 +53,8 @@ fun MatieresScreen(navController: NavController, sellViewModel: SellViewModel) {
         LazyColumn(
             modifier = Modifier
                 .padding(innerPadding)
-                .fillMaxSize() // Prend tout l'espace disponible
+                .fillMaxSize()
         ) {
-            /*item {
-                Text(text = "Sélectionne jusqu'à 3 options", color = Color.Gray)
-                Spacer(modifier = Modifier.height(16.dp))
-            }*/
-
-
             items(
                 listOf(
                     "Acier", "Acrylique", "Alpaga", "Argent", "Bambou", "Bois",
@@ -73,14 +68,26 @@ fun MatieresScreen(navController: NavController, sellViewModel: SellViewModel) {
                     "Tweed", "Velours", "Velours côtelé", "Verre", "Viscose"
                 )
             ) { matiere ->
+                val isChecked = selectedMatieres.contains(matiere)
+
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            if (isChecked) {
+                                selectedMatieres = selectedMatieres - matiere
+                            } else {
+                                if (selectedMatieres.size < 3) {
+                                    selectedMatieres = selectedMatieres + matiere
+                                }
+                            }
+                        }
                 ) {
                     Text(text = matiere, fontWeight = FontWeight.Bold)
                     Spacer(modifier = Modifier.weight(1f))
                     Checkbox(
-                        checked = selectedMatieres.contains(matiere),
+                        checked = isChecked,
                         onCheckedChange = { isChecked ->
                             if (isChecked) {
                                 if (selectedMatieres.size < 3) {
@@ -96,27 +103,7 @@ fun MatieresScreen(navController: NavController, sellViewModel: SellViewModel) {
             }
 
             item {
-
                 Spacer(modifier = Modifier.height(16.dp))
-
-                /*Box(
-                    modifier = Modifier.fillMaxWidth(),
-                    contentAlignment = Alignment.Center // Centre son contenu automatiquement
-                ) {
-                    Button(
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFF007782),
-                            contentColor = Color.White
-                        ),
-                        onClick = {
-                            // Enregistrer les matières dans le viewmodel partagé
-                            sellViewModel.setSelectedMaterial(selectedMatieres)
-                            // Retourner à l'écran précédent
-                            navController.popBackStack()
-                        }) {
-                        Text(text = "Terminé")
-                    }
-                }*/
             }
         }
     }

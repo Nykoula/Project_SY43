@@ -28,6 +28,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -62,6 +63,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
@@ -205,7 +207,9 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
                     modifier = Modifier
                         .border(2.dp, Color(0xFF007782), RoundedCornerShape(16.dp))
                 ) {
-                    Row {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
                         Icon(
                             imageVector = Icons.Filled.Add,
                             contentDescription = "add pictures",
@@ -215,6 +219,7 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(text = "Add pictures (${photoList.size})")
                     }
+
                 }
 
                 // Menu pour choisir entre appareil photo et galerie
@@ -405,7 +410,10 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
                             }
                             RadioButton(
                                 selected = (state == titleState),
-                                onClick = { state = titleState },
+                                onClick = {
+                                    state = titleState
+                                    expandedState = false
+                                },
                                 colors = RadioButtonDefaults.colors(
                                     selectedColor = Color.White,
                                     unselectedColor = Color.White
@@ -448,18 +456,29 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
                     .padding(16.dp)
                     .clickable {
                         navController.navigate(VintedScreen.Matieres.name)
-                    }
+                    },
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(text = "Matières")
                 Spacer(modifier = Modifier.weight(1f))
-                val materialsText = if (sellViewModel.selectedMaterial.value.isEmpty()) "None"
-                else sellViewModel.selectedMaterial.value.joinToString(", ")
-                Text(text = materialsText)
+                Column(
+                    horizontalAlignment = Alignment.End,
+                    modifier = Modifier.weight(2f)
+                ) {
+                    val materialsText = if (sellViewModel.selectedMaterial.value.isEmpty()) "None"
+                    else sellViewModel.selectedMaterial.value.joinToString(", ")
+                    Text(
+                        text = materialsText,
+                        maxLines = Int.MAX_VALUE,
+                        overflow = TextOverflow.Visible
+                    )
+                }
                 Icon(
                     imageVector = Icons.Outlined.KeyboardArrowRight,
                     contentDescription = "Arrow"
                 )
             }
+
 
             Spacer(modifier = Modifier.height(16.dp))
             Divider(thickness = 1.dp, color = Color.Gray)
@@ -553,7 +572,9 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
                             }
                             RadioButton(
                                 selected = (colis == titleColis),
-                                onClick = { colis = titleColis },
+                                onClick = {
+                                    colis = titleColis
+                                    expandedColis = false },
                                 colors = RadioButtonDefaults.colors(
                                     selectedColor = Color.White,
                                     unselectedColor = Color.White
@@ -666,6 +687,12 @@ fun InputFields(
         BasicTextField(
             value = value,
             onValueChange = onValueChange,
+            keyboardOptions = if (label == "Price") {
+                KeyboardOptions(keyboardType = KeyboardType.Decimal)
+            } else {
+                KeyboardOptions.Default
+            },
+            singleLine = true,
             decorationBox = { innerTextField ->
                 Column {
                     Box(
@@ -755,6 +782,7 @@ fun uploadPhotosToFirebase(
     }
 }
 
+
 fun saveArticleToFirestore(
     title: String,
     description: String,
@@ -767,16 +795,28 @@ fun saveArticleToFirestore(
     colis: String,
     photoUrls: List<String>
 ) {
+    // Log des valeurs pour le débogage
+    Log.d("Firestore", "Title: $title")
+    Log.d("Firestore", "Description: $description")
+    Log.d("Firestore", "Price: $price")
+    Log.d("Firestore", "Category: $category")
+    Log.d("Firestore", "State: $state")
+    Log.d("Firestore", "Couleurs: $couleurs")
+    Log.d("Firestore", "Matieres: $matieres")
+    Log.d("Firestore", "Size: $size")
+    Log.d("Firestore", "Colis: $colis")
+    Log.d("Firestore", "Photo URLs: $photoUrls")
+
     val db = Firebase.firestore
     val article = hashMapOf(
         "title" to title,
         "description" to description,
-        "price" to price,
+        "price" to price.toDoubleOrNull(), // Convertir le prix en nombre
         "category" to category,
         "size" to size,
         "state" to state,
-        "color" to couleurs,
-        "material" to matieres,
+        "color" to couleurs.toList(),
+        "material" to matieres.toList(),
         "colis" to colis,
         "photos" to photoUrls
     )
