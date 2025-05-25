@@ -1,18 +1,22 @@
 package com.example.project_sy43.ui.theme.screens
 
 import android.widget.Toast
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.outlined.Cake
 import androidx.compose.material.icons.outlined.Email
 import androidx.compose.material.icons.outlined.Home
@@ -22,11 +26,15 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -41,6 +49,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Popup
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.project_sy43.navigation.VintedScreen
@@ -49,7 +58,12 @@ import com.example.project_sy43.ui.theme.components.VintedTopBar
 import com.example.project_sy43.viewmodel.PersonViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Date
+import java.util.Locale
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UpdateProfile(
     personViewModel: PersonViewModel = viewModel(),
@@ -65,7 +79,13 @@ fun UpdateProfile(
     var firstName by remember { mutableStateOf("") }
     var lastName by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
-    var age by remember { mutableStateOf("") }
+    var showDatePicker by remember { mutableStateOf(false) }
+    val datePickerState = rememberDatePickerState()
+    var dateOfBirth = datePickerState.selectedDateMillis?.let {
+        convertMillisToDateOfBirth(it)
+    } ?: ""
+    var age by remember { mutableStateOf(0) }
+    var selectedDateMillis by remember { mutableStateOf<Long?>(null) }
     var address by remember { mutableStateOf("") }
     var phoneNumber by remember { mutableStateOf("") }
 
@@ -76,6 +96,7 @@ fun UpdateProfile(
     var ageError by remember { mutableStateOf("") }
     var addressError by remember { mutableStateOf("") }
     var phoneError by remember { mutableStateOf("") }
+    var dateOfBirthError by remember { mutableStateOf("") }
 
     // État pour le bouton de chargement
     var isLoading by remember { mutableStateOf(false) }
@@ -90,9 +111,10 @@ fun UpdateProfile(
                         firstName = document.getString("firstName") ?: ""
                         lastName = document.getString("lastName") ?: ""
                         email = document.getString("email") ?: currentUser?.email ?: ""
-                        age = document.getString("age") ?: ""
+                        age = document.getLong("age")?.toInt() ?: 0
                         address = document.getString("address") ?: ""
                         phoneNumber = document.getString("phoneNumber") ?: ""
+                        dateOfBirth = document.getString("dateOfBirth") ?: ""
                         isDataLoaded = true
                     }
                 }
@@ -106,6 +128,16 @@ fun UpdateProfile(
         }
     }
 
+    //met a jour la date d'anniversaire
+    LaunchedEffect(datePickerState.selectedDateMillis) {
+        selectedDateMillis = datePickerState.selectedDateMillis
+    }
+
+    //recalcule l'age des que la date d'anniversaire change
+    LaunchedEffect(selectedDateMillis) {
+        age = selectedDateMillis?.let { calculateAgeWithDateOfBirth(it) } ?: 0
+    }
+
     // Fonction de validation
     fun validateFields(): Boolean {
         var isValid = true
@@ -117,6 +149,7 @@ fun UpdateProfile(
         ageError = ""
         addressError = ""
         phoneError = ""
+        dateOfBirthError = ""
 
         // Validation du prénom
         if (firstName.trim().isEmpty()) {
@@ -143,23 +176,6 @@ fun UpdateProfile(
         } else if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email.trim()).matches()) {
             emailError = "Format d'email invalide"
             isValid = false
-        }
-
-        // Validation de l'âge
-        if (age.trim().isEmpty()) {
-            ageError = "L'âge est requis"
-            isValid = false
-        } else {
-            try {
-                val ageInt = age.trim().toInt()
-                if (ageInt < 13 || ageInt > 120) {
-                    ageError = "L'âge doit être entre 13 et 120 ans"
-                    isValid = false
-                }
-            } catch (e: NumberFormatException) {
-                ageError = "L'âge doit être un nombre valide"
-                isValid = false
-            }
         }
 
         // Validation de l'adresse
@@ -194,9 +210,10 @@ fun UpdateProfile(
                 "firstName" to firstName.trim(),
                 "lastName" to lastName.trim(),
                 "email" to email.trim(),
-                "age" to age.trim(),
+                "age" to age,
                 "address" to address.trim(),
-                "phoneNumber" to phoneNumber.trim()
+                "phoneNumber" to phoneNumber.trim(),
+                "dateOfBirth" to dateOfBirth.trim()
             )
 
             db.collection("Person").document(uid)
@@ -306,18 +323,63 @@ fun UpdateProfile(
                             keyboardType = KeyboardType.Email
                         )
 
+                        // Date de naissance
+                        OutlinedTextField(
+                            value = dateOfBirth,
+                            onValueChange = { },
+                            label = { Text("Date Of Birth") },
+                            readOnly = true,
+                            trailingIcon = {
+                                IconButton(onClick = { showDatePicker = !showDatePicker }) {
+                                    Icon(
+                                        imageVector = Icons.Default.DateRange,
+                                        contentDescription = "Select date of birth",
+                                        tint = Color(0xFF007782)
+                                    )
+                                }
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(64.dp)
+                        )
+
+                        if (showDatePicker) {
+                            Popup(
+                                onDismissRequest = { showDatePicker = false },
+                                alignment = Alignment.TopStart
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .offset(y = 64.dp)
+                                        .background(MaterialTheme.colorScheme.surface)
+                                        .padding(16.dp)
+                                ) {
+                                    DatePicker(
+                                        state = datePickerState,
+                                        showModeToggle = false
+                                    )
+                                }
+                            }
+                        }
+
                         // Âge
-                        EditableField(
+                        /*EditableField(
                             label = "Âge",
-                            value = age,
+                            value = age.toString(),
                             onValueChange = {
-                                age = it
+                                val newAge = it.toIntOrNull()
+                                if (newAge != null) {
+                                    age = newAge
+                                } else {
+                                    ageError = "Âge invalide"
+                                }
                                 ageError = ""
                             },
                             icon = Icons.Outlined.Cake,
                             error = ageError,
                             keyboardType = KeyboardType.Number
-                        )
+                        )*/
 
                         // Adresse
                         EditableField(
@@ -397,7 +459,7 @@ fun EditableField(
             keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
             modifier = Modifier.fillMaxWidth(),
             isError = error.isNotEmpty(),
-            singleLine = true
+            singleLine = true //forcer le champ a rester sur une seule ligne
         )
 
         if (error.isNotEmpty()) {
@@ -409,4 +471,22 @@ fun EditableField(
             )
         }
     }
+}
+
+fun convertMillisToDateOfBirth(millis: Long): String {
+    val formatter = SimpleDateFormat("MM/dd/yyyy", Locale.getDefault())
+    return formatter.format(Date(millis))
+}
+
+fun calculateAgeWithDateOfBirth(birthDateMillis: Long): Int {
+    val dateOfBirth = Calendar.getInstance().apply { timeInMillis = birthDateMillis }
+    val today = Calendar.getInstance()
+
+    var age = today.get(Calendar.YEAR) - dateOfBirth.get(Calendar.YEAR)
+
+    // Si la date d'anniversaire n'est pas encore passée cette année, on réduit d'un an
+    if (today.get(Calendar.DAY_OF_YEAR) < dateOfBirth.get(Calendar.DAY_OF_YEAR)) {
+        age--
+    }
+    return age
 }

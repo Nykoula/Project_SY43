@@ -73,9 +73,10 @@ fun Profile(
     var userEmail by remember { mutableStateOf(currentUser?.email ?: "Email non disponible") }
     var userFirstName by remember { mutableStateOf("") }
     var userLastName by remember { mutableStateOf("") }
-    var userAge by remember { mutableStateOf("") }
+    var userAge by remember { mutableStateOf(0) }
     var userAddress by remember { mutableStateOf("") }
     var userPhone by remember { mutableStateOf("") }
+    var userDate by remember { mutableStateOf("") }
 
     // Charger les informations utilisateur depuis Firestore
     LaunchedEffect(userId) {
@@ -86,9 +87,10 @@ fun Profile(
                     if (document != null && document.exists()) {
                         userFirstName = document.getString("firstName") ?: "Prénom non renseigné"
                         userLastName = document.getString("lastName") ?: "Nom non renseigné"
-                        userAge = document.getString("age") ?: "Âge non renseigné"
+                        userAge = document.getLong("age")?.toInt() ?: 0
                         userAddress = document.getString("address") ?: "Adresse non renseignée"
                         userPhone = document.getString("phoneNumber") ?: "Téléphone non renseigné" // ✅ phoneNumber
+                        userDate = document.getString("dateOfBirth") ?: "Date de naissance non renseigné"
                         // Email vient déjà de Firebase Auth
                         userEmail = document.getString("email") ?: currentUser?.email ?: "Email non disponible"
                     }
@@ -97,9 +99,10 @@ fun Profile(
                     // Fallback sur PersonViewModel si erreur
                     userFirstName = personViewModel.person?.firstName ?: "Prénom non disponible"
                     userLastName = personViewModel.person?.lastName ?: "Nom non disponible"
-                    userAge = "Âge non disponible"
+                    userAge = 0
                     userAddress = "Adresse non disponible"
                     userPhone = "Téléphone non disponible"
+                    userDate = "Date de naissance non disponible"
                 }
         }
     }
