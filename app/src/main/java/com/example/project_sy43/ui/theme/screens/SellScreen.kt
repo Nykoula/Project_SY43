@@ -28,6 +28,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -62,6 +63,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
@@ -570,7 +572,9 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
                             }
                             RadioButton(
                                 selected = (colis == titleColis),
-                                onClick = { colis = titleColis },
+                                onClick = {
+                                    colis = titleColis
+                                    expandedColis = false },
                                 colors = RadioButtonDefaults.colors(
                                     selectedColor = Color.White,
                                     unselectedColor = Color.White
@@ -683,6 +687,12 @@ fun InputFields(
         BasicTextField(
             value = value,
             onValueChange = onValueChange,
+            keyboardOptions = if (label == "Price") {
+                KeyboardOptions(keyboardType = KeyboardType.Decimal)
+            } else {
+                KeyboardOptions.Default
+            },
+            singleLine = true,
             decorationBox = { innerTextField ->
                 Column {
                     Box(
