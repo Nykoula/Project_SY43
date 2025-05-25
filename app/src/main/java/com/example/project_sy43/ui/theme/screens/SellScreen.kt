@@ -39,6 +39,7 @@ import androidx.compose.material.icons.outlined.KeyboardArrowRight
 import androidx.compose.material.icons.outlined.KeyboardArrowUp
 import androidx.compose.material.icons.outlined.Man
 import androidx.compose.material.icons.outlined.Woman
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Divider
@@ -84,6 +85,9 @@ import java.io.File
 fun SellScreen(navController: NavController, sellViewModel: SellViewModel = viewModel()) {
 
     val context = LocalContext.current
+    val scrollState = rememberScrollState()
+    var showDialog by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf("") }
 
     // Pour stocker le résultat de l'utilisateur
     var title by sellViewModel.productTitle
@@ -146,6 +150,48 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
         uri?.let {
             photoList.add(it)
             Log.d("Photo", "Photo sélectionnée depuis la galerie: $it")
+        }
+    }
+
+    fun validateFields(): Boolean {
+        return when {
+            title.isEmpty() -> {
+                errorMessage = "Title is required"
+                false
+            }
+            description.isEmpty() -> {
+                errorMessage = "Description is required"
+                false
+            }
+            price.isEmpty() -> {
+                errorMessage = "Price is required"
+                false
+            }
+            category.isEmpty() -> {
+                errorMessage = "Category is required"
+                false
+            }
+            state.isEmpty() -> {
+                errorMessage = "State is required"
+                false
+            }
+            couleurs.isEmpty() -> {
+                errorMessage = "Color is required"
+                false
+            }
+            matieres.isEmpty() -> {
+                errorMessage = "Material is required"
+                false
+            }
+            size.isEmpty() -> {
+                errorMessage = "Size is required"
+                false
+            }
+            colis.isEmpty() -> {
+                errorMessage = "Colis is required"
+                false
+            }
+            else -> true
         }
     }
 
@@ -591,8 +637,24 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
             // Bouton pour publier l'article
             Button(
                 onClick = {
-                    if (photoList.isNotEmpty()) {
-                        uploadPhotosToFirebase(photoList) { photoUrls ->
+                    if (validateFields()) {
+                        if (photoList.isNotEmpty()) {
+                            uploadPhotosToFirebase(photoList) { photoUrls ->
+                                saveArticleToFirestore(
+                                    sellViewModel.productTitle.value,
+                                    sellViewModel.productDescription.value,
+                                    sellViewModel.productPrice.value,
+                                    sellViewModel.selectedCategory.value,
+                                    sellViewModel.selectedState.value,
+                                    sellViewModel.selectedColors.value.toSet(),
+                                    sellViewModel.selectedMaterial.value.toSet(),
+                                    sellViewModel.selectedSize.value,
+                                    sellViewModel.selectedColis.value,
+                                    photoUrls
+                                )
+                            }
+                        } else {
+                            // Gérer le cas sans photos
                             saveArticleToFirestore(
                                 sellViewModel.productTitle.value,
                                 sellViewModel.productDescription.value,
@@ -603,23 +665,12 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
                                 sellViewModel.selectedMaterial.value.toSet(),
                                 sellViewModel.selectedSize.value,
                                 sellViewModel.selectedColis.value,
-                                photoUrls
+                                emptyList()
                             )
                         }
+                        navController.navigate(VintedScreen.MonCompte.name)
                     } else {
-                        // Gérer le cas sans photos
-                        saveArticleToFirestore(
-                            sellViewModel.productTitle.value,
-                            sellViewModel.productDescription.value,
-                            sellViewModel.productPrice.value,
-                            sellViewModel.selectedCategory.value,
-                            sellViewModel.selectedState.value,
-                            sellViewModel.selectedColors.value.toSet(),
-                            sellViewModel.selectedMaterial.value.toSet(),
-                            sellViewModel.selectedSize.value,
-                            sellViewModel.selectedColis.value,
-                            emptyList()
-                        )
+                        showDialog = true
                     }
                 },
                 colors = ButtonDefaults.buttonColors(
@@ -633,6 +684,20 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
                 Text(text = "Add")
             }
         }
+    }
+    if (showDialog) {
+        AlertDialog(
+            onDismissRequest = { showDialog = false },
+            title = { Text(text = "Error") },
+            text = { Text(text = errorMessage) },
+            confirmButton = {
+                Button(
+                    onClick = { showDialog = false }
+                ) {
+                    Text("OK")
+                }
+            }
+        )
     }
 }
 
