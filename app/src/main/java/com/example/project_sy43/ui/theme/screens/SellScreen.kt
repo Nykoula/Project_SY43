@@ -454,18 +454,29 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
                     .padding(16.dp)
                     .clickable {
                         navController.navigate(VintedScreen.Matieres.name)
-                    }
+                    },
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(text = "Matières")
                 Spacer(modifier = Modifier.weight(1f))
-                val materialsText = if (sellViewModel.selectedMaterial.value.isEmpty()) "None"
-                else sellViewModel.selectedMaterial.value.joinToString(", ")
-                Text(text = materialsText)
+                Column(
+                    horizontalAlignment = Alignment.End,
+                    modifier = Modifier.weight(2f)
+                ) {
+                    val materialsText = if (sellViewModel.selectedMaterial.value.isEmpty()) "None"
+                    else sellViewModel.selectedMaterial.value.joinToString(", ")
+                    Text(
+                        text = materialsText,
+                        maxLines = Int.MAX_VALUE,
+                        overflow = TextOverflow.Visible
+                    )
+                }
                 Icon(
                     imageVector = Icons.Outlined.KeyboardArrowRight,
                     contentDescription = "Arrow"
                 )
             }
+
 
             Spacer(modifier = Modifier.height(16.dp))
             Divider(thickness = 1.dp, color = Color.Gray)
