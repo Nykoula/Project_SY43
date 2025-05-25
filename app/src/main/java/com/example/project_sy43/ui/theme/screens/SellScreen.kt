@@ -77,6 +77,7 @@ import com.example.project_sy43.ui.theme.components.VintedBottomBar
 import com.example.project_sy43.ui.theme.components.VintedTopBar
 import com.example.project_sy43.viewmodel.SellViewModel
 import com.google.firebase.Firebase
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.firestore
 import com.google.firebase.storage.storage
 import java.io.File
@@ -90,6 +91,7 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
     var errorMessage by remember { mutableStateOf("") }
 
     // Pour stocker le résultat de l'utilisateur
+    val userId = FirebaseAuth.getInstance().currentUser?.uid //stocker l'id utilisateur
     var title by sellViewModel.productTitle
     var description by sellViewModel.productDescription
     var category by sellViewModel.selectedCategory
@@ -641,6 +643,7 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
                         if (photoList.isNotEmpty()) {
                             uploadPhotosToFirebase(photoList) { photoUrls ->
                                 saveArticleToFirestore(
+                                    userId.toString(),
                                     sellViewModel.productTitle.value,
                                     sellViewModel.productDescription.value,
                                     sellViewModel.productPrice.value,
@@ -656,6 +659,7 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
                         } else {
                             // Gérer le cas sans photos
                             saveArticleToFirestore(
+                                userId.toString(),
                                 sellViewModel.productTitle.value,
                                 sellViewModel.productDescription.value,
                                 sellViewModel.productPrice.value,
@@ -849,6 +853,7 @@ fun uploadPhotosToFirebase(
 
 
 fun saveArticleToFirestore(
+    userId: String,
     title: String,
     description: String,
     price: String,
@@ -874,6 +879,7 @@ fun saveArticleToFirestore(
 
     val db = Firebase.firestore
     val article = hashMapOf(
+        "userId" to userId,
         "title" to title,
         "description" to description,
         "price" to price.toDoubleOrNull(), // Convertir le prix en nombre

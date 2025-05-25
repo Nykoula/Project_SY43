@@ -7,6 +7,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 
 class SellViewModel : ViewModel(){
+    var idUser = mutableStateOf("")
     var productTitle = mutableStateOf("")
     var productDescription = mutableStateOf("")
     var productPrice = mutableStateOf("")

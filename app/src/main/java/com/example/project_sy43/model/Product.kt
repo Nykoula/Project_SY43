@@ -1,6 +1,7 @@
 package com.example.project_sy43.model
 
 data class Product (
+    val userId: String, // équivalent de foreign key
     val title: String,
     val description: String,
     val category: String,
