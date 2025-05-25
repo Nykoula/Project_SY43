@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
@@ -34,6 +35,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextDecoration
@@ -50,10 +52,10 @@ fun LoginScreen(
     navController: NavController,
     onCancel: () -> Unit
 ) {
-    var email by remember { mutableStateOf("") }// État pour gérer l'entrée utilisateur
+    var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     val image = painterResource(R.drawable.baseline_account_circle_24)
-    var isPasswordVisible by remember { mutableStateOf(false) } // État pour basculer visibilité
+    var isPasswordVisible by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("") }
     val authentification = FirebaseAuth.getInstance()
     val personViewModel: PersonViewModel = viewModel()
@@ -68,7 +70,7 @@ fun LoginScreen(
         Image(
             painter = image,
             contentDescription = null,
-            modifier = Modifier.size(120.dp), // Sets the image size
+            modifier = Modifier.size(120.dp),
             colorFilter = ColorFilter.tint(Color(0xFF007782))
         )
 
@@ -96,7 +98,7 @@ fun LoginScreen(
             onValueChange = { password = it },
             leadingIcon = {
                 Icon(
-                    imageVector = Icons.Default.Lock, // Icône de cadenas
+                    imageVector = Icons.Default.Lock,
                     contentDescription = "Password Icon",
                     tint = Color(0xFF007782)
                 )
@@ -104,7 +106,7 @@ fun LoginScreen(
             placeholder = { Text("Password") },
             trailingIcon = {
                 IconButton(
-                    onClick = { isPasswordVisible = !isPasswordVisible } // Bascule visibilité
+                    onClick = { isPasswordVisible = !isPasswordVisible }
                 ) {
                     Icon(
                         imageVector = if (isPasswordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
@@ -116,7 +118,8 @@ fun LoginScreen(
             modifier = Modifier
                 .fillMaxWidth(),
             visualTransformation = if (isPasswordVisible) VisualTransformation.None
-            else PasswordVisualTransformation(), // Texte masqué ou non
+            else PasswordVisualTransformation(),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
         )
 
         if (errorMessage.isNotEmpty()) {
@@ -133,18 +136,19 @@ fun LoginScreen(
         Spacer(modifier = Modifier.height(16.dp))
         Button(
             onClick = {
-                // Étape 1 : Vérifier que les champs ne sont pas vides
                 if (email.isEmpty() || password.isEmpty()) {
                     errorMessage = "Veuillez compléter les champs requis."
                     return@Button
                 }
 
-                // Étape 2 : Vérifier l'authentification Firebase
-                authentification.signInWithEmailAndPassword(email, password)
+                // Normaliser l'email
+                val normalizedEmail = email.trim().lowercase()
+
+                authentification.signInWithEmailAndPassword(normalizedEmail, password)
                     .addOnCompleteListener { task ->
                         if (task.isSuccessful) {
                             errorMessage = ""
-                            personViewModel.fetchPerson()  // récupère les données après connexion
+                            personViewModel.fetchPerson()
                             navController.navigate(VintedScreen.MonCompte.name) {
                                 popUpTo(VintedScreen.Login.name) { inclusive = true }
                             }
@@ -153,11 +157,11 @@ fun LoginScreen(
                         }
                     }
             }, colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFF007782), // Couleur d'arrière-plan du bouton
-                contentColor = Color.White    // Couleur du texte
+                containerColor = Color(0xFF007782),
+                contentColor = Color.White
             ), shape = RoundedCornerShape(16.dp),
             modifier = Modifier
-                .fillMaxWidth() // Le bouton occupe toute la largeur
+                .fillMaxWidth()
         )
         {
             Text(
@@ -168,11 +172,11 @@ fun LoginScreen(
         Button(
             onClick = onCancel,
             colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFF007782), // Couleur d'arrière-plan du bouton
-                contentColor = Color.White // Couleur du texte
+                containerColor = Color(0xFF007782),
+                contentColor = Color.White
             ), shape = RoundedCornerShape(16.dp),
             modifier = Modifier
-                .fillMaxWidth() // Le bouton occupe toute la largeur
+                .fillMaxWidth()
         )
         {
             Text(
@@ -189,10 +193,9 @@ fun LoginScreen(
             )
             Text(
                 text = "Sign up",
-                fontWeight = FontWeight.Bold, // Définit le texte en gras
+                fontWeight = FontWeight.Bold,
                 textDecoration = TextDecoration.Underline,
                 modifier = Modifier.clickable {
-                    // Naviguer vers la page d'inscription
                     navController.navigate(VintedScreen.SignUp.name)
                 }
             )
