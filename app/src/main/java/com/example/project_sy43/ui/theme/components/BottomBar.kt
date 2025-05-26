@@ -71,10 +71,9 @@ fun onglet(
                 imageVector = icon,
                 contentDescription = "$text icon",
                 tint = color,
-                modifier = Modifier.size(28.dp)
+                modifier = Modifier.size(32.dp)
             )
         }
-        Spacer(modifier = Modifier.height(8.dp))
         Text(text = text, color = color)
     }
 }
