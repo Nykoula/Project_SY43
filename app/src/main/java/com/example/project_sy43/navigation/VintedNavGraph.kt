@@ -27,7 +27,7 @@ import com.example.project_sy43.ui.theme.screens.NotificationSetting
 
 @Composable
 fun VintedNavGraph(navController: NavHostController, viewModelProduct: ProductViewModel, viewModelSell: SellViewModel, viewModelPerson: PersonViewModel) {
-    NavHost(navController = navController, startDestination = VintedScreen.Accueil.name) {
+    NavHost(navController = navController, startDestination = VintedScreen.MonCompte.name) {
         composable(route = VintedScreen.Accueil.name) {
             Accueil(
                 viewModel = viewModelProduct,
