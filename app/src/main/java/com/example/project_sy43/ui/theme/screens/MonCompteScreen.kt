@@ -69,95 +69,93 @@ fun MonCompte(
             VintedBottomBar(navController, VintedScreen.MonCompte)
         }
     ) { innerPadding ->
-        Column(
+        LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(16.dp)
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Text("Recommandations", style = MaterialTheme.typography.headlineSmall)
-            Spacer(modifier = Modifier.height(16.dp))
+            item {
+                Text("Recommandations", style = MaterialTheme.typography.headlineSmall)
+            }
 
-            // Affichage latéral des recommandations
-            LazyRow(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                items(posts.take(10)) { post ->
-                    Card(
-                        modifier = Modifier
-                            .width(150.dp)
-                            .height(200.dp),
-                        elevation = CardDefaults.cardElevation(4.dp)
-                    ) {
-                        Column(
+            item {
+                LazyRow(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    items(posts.take(10)) { post ->
+                        Card(
                             modifier = Modifier
-                                .fillMaxSize()
-                                .padding(8.dp),
-                            verticalArrangement = Arrangement.Center,
-                            horizontalAlignment = Alignment.CenterHorizontally
+                                .width(150.dp)
+                                .height(200.dp),
+                            elevation = CardDefaults.cardElevation(4.dp)
                         ) {
-                            Text(post.title)
-                            Text(post.state)
-                            if (post.photos.isNotEmpty()) {
-                                Image(
-                                    painter = rememberImagePainter(post.photos[0]),
-                                    contentDescription = "Post Image",
-                                    modifier = Modifier.fillMaxWidth(),
-                                    contentScale = ContentScale.Crop
-                                )
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(8.dp),
+                                verticalArrangement = Arrangement.Bottom,
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Text(post.title)
+                                Text(post.state)
+                                if (post.photos.isNotEmpty()) {
+                                    Image(
+                                        painter = rememberImagePainter(post.photos[0]),
+                                        contentDescription = "Post Image",
+                                        modifier = Modifier.fillMaxWidth(),
+                                        contentScale = ContentScale.Crop
+                                    )
+                                }
                             }
                         }
                     }
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
-            Text("Maybe Interesting You", style = MaterialTheme.typography.headlineSmall)
-            Spacer(modifier = Modifier.height(16.dp))
+            item {
+                Text("Maybe Interesting You", style = MaterialTheme.typography.headlineSmall)
+            }
 
-            // Affichage vertical des articles "Maybe Interesting You"
-            LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.weight(1f)
-            ) {
-                items(posts.drop(10).take(displayCount)) { post ->
-                    Card(
+            items(posts.drop(10).take(displayCount)) { post ->
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(100.dp),
+                    elevation = CardDefaults.cardElevation(4.dp)
+                ) {
+                    Column(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .height(100.dp),
-                        elevation = CardDefaults.cardElevation(4.dp)
+                            .fillMaxSize()
+                            .padding(8.dp),
+                        verticalArrangement = Arrangement.Top,
+                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(8.dp),
-                            verticalArrangement = Arrangement.Center,
-                            horizontalAlignment = Alignment.Start
-                        ) {
-                            Text(post.title)
-                            Text(post.state)
-                            if (post.photos.isNotEmpty()) {
-                                Image(
-                                    painter = rememberImagePainter(post.photos[0]),
-                                    contentDescription = "Post Image",
-                                    modifier = Modifier.fillMaxWidth(),
-                                    contentScale = ContentScale.Crop
-                                )
-                            }
+                        Text(post.title)
+                        Text(post.state)
+                        if (post.photos.isNotEmpty()) {
+                            Image(
+                                painter = rememberImagePainter(post.photos[0]),
+                                contentDescription = "Post Image",
+                                modifier = Modifier.fillMaxWidth(),
+                                contentScale = ContentScale.Crop
+                            )
                         }
                     }
                 }
             }
 
-            // Bouton "More" pour afficher plus d'articles
-            Button(
-                onClick = { displayCount += 10 },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
-            ) {
-                Text("More")
+            item {
+                Button(
+                    onClick = { displayCount += 10 },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                ) {
+                    Text("More")
+                }
             }
         }
     }
