@@ -16,4 +16,5 @@ enum class VintedScreen {
     Dressing,
     UpdatePassword,
     UpdateProfile,
+    NotificationSettings,
 }

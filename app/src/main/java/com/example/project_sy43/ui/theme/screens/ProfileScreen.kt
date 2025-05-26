@@ -24,7 +24,6 @@ import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.Email
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.KeyboardArrowRight
-import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Phone
 import androidx.compose.material.icons.outlined.Settings
@@ -271,18 +270,6 @@ fun Profile(
 
                     Divider(color = Color.LightGray, modifier = Modifier.padding(horizontal = 16.dp))
 
-                    // Modifier le mot de passe
-                    ProfileMenuItem(
-                        icon = Icons.Outlined.Lock,
-                        title = "Modifier le mot de passe",
-                        subtitle = "Changer votre mot de passe",
-                        onClick = {
-                            navController.navigate(VintedScreen.UpdatePassword.name)
-                        }
-                    )
-
-                    Divider(color = Color.LightGray, modifier = Modifier.padding(horizontal = 16.dp))
-
                     // Paramètres
                     ProfileMenuItem(
                         icon = Icons.Outlined.Settings,
@@ -404,4 +391,3 @@ fun ProfileMenuItem(
         )
     }
 }
-

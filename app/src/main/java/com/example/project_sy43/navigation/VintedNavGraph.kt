@@ -23,6 +23,7 @@ import com.example.project_sy43.viewmodel.PersonViewModel
 import com.example.project_sy43.viewmodel.SellViewModel
 import com.example.project_sy43.ui.theme.screens.UpdatePassword
 import com.example.project_sy43.ui.theme.screens.UpdateProfile
+import com.example.project_sy43.ui.theme.screens.NotificationSetting
 
 @Composable
 fun VintedNavGraph(navController: NavHostController, viewModelProduct: ProductViewModel, viewModelSell: SellViewModel, viewModelPerson: PersonViewModel) {
@@ -127,5 +128,9 @@ fun VintedNavGraph(navController: NavHostController, viewModelProduct: ProductVi
         composable(VintedScreen.UpdateProfile.name) {
             UpdateProfile(navController = navController,onCancel = {})
         }
+        composable(VintedScreen.NotificationSettings.name) {
+            NotificationSetting(navController = navController,onCancel = {navController.popBackStack()})
+        }
+
     }
 }
