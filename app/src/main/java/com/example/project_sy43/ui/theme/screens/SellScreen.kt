@@ -1,6 +1,7 @@
 package com.example.project_sy43.ui.theme.screens
 
 import android.Manifest
+import android.content.Context
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Environment
@@ -791,27 +792,23 @@ fun InputFields(
     }
 }
 
-fun generateUniqueUri(context: android.content.Context): Uri {
-    try {
-        val outputDirectory = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
-
-        // Créer le dossier s'il n'existe pas
-        if (outputDirectory != null && !outputDirectory.exists()) {
-            outputDirectory.mkdirs()
-        }
-
-        val photoFile = File(outputDirectory, "photo_${System.currentTimeMillis()}.jpg")
-
-        return FileProvider.getUriForFile(
-            context,
-            "${context.packageName}.provider",
-            photoFile
-        )
-    } catch (e: Exception) {
-        Log.e("FileProvider", "Erreur lors de la génération de l'URI: ${e.message}")
-        throw e
+fun generateUniqueUri(context: Context): Uri {
+    val outputDirectory = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+    if (outputDirectory != null && !outputDirectory.exists()) {
+        outputDirectory.mkdirs()
     }
+    val photoFile = File.createTempFile(
+        "photo_${System.currentTimeMillis()}",
+        ".jpg",
+        outputDirectory
+    )
+    return FileProvider.getUriForFile(
+        context,
+        "${context.packageName}.provider",
+        photoFile
+    )
 }
+
 
 fun uploadPhotosToFirebase(
     uriList: List<Uri>,
@@ -829,30 +826,32 @@ fun uploadPhotosToFirebase(
 
     uriList.forEach { uri ->
         val photoRef = storageRef.child("Post/${System.currentTimeMillis()}_${uri.lastPathSegment}")
+        Log.d("FirebaseUpload", "Uploading URI: $uri")
 
         photoRef.putFile(uri)
-            .addOnSuccessListener {
-                photoRef.downloadUrl.addOnSuccessListener { url ->
-                    uploadedUrls.add(url.toString())
+            .addOnSuccessListener { taskSnapshot ->
+                photoRef.downloadUrl.addOnSuccessListener { downloadUri ->
+                    val url = downloadUri.toString()
+                    Log.d("FirebaseUpload", "Uploaded URL: $url")
+                    uploadedUrls.add(url)
                     uploadCount++
 
-                    // Tous les uploads sont terminés
                     if (uploadCount == uriList.size) {
                         onUploadSuccess(uploadedUrls)
                     }
                 }
             }
             .addOnFailureListener { exception ->
-                Log.e("FirebaseUpload", "Échec du téléversement : $exception")
+                Log.e("FirebaseUpload", "Upload failed: ${exception.message}")
                 uploadCount++
 
-                // Continuer même en cas d'échec d'une photo
                 if (uploadCount == uriList.size) {
                     onUploadSuccess(uploadedUrls)
                 }
             }
     }
 }
+
 
 
 fun saveArticleToFirestore(
@@ -868,16 +867,6 @@ fun saveArticleToFirestore(
     colis: String,
     photoUrls: List<String>
 ) {
-    // Log des valeurs pour le débogage
-    Log.d("Firestore", "Title: $title")
-    Log.d("Firestore", "Description: $description")
-    Log.d("Firestore", "Price: $price")
-    Log.d("Firestore", "Category: $category")
-    Log.d("Firestore", "State: $state")
-    Log.d("Firestore", "Couleurs: $couleurs")
-    Log.d("Firestore", "Matieres: $matieres")
-    Log.d("Firestore", "Size: $size")
-    Log.d("Firestore", "Colis: $colis")
     Log.d("Firestore", "Photo URLs: $photoUrls")
 
     val db = Firebase.firestore
@@ -885,7 +874,7 @@ fun saveArticleToFirestore(
         "userId" to userId,
         "title" to title,
         "description" to description,
-        "price" to price.toDoubleOrNull(), // Convertir le prix en nombre
+        "price" to price.toDoubleOrNull(),
         "category" to category,
         "size" to size,
         "state" to state,
@@ -901,6 +890,7 @@ fun saveArticleToFirestore(
             Log.d("Firestore", "Article enregistré avec ID : ${documentReference.id}")
         }
         .addOnFailureListener { exception ->
-            Log.e("Firestore", "Erreur lors de l'enregistrement : $exception")
+            Log.e("Firestore", "Erreur lors de l'enregistrement : ${exception.message}")
         }
 }
+
