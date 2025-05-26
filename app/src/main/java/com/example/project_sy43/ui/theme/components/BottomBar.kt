@@ -31,6 +31,9 @@ import com.google.firebase.auth.FirebaseUser
 import android.content.Context
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
+import androidx.compose.material.icons.filled.*
 
 @Composable
 fun VintedBottomBar(
@@ -43,19 +46,60 @@ fun VintedBottomBar(
     BottomAppBar {
         Row(
             modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            onglet(Icons.Filled.Home, "Home", VintedScreen.MonCompte, navController, currentScreen)
-            onglet(Icons.Filled.Search, "Search", VintedScreen.Search, navController, currentScreen, currentUser)
-            onglet(Icons.Filled.AddCircleOutline, "Sell", VintedScreen.Sell, navController, currentScreen, currentUser)
-            onglet(Icons.Filled.MailOutline, "Messages", VintedScreen.Messages, navController, currentScreen, currentUser)
-            onglet(Icons.Filled.PersonOutline, "Profile", VintedScreen.Profile, navController, currentScreen, currentUser)
+            onglet(
+                modifier = Modifier.weight(1f),
+                icon = Icons.Filled.Home,
+                text = "Home",
+                destination = VintedScreen.MonCompte,
+                navController = navController,
+                currentScreen = currentScreen
+            )
+            onglet(
+                modifier = Modifier.weight(1f),
+                icon = Icons.Filled.Search,
+                text = "Search",
+                destination = VintedScreen.Search,
+                navController = navController,
+                currentScreen = currentScreen,
+                currentUser = currentUser
+            )
+            onglet(
+                modifier = Modifier.weight(1f),
+                icon = Icons.Filled.AddCircleOutline,
+                text = "Sell",
+                destination = VintedScreen.Sell,
+                navController = navController,
+                currentScreen = currentScreen,
+                currentUser = currentUser
+            )
+            onglet(
+                modifier = Modifier.weight(1f),
+                icon = Icons.Filled.MailOutline,
+                text = "Message",
+                destination = VintedScreen.Messages,
+                navController = navController,
+                currentScreen = currentScreen,
+                currentUser = currentUser
+            )
+            onglet(
+                modifier = Modifier.weight(1f),
+                icon = Icons.Filled.PersonOutline,
+                text = "Profile",
+                destination = VintedScreen.Profile,
+                navController = navController,
+                currentScreen = currentScreen,
+                currentUser = currentUser
+            )
         }
     }
 }
 
 @Composable
 fun onglet(
+    modifier: Modifier = Modifier,
     icon: ImageVector,
     text: String,
     destination: VintedScreen,
@@ -68,6 +112,7 @@ fun onglet(
     val color = if (isSelected) Color(0xFF007782) else Color.Black
 
     Column(
+        modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
