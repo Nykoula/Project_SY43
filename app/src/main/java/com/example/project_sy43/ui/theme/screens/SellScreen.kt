@@ -655,6 +655,7 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
                                     sellViewModel.selectedColis.value,
                                     photoUrls
                                 )
+                                sellViewModel.reset()
                             }
                         } else {
                             // Gérer le cas sans photos
@@ -671,7 +672,9 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
                                 sellViewModel.selectedColis.value,
                                 emptyList()
                             )
+                            sellViewModel.reset()
                         }
+                        Toast.makeText(context, "Product added", Toast.LENGTH_LONG).show()
                         navController.navigate(VintedScreen.MonCompte.name)
                     } else {
                         showDialog = true
