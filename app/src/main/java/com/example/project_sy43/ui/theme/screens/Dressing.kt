@@ -62,6 +62,7 @@ data class SoldClothingItem(
     val price: Double = 0.0,
     val size: String = "",
     val category: String = "",
+    val type: String = "",
     val state: String = "",
     val colis: String = "",
     val color: List<String> = emptyList(),
@@ -100,6 +101,7 @@ fun Dressing(
                             price = document.getDouble("price") ?: 0.0,
                             size = document.getString("size") ?: "",
                             category = document.getString("category") ?: "",
+                            type = document.getString("type") ?: "",
                             state = document.getString("state") ?: "",
                             colis = document.getString("colis") ?: "",
                             color = (document.get("color") as? List<*>)?.mapNotNull { it as? String } ?: emptyList(),
@@ -279,9 +281,18 @@ fun SoldClothingListItem(
                 )
                 Spacer(modifier = Modifier.height(4.dp))
 
-                if (item.category.isNotEmpty() || item.size.isNotEmpty()) {
+                if (item.category.isNotEmpty() || item.type.isNotEmpty()) {
                     Text(
-                        text = "${item.category}${if (item.category.isNotEmpty() && item.size.isNotEmpty()) " • " else ""}${item.size}",
+                        text = "${item.category}${if (item.category.isNotEmpty() && item.type.isNotEmpty()) " • " else ""}${item.type}",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color.Gray
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                }
+
+                if (item.size.isNotEmpty()) {
+                    Text(
+                        text = "${item.size}",
                         style = MaterialTheme.typography.bodyMedium,
                         color = Color.Gray
                     )
@@ -425,6 +436,9 @@ fun SoldClothingDetailView(
                     // Détails du produit
                     if (item.category.isNotEmpty()) {
                         DetailRow("Catégorie", item.category)
+                    }
+                    if (item.type.isNotEmpty()) {
+                        DetailRow("Type de vêtement", item.type)
                     }
                     if (item.size.isNotEmpty()) {
                         DetailRow("Taille", item.size)
