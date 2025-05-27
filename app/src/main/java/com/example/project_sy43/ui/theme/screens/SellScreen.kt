@@ -98,7 +98,7 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
     val userId = FirebaseAuth.getInstance().currentUser?.uid //stocker l'id utilisateur
     var title by sellViewModel.productTitle
     var description by sellViewModel.productDescription
-    var category by sellViewModel.selectedCategory
+    //var category by sellViewModel.selectedCategory
     var type by sellViewModel.selectedType
     var couleurs by sellViewModel.selectedColors
     var matieres by sellViewModel.selectedMaterial
@@ -181,10 +181,14 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
                 errorMessage = "Price is required"
                 false
             }
-            category.isEmpty() -> {
+            sellViewModel.selectedCategory.value.isEmpty()-> {
                 errorMessage = "Category is required"
                 false
             }
+            /*category.isEmpty() -> {
+                errorMessage = "Category is required"
+                false
+            }*/
             state.isEmpty() -> {
                 errorMessage = "State is required"
                 false
@@ -358,7 +362,8 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
                     )
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(text = if (category.isNotEmpty()) category else "Category")
+                        //Text(text = if (category.isNotEmpty()) category else "Category")
+                        Text(text = if (sellViewModel.selectedCategory.value.isNotEmpty()) sellViewModel.selectedCategory.value else "Category")
                         Spacer(modifier = Modifier.weight(1f))
                         Icon(
                             imageVector = if (expandedCategory) Icons.Outlined.KeyboardArrowUp else Icons.Outlined.KeyboardArrowDown,
@@ -389,7 +394,9 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
                                 )
                             },
                             onClick = {
-                                category = text
+                                //category = text
+                                //sellViewModel.selectedCategory.value = text
+                                sellViewModel.setProductCategory(text)
                                 expandedCategory = false
                             }
                         )

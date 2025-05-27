@@ -40,9 +40,52 @@ import com.example.project_sy43.ui.theme.components.ButtonBottomBar
 import com.example.project_sy43.ui.theme.components.VintedTopBar
 import com.example.project_sy43.viewmodel.SellViewModel
 
+object TypeClothes {
+    val womanType = listOf(
+        "Manteaux et vestes" to VintedScreen.ManteauxEtVestes.name,
+        "Sweats et sweats à capuche" to VintedScreen.SweatCapuche.name,
+        "Blazer et tailleurs" to VintedScreen.Blazer.name,
+        "Robes" to VintedScreen.Robe.name,
+        "Jupes" to VintedScreen.Jupe.name,
+        "Hauts et t-shirts" to VintedScreen.Haut.name,
+        "Pantalons, jeans et leggings" to VintedScreen.Pantalon.name,
+        "Shorts" to VintedScreen.Short.name,
+        "Combinaisons et combishorts" to VintedScreen.Combinaison.name,
+        "Maillots de bain" to VintedScreen.MaillotDeBain.name,
+        "Lingerie et pyjamas" to VintedScreen.LingeriePyjama.name,
+        "Maternité" to VintedScreen.Maternite.name,
+        "Vêtements de sport" to VintedScreen.Sport.name
+    )
+    val manType = listOf(
+        "Pantalons et jeans" to VintedScreen.Pantalon.name,
+        "Vestes et manteaux" to VintedScreen.ManteauxEtVestes.name,
+        "Hauts et t-shirts" to VintedScreen.Haut.name,
+        "Costumes et blazers" to VintedScreen.Blazer.name,
+        "Sweats et pulls" to VintedScreen.SweatCapuche.name,//hoodies femmes
+        "Shorts" to VintedScreen.Short.name,
+        "Sous-vêtements, chaussettes et pyjamas" to VintedScreen.LingeriePyjama.name,//different des femmes
+        "Vêtements de sport" to VintedScreen.Sport.name,
+        //"Maillots de bain" to VintedScreen.MaillotDeBain.name,//skip
+
+    )
+    val childrenType = listOf(
+        "Vêtements bébé" to VintedScreen.Maternite.name,
+        "Pantalons" to VintedScreen.Pantalon.name,
+        "T-shirts et hauts" to VintedScreen.Haut.name,
+        "Shorts" to VintedScreen.Short.name
+    )
+}
+
 @Composable
 fun TypeClotheScreen(navController: NavController, sellViewModel: SellViewModel) {
     var selectedType by sellViewModel.selectedType
+
+    val typeList = when (sellViewModel.selectedCategory.value) {
+        "Woman" -> TypeClothes.womanType
+        "Man" -> TypeClothes.manType
+        "Children" -> TypeClothes.childrenType
+        else -> emptyList()
+    }
 
     Scaffold(
         topBar = {
@@ -55,22 +98,8 @@ fun TypeClotheScreen(navController: NavController, sellViewModel: SellViewModel)
                 .fillMaxSize()
         ) {
             items(
-                listOf(
-                    "Manteaux et vestes" to VintedScreen.ManteauxEtVestes.name,
-                    "Sweats et sweats à capuche" to VintedScreen.SweatCapuche.name,
-                    "Blazer et tailleurs" to VintedScreen.Blazer.name,
-                    "Robes" to VintedScreen.Robe.name,
-                    "Jupes" to VintedScreen.Jupe.name,
-                    "Hauts et t-shirts" to VintedScreen.Haut.name,
-                    "Pantalons, jeans et leggings" to VintedScreen.Pantalon.name,
-                    "Shorts" to VintedScreen.Short.name,
-                    "Combinaisons et combishorts" to VintedScreen.Combinaison.name,
-                    "Maillots de bain" to VintedScreen.MaillotDeBain.name,
-                    "Lingerie et pyjamas" to VintedScreen.LingeriePyjama.name,
-                    "Maternité" to VintedScreen.Maternite.name,
-                    "Vêtements de sport" to VintedScreen.Sport.name
-                )
-            ) { (type, screen ) ->
+                typeList
+            ) { (type, screen) ->
 
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
