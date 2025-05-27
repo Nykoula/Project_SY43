@@ -11,5 +11,6 @@ data class Product (
     val couleur: List<String>,
     val matieres: List<String>,
     val marque: String,
-    val isFavorite: Boolean
+    val isFavorite: Boolean,
+    val dateCreation: String
 )

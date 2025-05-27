@@ -18,6 +18,7 @@ class SellViewModel : ViewModel(){
     var selectedMaterial = mutableStateOf(emptySet<String>())
     var selectedSize = mutableStateOf("")
     var selectedColis = mutableStateOf("")
+    var dateCreation = mutableStateOf("")
     var productPhotoUri by mutableStateOf<Uri?>(null)
         private set
     var isAvailable = mutableStateOf(true)
@@ -64,6 +65,10 @@ class SellViewModel : ViewModel(){
 
     fun setProductAvailability(available: Boolean) {
         isAvailable.value = available
+    }
+
+    fun setdateCreation(date: String) {
+        dateCreation.value = date
     }
 
     // updateProductPhotoUri

@@ -85,6 +85,9 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.firestore
 import com.google.firebase.storage.storage
 import java.io.File
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
 
 @Composable
 fun SellScreen(navController: NavController, sellViewModel: SellViewModel = viewModel()) {
@@ -918,6 +921,10 @@ fun saveArticleToFirestore(
 ) {
     Log.d("Firestore", "Photo URLs: $photoUrls")
 
+    val calendar = Calendar.getInstance(Locale.FRANCE) // Récupère la date et l'heure actuelles
+    val dateFormat = SimpleDateFormat("dd-MM-yyyy") // Format désiré : "19-04-2025"
+    val currentDate = dateFormat.format(calendar.time) // Convertit en chaîne formatée
+
     val db = Firebase.firestore
     val article = hashMapOf(
         "userId" to userId,
@@ -932,7 +939,8 @@ fun saveArticleToFirestore(
         "material" to matieres.toList(),
         "colis" to colis,
         "available" to isAvailable,
-        "photos" to photoUrls
+        "photos" to photoUrls,
+        "dateCreation" to currentDate,
     )
 
     db.collection("Post")
