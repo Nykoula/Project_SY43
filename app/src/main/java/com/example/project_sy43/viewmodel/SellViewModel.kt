@@ -12,6 +12,7 @@ class SellViewModel : ViewModel(){
     var productDescription = mutableStateOf("")
     var productPrice = mutableStateOf("")
     var selectedCategory = mutableStateOf("")
+    var selectedType = mutableStateOf("")
     var selectedState = mutableStateOf("")
     var selectedColors = mutableStateOf(emptySet<String>())
     var selectedMaterial = mutableStateOf(emptySet<String>())
@@ -35,6 +36,10 @@ class SellViewModel : ViewModel(){
 
     fun setProductCategory(category: String) {
         selectedCategory.value = category
+    }
+
+    fun setProductType(type: String) {
+        selectedType.value = type
     }
 
     fun setProductState(state: String) {
@@ -71,6 +76,7 @@ class SellViewModel : ViewModel(){
         productDescription.value = ""
         productPrice.value = ""
         selectedCategory.value = ""
+        selectedType.value = ""
         selectedState.value = ""
         selectedColors.value = emptySet()
         selectedMaterial.value = emptySet()

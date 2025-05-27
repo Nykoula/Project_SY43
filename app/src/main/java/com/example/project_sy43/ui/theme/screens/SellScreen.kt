@@ -96,6 +96,7 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
     var title by sellViewModel.productTitle
     var description by sellViewModel.productDescription
     var category by sellViewModel.selectedCategory
+    var type by sellViewModel.selectedType
     var couleurs by sellViewModel.selectedColors
     var matieres by sellViewModel.selectedMaterial
     var size by sellViewModel.selectedSize
@@ -388,6 +389,107 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
                 }
             }
 
+            // Ligne pour le type du vêtement
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+                    .clickable {
+                        navController.navigate(VintedScreen.TypeClothe.name)
+                    }
+            ) {
+                Text(text = "Type")
+                Spacer(modifier = Modifier.weight(1f))
+                val typeText = if (sellViewModel.selectedType.value.isEmpty()) "None"
+                else sellViewModel.selectedType.value
+                Text(text = typeText)
+                Icon(
+                    imageVector = Icons.Outlined.KeyboardArrowRight,
+                    contentDescription = "Arrow"
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+            Divider(thickness = 1.dp, color = Color.Gray)
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Ligne pour la couleur
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+                    .clickable {
+                        navController.navigate(VintedScreen.ColorScreen.name)
+                    }
+            ) {
+                Text(text = "Color")
+                Spacer(modifier = Modifier.weight(1f))
+                val colorsText = if (sellViewModel.selectedColors.value.isEmpty()) "None"
+                else sellViewModel.selectedColors.value.joinToString(", ")
+                Text(text = colorsText)
+                Icon(
+                    imageVector = Icons.Outlined.KeyboardArrowRight,
+                    contentDescription = "Arrow"
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+            Divider(thickness = 1.dp, color = Color.Gray)
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Ligne pour le choix des matières
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+                    .clickable {
+                        navController.navigate(VintedScreen.Matieres.name)
+                    },
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(text = "Matières")
+                Spacer(modifier = Modifier.weight(1f))
+                Column(
+                    horizontalAlignment = Alignment.End,
+                    modifier = Modifier.weight(2f)
+                ) {
+                    val materialsText = if (sellViewModel.selectedMaterial.value.isEmpty()) "None"
+                    else sellViewModel.selectedMaterial.value.joinToString(", ")
+                    Text(
+                        text = materialsText,
+                        maxLines = Int.MAX_VALUE,
+                        overflow = TextOverflow.Visible
+                    )
+                }
+                Icon(
+                    imageVector = Icons.Outlined.KeyboardArrowRight,
+                    contentDescription = "Arrow"
+                )
+            }
+
+
+            Spacer(modifier = Modifier.height(16.dp))
+            Divider(thickness = 1.dp, color = Color.Gray)
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Ligne pour la taille
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+                    .clickable {
+                        navController.navigate(VintedScreen.Size.name)
+                    }
+            ) {
+                Text(text = "Size")
+                Spacer(modifier = Modifier.weight(1f))
+                Text(text = sellViewModel.selectedSize.value.ifEmpty { "None" })
+                Icon(
+                    imageVector = Icons.Outlined.KeyboardArrowRight,
+                    contentDescription = "Arrow"
+                )
+            }
+
             // Bouton état
             Box(
                 modifier = Modifier
@@ -473,83 +575,6 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
                         Divider(thickness = 1.dp, color = Color.Gray)
                     }
                 }
-            }
-
-            // Ligne pour la couleur
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
-                    .clickable {
-                        navController.navigate(VintedScreen.ColorScreen.name)
-                    }
-            ) {
-                Text(text = "Color")
-                Spacer(modifier = Modifier.weight(1f))
-                val colorsText = if (sellViewModel.selectedColors.value.isEmpty()) "None"
-                else sellViewModel.selectedColors.value.joinToString(", ")
-                Text(text = colorsText)
-                Icon(
-                    imageVector = Icons.Outlined.KeyboardArrowRight,
-                    contentDescription = "Arrow"
-                )
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-            Divider(thickness = 1.dp, color = Color.Gray)
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Ligne pour le choix des matières
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
-                    .clickable {
-                        navController.navigate(VintedScreen.Matieres.name)
-                    },
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(text = "Matières")
-                Spacer(modifier = Modifier.weight(1f))
-                Column(
-                    horizontalAlignment = Alignment.End,
-                    modifier = Modifier.weight(2f)
-                ) {
-                    val materialsText = if (sellViewModel.selectedMaterial.value.isEmpty()) "None"
-                    else sellViewModel.selectedMaterial.value.joinToString(", ")
-                    Text(
-                        text = materialsText,
-                        maxLines = Int.MAX_VALUE,
-                        overflow = TextOverflow.Visible
-                    )
-                }
-                Icon(
-                    imageVector = Icons.Outlined.KeyboardArrowRight,
-                    contentDescription = "Arrow"
-                )
-            }
-
-
-            Spacer(modifier = Modifier.height(16.dp))
-            Divider(thickness = 1.dp, color = Color.Gray)
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Ligne pour la taille
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
-                    .clickable {
-                        navController.navigate(VintedScreen.Size.name)
-                    }
-            ) {
-                Text(text = "Size")
-                Spacer(modifier = Modifier.weight(1f))
-                Text(text = sellViewModel.selectedSize.value.ifEmpty { "None" })
-                Icon(
-                    imageVector = Icons.Outlined.KeyboardArrowRight,
-                    contentDescription = "Arrow"
-                )
             }
 
             // Liste déroulante pour le format du colis
