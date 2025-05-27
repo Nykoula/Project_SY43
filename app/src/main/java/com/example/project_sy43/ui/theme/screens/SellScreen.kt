@@ -102,6 +102,7 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
     var price by sellViewModel.productPrice
     var state by sellViewModel.selectedState
     var colis by sellViewModel.selectedColis
+    var isAvailable by sellViewModel.isAvailable
 
     // État pour chaque menu déroulant
     var expandedCategory by remember { mutableStateOf(false) }
@@ -641,6 +642,7 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
             Button(
                 onClick = {
                     if (validateFields()) {
+                        sellViewModel.isAvailable.value = true
                         if (photoList.isNotEmpty()) {
                             uploadPhotosToFirebase(photoList) { photoUrls ->
                                 saveArticleToFirestore(
@@ -654,6 +656,7 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
                                     sellViewModel.selectedMaterial.value.toSet(),
                                     sellViewModel.selectedSize.value,
                                     sellViewModel.selectedColis.value,
+                                    sellViewModel.isAvailable.value,
                                     photoUrls
                                 )
                                 sellViewModel.reset()
@@ -671,6 +674,7 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
                                 sellViewModel.selectedMaterial.value.toSet(),
                                 sellViewModel.selectedSize.value,
                                 sellViewModel.selectedColis.value,
+                                sellViewModel.isAvailable.value,
                                 emptyList()
                             )
                             sellViewModel.reset()
@@ -865,7 +869,8 @@ fun saveArticleToFirestore(
     matieres: Set<String>,
     size: String,
     colis: String,
-    photoUrls: List<String>
+    isAvailable: Boolean,
+    photoUrls: List<String>,
 ) {
     Log.d("Firestore", "Photo URLs: $photoUrls")
 
@@ -881,6 +886,7 @@ fun saveArticleToFirestore(
         "color" to couleurs.toList(),
         "material" to matieres.toList(),
         "colis" to colis,
+        "available" to isAvailable,
         "photos" to photoUrls
     )
 

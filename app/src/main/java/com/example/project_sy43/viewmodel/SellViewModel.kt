@@ -19,6 +19,7 @@ class SellViewModel : ViewModel(){
     var selectedColis = mutableStateOf("")
     var productPhotoUri by mutableStateOf<Uri?>(null)
         private set
+    var isAvailable = mutableStateOf(true)
 
     fun setProductTitle(title: String) {
         productTitle.value = title
@@ -56,6 +57,10 @@ class SellViewModel : ViewModel(){
         selectedColis.value = colis
     }
 
+    fun setProductAvailability(available: Boolean) {
+        isAvailable.value = available
+    }
+
     // updateProductPhotoUri
     fun updateProductPhotoUri(uri: Uri) {
         productPhotoUri = uri
@@ -71,6 +76,7 @@ class SellViewModel : ViewModel(){
         selectedMaterial.value = emptySet()
         selectedSize.value = ""
         selectedColis.value = ""
+        isAvailable.value = true
         productPhotoUri = null
     }
 }
