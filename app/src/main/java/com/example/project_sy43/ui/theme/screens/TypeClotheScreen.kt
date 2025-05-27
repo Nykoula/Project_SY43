@@ -56,7 +56,7 @@ fun TypeClotheScreen(navController: NavController, sellViewModel: SellViewModel)
         ) {
             items(
                 listOf(
-                    "Manteaux et vestes" to VintedScreen.Manteaux.name,
+                    "Manteaux et vestes" to VintedScreen.ManteauxEtVestes.name,
                     "Sweats et sweats à capuche" to VintedScreen.SweatCapuche.name,
                     "Blazer et tailleurs" to VintedScreen.Blazer.name,
                     "Robes" to VintedScreen.Robe.name,

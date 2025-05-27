@@ -57,7 +57,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.listSaver
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -112,7 +115,13 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
     var showPhotoOptions by remember { mutableStateOf(false) }
 
     // Liste pour stocker toutes les photos sélectionnées
-    val photoList = remember { mutableStateListOf<Uri>() }
+    //val photoList = remember { mutableStateListOf<Uri>() }
+    val photoList = rememberSaveable(saver = listSaver(
+        save = { it.toList() }, // Sauvegarde en tant que List<Uri> (Uri est Parcelable)
+        restore = { it.toMutableStateList() }
+    )) {
+        mutableStateListOf<Uri>()
+    }
 
     // État pour gérer l'URI de la photo en cours
     var currentPhotoUri by remember { mutableStateOf<Uri?>(null) }
@@ -676,6 +685,7 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
                                     sellViewModel.productDescription.value,
                                     sellViewModel.productPrice.value,
                                     sellViewModel.selectedCategory.value,
+                                    sellViewModel.selectedType.value,
                                     sellViewModel.selectedState.value,
                                     sellViewModel.selectedColors.value.toSet(),
                                     sellViewModel.selectedMaterial.value.toSet(),
@@ -694,6 +704,7 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
                                 sellViewModel.productDescription.value,
                                 sellViewModel.productPrice.value,
                                 sellViewModel.selectedCategory.value,
+                                sellViewModel.selectedType.value,
                                 sellViewModel.selectedState.value,
                                 sellViewModel.selectedColors.value.toSet(),
                                 sellViewModel.selectedMaterial.value.toSet(),
@@ -889,6 +900,7 @@ fun saveArticleToFirestore(
     description: String,
     price: String,
     category: String,
+    type: String,
     state: String,
     couleurs: Set<String>,
     matieres: Set<String>,
@@ -906,6 +918,7 @@ fun saveArticleToFirestore(
         "description" to description,
         "price" to price.toDoubleOrNull(),
         "category" to category,
+        "type" to type,
         "size" to size,
         "state" to state,
         "color" to couleurs.toList(),

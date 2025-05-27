@@ -50,7 +50,7 @@ fun SweatCapucheScreen(navController: NavController, sellViewModel: SellViewMode
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp, vertical = 8.dp)
                         .clickable {
-                            navController.navigate(VintedScreen.Sweat.name)
+                            navController.popBackStack("Sell", inclusive = false)
                         }
                 ) {
                     Text(text = "Sweats", fontWeight = FontWeight.Bold)

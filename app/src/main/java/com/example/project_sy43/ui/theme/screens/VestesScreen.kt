@@ -63,7 +63,7 @@ fun VestesScreen(navController: NavController, sellViewModel: SellViewModel) {
                         .clickable {
                             selectedType = type
                             sellViewModel.setProductType(type)
-                            navController.navigate(VintedScreen.Sell.name)
+                            navController.popBackStack("Sell", inclusive = false)
                         }
                 ) {
                     Text(text = type, fontWeight = FontWeight.Bold)
