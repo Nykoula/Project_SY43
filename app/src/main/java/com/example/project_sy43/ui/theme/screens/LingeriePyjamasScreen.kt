@@ -25,10 +25,48 @@ import com.example.project_sy43.navigation.VintedScreen
 import com.example.project_sy43.ui.theme.components.VintedTopBar
 import com.example.project_sy43.viewmodel.SellViewModel
 
+object Pyjama {
+    val womanType = listOf(
+        "Soutiens-gorge",
+        "Culottes",
+        "Ensembles",
+        "Gaines",
+        "Pyjamas",
+        "Peignoirs",
+        "Collants",
+        "Chaussettes",
+        "Accessoires de lingerie",
+        "Autres lingerie",
+        "Autres pyjamas"
+    )
+    val manType = listOf(
+        "Sous-vêtements",
+        "Chaussettes",
+        "Peignoirs",
+        "Pyjamas une pièce",
+        "Bas de pyjamas",
+        "Ensembles de pyjamas",
+        "Hauts de pyjamas",
+        "Autres pyjamas",
+        "Autres sous-vêtements"
+
+    )
+    val childrenType = listOf(
+        "Autres shorts"
+    )
+}
+
 @Composable
 fun LingeriePyjamaScreen(navController: NavController, sellViewModel: SellViewModel) {
 
     var selectedType by sellViewModel.selectedType
+
+    val typeList = when (sellViewModel.selectedCategory.value) {
+        "Woman" -> Pyjama.womanType
+        "Man" -> Pyjama.manType
+        "Children" -> Pyjama.childrenType
+        else -> emptyList()
+    }
 
     Scaffold(
         topBar = {
@@ -41,19 +79,7 @@ fun LingeriePyjamaScreen(navController: NavController, sellViewModel: SellViewMo
                 .fillMaxSize()
         ) {
             items(
-                listOf(
-                    "Soutiens-gorge",
-                    "Culottes",
-                    "Ensembles",
-                    "Gaines",
-                    "Pyjamas",
-                    "Peignoirs",
-                    "Collants",
-                    "Chaussettes",
-                    "Accessoires de lingerie",
-                    "Autres lingerie",
-                    "Autres pyjamas"
-                )
+                typeList
             ) { type ->
                 Row(
                     verticalAlignment = Alignment.CenterVertically,

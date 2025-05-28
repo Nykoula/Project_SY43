@@ -48,7 +48,8 @@ fun ManteauxScreen(navController: NavController, sellViewModel: SellViewModel) {
                     "Parkas",
                     "Cabans",
                     "Imperméables",
-                    "Trenchs"
+                    "Trenchs",
+                    "Autres Manteaux"
                 )
             ) { type ->
                 Row(

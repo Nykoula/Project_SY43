@@ -25,10 +25,42 @@ import com.example.project_sy43.navigation.VintedScreen
 import com.example.project_sy43.ui.theme.components.VintedTopBar
 import com.example.project_sy43.viewmodel.SellViewModel
 
+object Short {
+    val womanType = listOf(
+        "Shorts taille basse",
+        "Shorts taille haute",
+        "Shorts longueur genou",
+        "Shorts en jean",
+        "Shorts en dentelle",
+        "Shorts en cuir",
+        "Shorts cargo",
+        "Pantacourts",
+        "Autres shorts"
+    )
+    val manType = listOf(
+        "Shorts cargo",
+        "Shorts chino",
+        "Shorts en jean",
+        "Bermuda",
+        "Autres shorts"
+
+    )
+    val childrenType = listOf(
+        "Autres shorts"
+    )
+}
+
 @Composable
 fun ShortScreen(navController: NavController, sellViewModel: SellViewModel) {
 
     var selectedType by sellViewModel.selectedType
+
+    val typeList = when (sellViewModel.selectedCategory.value) {
+        "Woman" -> Short.womanType
+        "Man" -> Short.manType
+        "Children" -> Short.childrenType
+        else -> emptyList()
+    }
 
     Scaffold(
         topBar = {
@@ -41,17 +73,7 @@ fun ShortScreen(navController: NavController, sellViewModel: SellViewModel) {
                 .fillMaxSize()
         ) {
             items(
-                listOf(
-                    "Shorts taille basse",
-                    "Shorts taille haute",
-                    "Shorts longueur genou",
-                    "Shorts en jean",
-                    "Shorts en dentelle",
-                    "Shorts en cuir",
-                    "Shorts cargo",
-                    "Pantacourts",
-                    "Autres shorts"
-                )
+                typeList
             ) { type ->
                 Row(
                     verticalAlignment = Alignment.CenterVertically,

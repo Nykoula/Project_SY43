@@ -25,10 +25,57 @@ import com.example.project_sy43.navigation.VintedScreen
 import com.example.project_sy43.ui.theme.components.VintedTopBar
 import com.example.project_sy43.viewmodel.SellViewModel
 
+object Hauts {
+    val womanType = listOf(
+        "Chemises",
+        "Blouses",
+        "T-shirts",
+        "Débardeurs",
+        "Tuniques",
+        "Tops courts",
+        "Blouses manches courtes",
+        "Blouses 3/4",
+        "Blouses manches longues",
+        "Bodies",
+        "Bodies",
+        "Tops épaules dénudées",
+        "Cols roulés",
+        "Tops peplum",
+        "Tops dos nu",
+        "Autres hauts"
+    )
+    val manType = listOf(
+        "Chemises à carreaux",
+        "Chemises en jeans",
+        "Chemises unies",
+        "Chemises à motifs",
+        "Chemises à rayures",
+        "Autres Chemises",
+        "T-shirts unies",
+        "T-shirts imprimés",
+        "T-shirts à rayures",
+        "T-shirts à manches longues",
+        "T-shirts sans manches",
+        "Polos",
+        "Autres t-shirts"
+
+    )
+    val childrenType = listOf(
+        "Autres t-shirts"
+    )
+}
+
 @Composable
 fun HautScreen(navController: NavController, sellViewModel: SellViewModel) {
 
     var selectedType by sellViewModel.selectedType
+
+    val typeList = when (sellViewModel.selectedCategory.value) {
+        "Woman" -> Hauts.womanType
+        "Man" -> Hauts.manType
+        "Children" -> Hauts.childrenType
+        else -> emptyList()
+    }
 
     Scaffold(
         topBar = {
@@ -41,24 +88,7 @@ fun HautScreen(navController: NavController, sellViewModel: SellViewModel) {
                 .fillMaxSize()
         ) {
             items(
-                listOf(
-                    "Chemises",
-                    "Blouses",
-                    "T-shirts",
-                    "Débardeurs",
-                    "Tuniques",
-                    "Tops courts",
-                    "Blouses manches courtes",
-                    "Blouses 3/4",
-                    "Blouses manches longues",
-                    "Bodies",
-                    "Bodies",
-                    "Tops épaules dénudées",
-                    "Cols roulés",
-                    "Tops peplum",
-                    "Tops dos nu",
-                    "Autres hauts"
-                )
+                typeList
             ) { type ->
                 Row(
                     verticalAlignment = Alignment.CenterVertically,

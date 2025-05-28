@@ -29,9 +29,42 @@ import com.example.project_sy43.navigation.VintedScreen
 import com.example.project_sy43.ui.theme.components.VintedTopBar
 import com.example.project_sy43.viewmodel.SellViewModel
 
+object Sweat {
+    val womanType = listOf(
+        "Sweats & sweats à capuche", "Kimonos",
+        "Cardigans", "Boléros", "Vestes",
+        "Autres pull-overs & sweat-shirts"
+    )
+    val manType = listOf(
+        "Sweats",
+        "Pulls et pulls à capuche",
+        "Pulls à capuche avec zip",
+        "Pulls ras du cou",
+        "Pulls à col roulé",
+        "Pulls à col V",
+        "Pulls d'hiver",
+        "Cardigans",
+        "Sweats à col V",
+        "Sweats longs",
+        "Autres pulls",
+        "Autres sweats"
+
+    )
+    val childrenType = listOf(
+        "Autres pulls/sweats"
+    )
+}
+
 @Composable
 fun SweatCapucheScreen(navController: NavController, sellViewModel: SellViewModel) {
     var selectedType by sellViewModel.selectedType
+
+    val typeList = when (sellViewModel.selectedCategory.value) {
+        "Woman" -> Sweat.womanType
+        "Man" -> Sweat.manType
+        "Children" -> Sweat.childrenType
+        else -> emptyList()
+    }
 
     Scaffold(
         topBar = {
@@ -63,11 +96,7 @@ fun SweatCapucheScreen(navController: NavController, sellViewModel: SellViewMode
                 Divider(thickness = 1.dp, color = Color.Gray)
             }
             items(
-                listOf(
-                    "Sweats & sweats à capuche", "Kimonos",
-                    "Cardigans", "Boléros", "Vestes",
-                    "Autres pull-overs & sweat-shirts"
-                )
+                typeList
             ) { type ->
                 Row(
                     verticalAlignment = Alignment.CenterVertically,

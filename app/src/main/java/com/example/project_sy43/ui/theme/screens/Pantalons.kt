@@ -25,14 +25,67 @@ import com.example.project_sy43.navigation.VintedScreen
 import com.example.project_sy43.ui.theme.components.VintedTopBar
 import com.example.project_sy43.viewmodel.SellViewModel
 
+object Pantalons {
+    val womanTitle: String = "Pantalons, jeans et leggings"
+    val manTitle: String = "Pantalons et jeans"
+    val childrenTitle: String = "Pantalons"
+    val womanType = listOf(
+        "Pantalons courts & chinos",
+        "Pantalons à jambes larges",
+        "Skinny",
+        "Pantalons ajustés",
+        "Pantalons/jeans droits",
+        "Pantalons en cuir",
+        "Jeans boyfriend",
+        "Jeans courts",
+        "Jeans évasés",
+        "Jeans taille haute",
+        "Jeans troués",
+        "Leggings",
+        "Sarouels",
+        "Autres pantalons/jeans"
+    )
+    val manType = listOf(
+        "Chinos",
+        "Jogging",
+        "Skinny",
+        "Slim",
+        "Pantacourts",
+        "Pantalons de costume",
+        "Pantalons à jambes larges",
+        "Jeans",
+        "Jeans troués",
+        "Jeans coupe droite",
+        "Autres pantalons/jeans"
+
+    )
+    val childrenType = listOf(
+        "Autres pantalons/jeans"
+    )
+}
+
 @Composable
 fun PantalonScreen(navController: NavController, sellViewModel: SellViewModel) {
 
     var selectedType by sellViewModel.selectedType
 
+    val typeList = when (sellViewModel.selectedCategory.value) {
+        "Woman" -> Pantalons.womanType
+        "Man" -> Pantalons.manType
+        "Children" -> Pantalons.childrenType
+        else -> emptyList()
+    }
+
+    val typeListTitle = when (sellViewModel.selectedCategory.value) {
+        "Woman" -> Pantalons.womanTitle
+        "Man" -> Pantalons.manTitle
+        "Children" -> Pantalons.childrenTitle
+        else -> "None"
+    }
+
     Scaffold(
         topBar = {
-            VintedTopBar(title = "Pantalons, jeans et leggings", navController, true)
+            VintedTopBar(title = typeListTitle, navController, true)
         }
     ) { innerPadding ->
         LazyColumn(
@@ -41,22 +94,7 @@ fun PantalonScreen(navController: NavController, sellViewModel: SellViewModel) {
                 .fillMaxSize()
         ) {
             items(
-                listOf(
-                    "Pantalons courts & chinos",
-                    "Pantalons à jambes larges",
-                    "Skinny",
-                    "Pantalons ajustés",
-                    "Pantalons/jeans droits",
-                    "Pantalons en cuir",
-                    "Jeans boyfriend",
-                    "Jeans courts",
-                    "Jeans évasés",
-                    "Jeans taille haute",
-                    "Jeans troués",
-                    "Leggings",
-                    "Sarouels",
-                    "Autres pantalons/jeans"
-                )
+                typeList
             ) { type ->
                 Row(
                     verticalAlignment = Alignment.CenterVertically,

@@ -25,10 +25,39 @@ import com.example.project_sy43.navigation.VintedScreen
 import com.example.project_sy43.ui.theme.components.VintedTopBar
 import com.example.project_sy43.viewmodel.SellViewModel
 
+object Blazer {
+    val womanType = listOf(
+        "Blazers",
+        "Ensemble tailleur/pantalon",
+        "Jupes et robes tailleurs",
+        "Tailleurs pièces séparées",
+        "Autres ensembles & tailleurs"
+    )
+    val manType = listOf(
+        "Blazers",
+        "Pantalon de costume",
+        "Gilets de costume",
+        "Ensembles costume",
+        "Costumes de mariage",
+        "Autres costumes & blazers"
+
+    )
+    val childrenType = listOf(
+        "Autres costumes"
+    )
+}
+
 @Composable
 fun BlazerScreen(navController: NavController, sellViewModel: SellViewModel) {
 
     var selectedType by sellViewModel.selectedType
+
+    val typeList = when (sellViewModel.selectedCategory.value) {
+        "Woman" -> Blazer.womanType
+        "Man" -> Blazer.manType
+        "Children" -> Blazer.childrenType
+        else -> emptyList()
+    }
 
     Scaffold(
         topBar = {
@@ -41,13 +70,7 @@ fun BlazerScreen(navController: NavController, sellViewModel: SellViewModel) {
                 .fillMaxSize()
         ) {
             items(
-                listOf(
-                    "Blazers",
-                    "Ensemble tailleur/pantalon",
-                    "Jupes et robes tailleurs",
-                    "Tailleurs pièces séparées",
-                    "Autres ensembles & tailleurs"
-                )
+                typeList
             ) { type ->
                 Row(
                     verticalAlignment = Alignment.CenterVertically,

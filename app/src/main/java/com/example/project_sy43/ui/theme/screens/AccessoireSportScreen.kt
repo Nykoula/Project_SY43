@@ -44,7 +44,7 @@ fun AccessoireSportScreen(navController: NavController, sellViewModel: SellViewM
                 listOf(
                     "Lunettes",
                     "Gants",
-                    "Chapeaux",
+                    "Chapeaux et casquettes",
                     "Écharpes",
                     "Bracelets"
                 )

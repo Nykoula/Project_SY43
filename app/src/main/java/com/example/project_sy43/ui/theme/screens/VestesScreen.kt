@@ -32,7 +32,7 @@ fun VestesScreen(navController: NavController, sellViewModel: SellViewModel) {
 
     Scaffold(
         topBar = {
-            VintedTopBar(title = "Manteaux", navController, true)
+            VintedTopBar(title = "Vestes", navController, true)
         }
     ) { innerPadding ->
         LazyColumn(
@@ -52,7 +52,8 @@ fun VestesScreen(navController: NavController, sellViewModel: SellViewModel) {
                     "Vestes chemises",
                     "Vestes de ski et snowboard",
                     "Blousons teddy",
-                    "Vestes coupe-vent"
+                    "Vestes coupe-vent",
+                    "Autres vestes"
                 )
             ) { type ->
                 Row(

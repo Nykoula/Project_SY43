@@ -29,9 +29,47 @@ import com.example.project_sy43.navigation.VintedScreen
 import com.example.project_sy43.ui.theme.components.VintedTopBar
 import com.example.project_sy43.viewmodel.SellViewModel
 
+object Sport {
+    val womanType = listOf(
+        "Vêtements d'extérieur",
+        "Survêtements",
+        "Joggings & leggings",
+        "Shorts",
+        "Robes de sports",
+        "Jupes de sports",
+        "Hauts & t-shirt de sports",
+        "Maillots de sports",
+        "Sweats & sweats à capuche",
+        "Brassières",
+        "Autres vêtements de sports"
+    )
+    val manType = listOf(
+        "Vêtements d'extérieur",
+        "Survêtements",
+        "Pantalons",
+        "Joggings",
+        "Shorts",
+        "Hauts & t-shirt de sports",
+        "Maillots de sports",
+        "Pulls & sweats",
+        "Autres vêtements de sports"
+
+    )
+    val childrenType = listOf(
+        "Autres shorts"
+    )
+}
+
 @Composable
 fun SportScreen(navController: NavController, sellViewModel: SellViewModel) {
     var selectedType by sellViewModel.selectedType
+
+    val typeList = when (sellViewModel.selectedCategory.value) {
+        "Woman" -> Sport.womanType
+        "Man" -> Sport.manType
+        "Children" -> Sport.childrenType
+        else -> emptyList()
+    }
 
     Scaffold(
         topBar = {
@@ -63,19 +101,7 @@ fun SportScreen(navController: NavController, sellViewModel: SellViewModel) {
                 Divider(thickness = 1.dp, color = Color.Gray)
             }
             items(
-                listOf(
-                    "Vêtements d'extérieur",
-                    "Survêtements",
-                    "Joggings & leggings",
-                    "Shorts",
-                    "Robes de sports",
-                    "Jupes de sports",
-                    "Hauts & t-shirt de sports",
-                    "Maillots de sports",
-                    "Sweats & sweats à capuche",
-                    "Brassières",
-                    "Autres vêtements de sports"
-                )
+                typeList
             ) { type ->
                 Row(
                     verticalAlignment = Alignment.CenterVertically,

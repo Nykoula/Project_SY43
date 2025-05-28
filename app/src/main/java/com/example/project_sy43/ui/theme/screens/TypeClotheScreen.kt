@@ -61,9 +61,9 @@ object TypeClothes {
         "Vestes et manteaux" to VintedScreen.ManteauxEtVestes.name,
         "Hauts et t-shirts" to VintedScreen.Haut.name,
         "Costumes et blazers" to VintedScreen.Blazer.name,
-        "Sweats et pulls" to VintedScreen.SweatCapuche.name,//hoodies femmes
+        "Sweats et pulls" to VintedScreen.SweatCapuche.name,
         "Shorts" to VintedScreen.Short.name,
-        "Sous-vêtements, chaussettes et pyjamas" to VintedScreen.LingeriePyjama.name,//different des femmes
+        "Sous-vêtements, chaussettes et pyjamas" to VintedScreen.LingeriePyjama.name,
         "Vêtements de sport" to VintedScreen.Sport.name,
         //"Maillots de bain" to VintedScreen.MaillotDeBain.name,//skip
 
@@ -76,6 +76,19 @@ object TypeClothes {
     )
 }
 
+object TypeClothesChoice {
+    val womanTypeChoice = listOf(
+        "Costumes et tenues particulières", "Autres vêtements femmes"
+    )
+    val manTypeChoice = listOf(
+        "Maillots de bain", "Vêtements spécialisés et costumes", "Autres vêtements hommes"
+
+    )
+    val childrenTypeChoice = listOf(
+        "Autres articles pour bébé et enfant"
+    )
+}
+
 @Composable
 fun TypeClotheScreen(navController: NavController, sellViewModel: SellViewModel) {
     var selectedType by sellViewModel.selectedType
@@ -84,6 +97,13 @@ fun TypeClotheScreen(navController: NavController, sellViewModel: SellViewModel)
         "Woman" -> TypeClothes.womanType
         "Man" -> TypeClothes.manType
         "Children" -> TypeClothes.childrenType
+        else -> emptyList()
+    }
+
+    val typeListChoice = when (sellViewModel.selectedCategory.value) {
+        "Woman" -> TypeClothesChoice.womanTypeChoice
+        "Man" -> TypeClothesChoice.manTypeChoice
+        "Children" -> TypeClothesChoice.childrenTypeChoice
         else -> emptyList()
     }
 
@@ -120,9 +140,7 @@ fun TypeClotheScreen(navController: NavController, sellViewModel: SellViewModel)
                 Divider(thickness = 1.dp, color = Color.Gray)
             }
             items(
-                listOf(
-                    "Costumes et tenues particulières", "Autres"
-                )
+                typeListChoice
             ) { type ->
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
