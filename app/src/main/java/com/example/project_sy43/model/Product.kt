@@ -12,5 +12,6 @@ data class Product (
     val matieres: List<String>,
     val marque: String,
     val isFavorite: Boolean,
-    val dateCreation: String
+    val dateCreation: String,
+    val photos: List<String>
 )

@@ -23,12 +23,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.Image
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.style.TextAlign
 import coil.compose.rememberImagePainter
 import com.example.project_sy43.viewmodel.ProductViewModel
 import com.google.firebase.firestore.FirebaseFirestore
 
 data class Post(
     val title: String = "",
+    val taille: String = "",
+    val price: Double = 0.0,
     val photos: List<String> = emptyList(),
     val state: String = ""
 )
@@ -50,7 +55,9 @@ fun MonCompte(
                 val fetchedPosts = result.map { document ->
                     Post(
                         title = document.getString("title") ?: "",
+                        taille = document.getString("size") ?: "",
                         state = document.getString("state") ?: "",
+                        price = document.getDouble("price") ?: 0.0,
                         photos = document.get("photos") as? List<String> ?: emptyList()
                     )
                 }
@@ -89,26 +96,54 @@ fun MonCompte(
                         Card(
                             modifier = Modifier
                                 .width(150.dp)
-                                .height(200.dp),
+                                .height(350.dp),
                             elevation = CardDefaults.cardElevation(4.dp)
                         ) {
                             Column(
                                 modifier = Modifier
                                     .fillMaxSize()
                                     .padding(8.dp),
-                                verticalArrangement = Arrangement.Bottom,
+                                verticalArrangement = Arrangement.Top,
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
-                                Text(post.title)
-                                Text(post.state)
                                 if (post.photos.isNotEmpty()) {
                                     Image(
                                         painter = rememberImagePainter(post.photos[0]),
                                         contentDescription = "Post Image",
-                                        modifier = Modifier.fillMaxWidth(),
+                                        modifier = Modifier
+                                            .width(150.dp)
+                                            .height(200.dp)
+                                            //.fillMaxWidth()
+                                            .clip(RoundedCornerShape(4.dp)),
                                         contentScale = ContentScale.Crop
                                     )
                                 }
+                                if (post.title.isNotEmpty()) {
+                                    Text(
+                                        text = post.title,
+                                        textAlign = TextAlign.Center,
+                                        modifier = Modifier.fillMaxWidth()
+                                    )
+                                }
+                                if (post.taille.isNotEmpty()) {
+                                    Text(
+                                        text = post.taille,
+                                        textAlign = TextAlign.Center,
+                                        modifier = Modifier.fillMaxWidth()
+                                    )
+                                }
+                                if (post.state.isNotEmpty()) {
+                                    Text(
+                                        text = post.state,
+                                        textAlign = TextAlign.Center,
+                                        modifier = Modifier.fillMaxWidth()
+                                    )
+                                }
+                                Text(
+                                    text = "${post.price}€",
+                                    textAlign = TextAlign.Center,
+                                    modifier = Modifier.fillMaxWidth()
+                                )
                             }
                         }
                     }
@@ -122,8 +157,8 @@ fun MonCompte(
             items(posts.drop(10).take(displayCount)) { post ->
                 Card(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .height(100.dp),
+                        .width(400.dp)
+                        .height(350.dp),
                     elevation = CardDefaults.cardElevation(4.dp)
                 ) {
                     Column(
@@ -133,8 +168,6 @@ fun MonCompte(
                         verticalArrangement = Arrangement.Top,
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Text(post.title)
-                        Text(post.state)
                         if (post.photos.isNotEmpty()) {
                             Image(
                                 painter = rememberImagePainter(post.photos[0]),
@@ -143,6 +176,32 @@ fun MonCompte(
                                 contentScale = ContentScale.Crop
                             )
                         }
+                        if (post.title.isNotEmpty()) {
+                            Text(
+                                text = post.title,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
+                        if (post.taille.isNotEmpty()) {
+                            Text(
+                                text = post.taille,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
+                        if (post.state.isNotEmpty()) {
+                            Text(
+                                text = post.state,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
+                        Text(
+                            text = "${post.price}€",
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.fillMaxWidth()
+                        )
                     }
                 }
             }
