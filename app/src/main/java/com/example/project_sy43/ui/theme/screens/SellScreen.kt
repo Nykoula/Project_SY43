@@ -94,7 +94,7 @@ import java.util.Locale
 
 @Composable
 fun SellScreen(navController: NavController, sellViewModel: SellViewModel = viewModel(), itemId: String? = null) {
-
+//la modification ne fonctionne pas
     val navBackStackEntry = navController.currentBackStackEntryAsState()
 
     DisposableEffect(navBackStackEntry.value) {
