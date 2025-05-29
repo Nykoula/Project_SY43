@@ -10,16 +10,23 @@ import androidx.compose.runtime.Composable
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.project_sy43.navigation.VintedScreen
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.getValue
 
 @OptIn(ExperimentalMaterial3Api::class)//pour la top bar
 @Composable
@@ -27,21 +34,18 @@ fun VintedTopBar(
     title: String,
     navController: NavController,
     canGoBack: Boolean = true, // si false, pas d'icône
-    description: String = ""
+    description: String = "",
+    menuDeroulant: Boolean = false,
+    onEditClick: () -> Unit = {},
+    onDeleteClick: () -> Unit = {}
 ) {
+    var expanded by remember { mutableStateOf(false) }
 
     TopAppBar(
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = Color(0xFF007782),
             titleContentColor = Color.White,
         ),
-        /*Column(
-            modifier = Modifier.fillMaxWidth()
-        ){
-            title = { Text(title) },
-            Spacer(modifier = WatchEvent.Modifier.padding(8.dp))
-            description = { Text(description) },
-        }*/
         title = {
             Column(
                 modifier = Modifier.fillMaxWidth()
@@ -53,30 +57,44 @@ fun VintedTopBar(
                 }
             }
         },
-
         navigationIcon = {
-//            onBackClick?.let {//redirige vers l'écran de connexion -> petit problème
-//                IconButton(onClick = it) {
-//                    Icon(
-//                        imageVector = Icons.Filled.Close,
-//                        contentDescription = "Go back",
-//                        tint = Color.White
-//                    )
-//                }
-//            }
             if (canGoBack) {
                 IconButton(onClick = {
-                    // Navigation vers "mon_compte"
-//                    navController.navigate(VintedScreen.MonCompte.name) {
-//                        // Optionnel : enlève l'écran actuel de la pile
-//                        popUpTo(navController.currentDestination?.route ?: "") { inclusive = true }
-//                    }
                     navController.popBackStack()
                 }) {
                     Icon(
                         imageVector = Icons.Filled.ArrowBack,
                         contentDescription = "Retour",
                         tint = Color.White
+                    )
+                }
+            }
+        },
+        actions = {
+            if (menuDeroulant) {
+                //affiche le bouton trois points
+                IconButton(onClick = { expanded = true }) {
+                    Icon(Icons.Default.MoreVert, contentDescription = "Menu")
+                }
+
+                //quand on clique ca affiche de dropmenu
+                DropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false }
+                ) {
+                    DropdownMenuItem(
+                        text = { Text("Modifier") },
+                        onClick = {
+                            expanded = false
+                            onEditClick()
+                        }
+                    )
+                    DropdownMenuItem(
+                        text = { Text("Supprimer") },
+                        onClick = {
+                            expanded = false
+                            onDeleteClick()
+                        }
                     )
                 }
             }

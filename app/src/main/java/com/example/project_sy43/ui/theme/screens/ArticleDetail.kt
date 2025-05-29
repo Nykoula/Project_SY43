@@ -87,7 +87,7 @@ fun ClothingDetailView(
         modifier = Modifier.fillMaxSize(),
         containerColor = Color.White,
         topBar = {
-            VintedTopBar(title = clothing?.title ?: "",navController, true)
+            VintedTopBar(title = clothing?.title ?: "",navController, true, "", true)
         }
     ) { innerPadding ->
 
