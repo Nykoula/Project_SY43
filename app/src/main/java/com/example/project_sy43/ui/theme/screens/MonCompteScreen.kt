@@ -113,7 +113,6 @@ fun MonCompte(
                                         modifier = Modifier
                                             .width(150.dp)
                                             .height(200.dp)
-                                            //.fillMaxWidth()
                                             .clip(RoundedCornerShape(4.dp)),
                                         contentScale = ContentScale.Crop
                                     )
@@ -172,7 +171,7 @@ fun MonCompte(
                             Image(
                                 painter = rememberImagePainter(post.photos[0]),
                                 contentDescription = "Post Image",
-                                modifier = Modifier.fillMaxWidth(),
+                                modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(4.dp)),
                                 contentScale = ContentScale.Crop
                             )
                         }

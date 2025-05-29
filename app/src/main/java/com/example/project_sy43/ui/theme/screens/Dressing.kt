@@ -104,9 +104,12 @@ fun Dressing(
                             type = document.getString("type") ?: "",
                             state = document.getString("state") ?: "",
                             colis = document.getString("colis") ?: "",
-                            color = (document.get("color") as? List<*>)?.mapNotNull { it as? String } ?: emptyList(),
-                            material = (document.get("material") as? List<*>)?.mapNotNull { it as? String } ?: emptyList(),
-                            photos = (document.get("photos") as? List<*>)?.mapNotNull { it as? String } ?: emptyList(),
+                            color = (document.get("color") as? List<*>)?.mapNotNull { it as? String }
+                                ?: emptyList(),
+                            material = (document.get("material") as? List<*>)?.mapNotNull { it as? String }
+                                ?: emptyList(),
+                            photos = (document.get("photos") as? List<*>)?.mapNotNull { it as? String }
+                                ?: emptyList(),
                             userId = document.getString("userId") ?: ""
                         )
                     }
@@ -130,43 +133,40 @@ fun Dressing(
         }
     ) { innerPadding ->
 
-        if (selectedItem != null) {
-            // Affichage des détails du vêtement
-            SoldClothingDetailView(
-                item = selectedItem!!,
-                onBack = { selectedItem = null }
-            )
-        } else {
-            // Vue principale des vêtements vendus
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding)
-                    .padding(16.dp)
-            ) {
-                // Titre avec nombre d'articles
-                Text(
-                    text = "Mes vêtements vendus (${soldItems.size})",
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFF007782),
-                    modifier = Modifier.padding(bottom = 16.dp)
-                )
 
-                // Contenu principal
-                if (isLoading) {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator(color = Color(0xFF007782))
-                    }
-                } else {
-                    SoldClothingList(
-                        items = soldItems,
-                        onItemClick = { selectedItem = it }
-                    )
+        // Vue principale des vêtements vendus
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+                .padding(16.dp)
+        ) {
+            // Titre avec nombre d'articles
+            Text(
+                text = "Mes vêtements vendus (${soldItems.size})",
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF007782),
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+
+            // Contenu principal
+            if (isLoading) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(color = Color(0xFF007782))
                 }
+            } else {
+                SoldClothingList(
+                    items = soldItems,
+                    onItemClick = {
+                        //selectedItem = it
+                        navController.navigate("${VintedScreen.ArticleDetail.name}/${it.id}")
+
+                    }
+                )
             }
         }
     }
@@ -326,7 +326,7 @@ fun SoldClothingListItem(
     }
 }
 
-@Composable
+/*@Composable
 fun SoldClothingDetailView(
     item: SoldClothingItem,
     onBack: () -> Unit
@@ -478,7 +478,7 @@ fun SoldClothingDetailView(
             }
         }
     }
-}
+}*/
 
 @Composable
 fun DetailRow(label: String, value: String) {

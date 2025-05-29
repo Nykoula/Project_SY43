@@ -36,5 +36,6 @@ enum class VintedScreen {
     Maternite,
     LingerieMaternite,
     Sport,
-    AccessoireSport
+    AccessoireSport,
+    ArticleDetail
 }

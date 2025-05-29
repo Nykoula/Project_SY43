@@ -2,14 +2,17 @@ package com.example.project_sy43.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.project_sy43.ui.theme.screens.Accueil
 import com.example.project_sy43.ui.theme.screens.LoginScreen
 import com.example.project_sy43.viewmodel.ProductViewModel
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.project_sy43.ui.theme.screens.AccessoireSportScreen
 import com.example.project_sy43.ui.theme.screens.BlazerScreen
+import com.example.project_sy43.ui.theme.screens.ClothingDetailView
 import com.example.project_sy43.ui.theme.screens.MonCompte
 import com.example.project_sy43.ui.theme.screens.SellScreen
 import com.example.project_sy43.ui.theme.screens.SignUpScreen
@@ -262,6 +265,21 @@ fun VintedNavGraph(navController: NavHostController, viewModelProduct: ProductVi
                 }
             )
         }
+        composable(
+            route = "${VintedScreen.ArticleDetail.name}/{itemId}",
+            //la route accepte un argument de type string
+            arguments = listOf(navArgument("itemId") { type = NavType.StringType })
+        ){
+            val itemId = it.arguments?.getString("itemId")
+            ClothingDetailView(
+                personViewModel = viewModelPerson,
+                navController = navController,
+                itemId = itemId,
+                onCancel = {
+                    navController.popBackStack()
+                }
+            )
+        }
         composable(VintedScreen.UpdatePassword.name) {
             UpdatePassword(navController = navController)
         }
@@ -271,6 +289,5 @@ fun VintedNavGraph(navController: NavHostController, viewModelProduct: ProductVi
         composable(VintedScreen.NotificationSettings.name) {
             NotificationSetting(navController = navController,onCancel = {navController.popBackStack()})
         }
-
     }
 }
