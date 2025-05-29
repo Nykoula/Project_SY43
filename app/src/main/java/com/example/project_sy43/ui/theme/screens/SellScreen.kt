@@ -53,6 +53,7 @@ import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -75,6 +76,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import coil.compose.AsyncImage
 import com.example.project_sy43.navigation.VintedScreen
 import com.example.project_sy43.ui.theme.components.VintedBottomBar
@@ -91,6 +93,15 @@ import java.util.Locale
 
 @Composable
 fun SellScreen(navController: NavController, sellViewModel: SellViewModel = viewModel()) {
+
+    val navBackStackEntry = navController.currentBackStackEntryAsState()
+
+    DisposableEffect(navBackStackEntry.value) {
+        onDispose {
+            // Quand on quitte l'écran ça remet les champs vide
+            sellViewModel.reset()
+        }
+    }
 
     val context = LocalContext.current
     val scrollState = rememberScrollState()
