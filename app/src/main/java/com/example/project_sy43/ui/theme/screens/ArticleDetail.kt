@@ -58,7 +58,7 @@ fun ClothingDetailView(
     navController: NavController,
     itemId: String?,
     onCancel: () -> Unit
-){
+) {
     var clothing by remember { mutableStateOf<Product?>(null) }
 
     LaunchedEffect(itemId) {
@@ -87,7 +87,14 @@ fun ClothingDetailView(
         modifier = Modifier.fillMaxSize(),
         containerColor = Color.White,
         topBar = {
-            VintedTopBar(title = clothing?.title ?: "",navController, true, "", true)
+            VintedTopBar(
+                title = clothing?.title ?: "",
+                navController,
+                true,
+                "",
+                true,
+                onEditClick = { navController.navigate("${VintedScreen.Sell.name}?itemId=${clothing?.id}") }
+            )
         }
     ) { innerPadding ->
 
@@ -174,8 +181,8 @@ fun ClothingDetailView(
                     if (clothing?.type?.isNotEmpty() ?: false) {
                         DetailRow("Type de vêtement", clothing?.type.toString())
                     }
-                    if (clothing?.taille?.isNotEmpty() ?: false) {
-                        DetailRow("Taille", clothing?.taille.toString())
+                    if (clothing?.size?.isNotEmpty() ?: false) {
+                        DetailRow("Taille", clothing?.size.toString())
                     }
                     if (clothing?.state?.isNotEmpty() ?: false) {
                         DetailRow("État", clothing?.state.toString())
@@ -183,11 +190,11 @@ fun ClothingDetailView(
                     if (clothing?.colis?.isNotEmpty() ?: false) {
                         DetailRow("Format du colis", clothing?.colis.toString())
                     }
-                    if (clothing?.couleur?.isNotEmpty() ?: false) {
-                        DetailRow("Couleurs", clothing?.couleur?.joinToString(", ") ?: "")
+                    if (clothing?.color?.isNotEmpty() ?: false) {
+                        DetailRow("Couleurs", clothing?.color?.joinToString(", ") ?: "")
                     }
-                    if (clothing?.matieres?.isNotEmpty() ?: false) {
-                        DetailRow("Matières", clothing?.matieres?.joinToString(", ") ?: "")
+                    if (clothing?.material?.isNotEmpty() ?: false) {
+                        DetailRow("Matières", clothing?.material?.joinToString(", ") ?: "")
                     }
 
                     if (clothing?.description?.isNotEmpty() ?: false) {

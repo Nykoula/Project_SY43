@@ -79,12 +79,12 @@ fun VintedNavGraph(navController: NavHostController, viewModelProduct: ProductVi
                 }
             )
         }
-        composable(route = VintedScreen.Sell.name) {
+        /*composable(route = VintedScreen.Sell.name) {
             SellScreen(
                 navController = navController,
                 sellViewModel = viewModelSell
             )
-        }
+        }*/
         composable(route = VintedScreen.ColorScreen.name) {
             ColorScreen(
                 navController = navController,
@@ -289,5 +289,33 @@ fun VintedNavGraph(navController: NavHostController, viewModelProduct: ProductVi
         composable(VintedScreen.NotificationSettings.name) {
             NotificationSetting(navController = navController,onCancel = {navController.popBackStack()})
         }
+        /*composable(
+            route = "${VintedScreen.Sell.name}/{itemId}",
+            //la route accepte un argument de type string
+            arguments = listOf(navArgument("itemId") { type = NavType.StringType })
+        ){
+            val itemId = it.arguments?.getString("itemId")
+            SellScreen(
+                navController = navController,
+                sellViewModel = viewModelSell,
+                itemId = itemId
+            )
+        }*/
+        composable(
+            route = "${VintedScreen.Sell.name}?itemId={itemId}",
+            arguments = listOf(navArgument("itemId") {
+                type = NavType.StringType
+                nullable = true
+                defaultValue = null
+            })
+        ) {
+            val itemId = it.arguments?.getString("itemId")
+            SellScreen(
+                navController = navController,
+                sellViewModel = viewModelSell,
+                itemId = itemId
+            )
+        }
+
     }
 }

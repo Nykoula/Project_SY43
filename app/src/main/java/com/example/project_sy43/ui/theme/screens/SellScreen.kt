@@ -54,6 +54,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -92,13 +93,23 @@ import java.util.Calendar
 import java.util.Locale
 
 @Composable
-fun SellScreen(navController: NavController, sellViewModel: SellViewModel = viewModel()) {
+fun SellScreen(navController: NavController, sellViewModel: SellViewModel = viewModel(), itemId: String? = null) {
 
     val navBackStackEntry = navController.currentBackStackEntryAsState()
 
     DisposableEffect(navBackStackEntry.value) {
         onDispose {
             // Quand on quitte l'écran ça remet les champs vide
+            sellViewModel.reset()
+        }
+    }
+
+    LaunchedEffect(itemId) {
+        if (itemId != null) {
+            // Charger les infos de l'article dans le ViewModel par exemple
+            sellViewModel.loadItem(itemId)
+        } else {
+            // Mode ajout d'article : réinitialise les champs
             sellViewModel.reset()
         }
     }
@@ -253,8 +264,6 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
             }
         }
     }
-
-
 
     Scaffold(
         topBar = {
@@ -870,7 +879,6 @@ fun generateUniqueUri(context: Context): Uri {
     )
 }
 
-
 fun uploadPhotosToFirebase(
     uriList: List<Uri>,
     onUploadSuccess: (List<String>) -> Unit
@@ -912,8 +920,6 @@ fun uploadPhotosToFirebase(
             }
     }
 }
-
-
 
 fun saveArticleToFirestore(
     userId: String,
@@ -963,4 +969,3 @@ fun saveArticleToFirestore(
             Log.e("Firestore", "Erreur lors de l'enregistrement : ${exception.message}")
         }
 }
-

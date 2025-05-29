@@ -1,12 +1,19 @@
 package com.example.project_sy43.viewmodel
 
 import android.net.Uri
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import com.example.project_sy43.repository.ProductRepository
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.launch
 
 class SellViewModel : ViewModel(){
+
+    private val repository = ProductRepository()
+
     var idUser = mutableStateOf("")
     var productTitle = mutableStateOf("")
     var productDescription = mutableStateOf("")
@@ -19,8 +26,10 @@ class SellViewModel : ViewModel(){
     var selectedSize = mutableStateOf("")
     var selectedColis = mutableStateOf("")
     var dateCreation = mutableStateOf("")
-    var productPhotoUri by mutableStateOf<Uri?>(null)
+    var productPhotoUri = mutableStateOf<List<Uri>>(emptyList())
         private set
+    //    var productPhotoUri by mutableStateOf<Uri?>(null)
+//        private set
     var isAvailable = mutableStateOf(true)
 
     fun setProductTitle(title: String) {
@@ -72,8 +81,45 @@ class SellViewModel : ViewModel(){
     }
 
     // updateProductPhotoUri
-    fun updateProductPhotoUri(uri: Uri) {
-        productPhotoUri = uri
+//    fun updateProductPhotoUri(uri: Uri) {
+//        productPhotoUri = uri
+//    }
+    fun addProductPhotoUri(uri: Uri) {
+        productPhotoUri.value = productPhotoUri.value + uri
+    }
+
+    //remplace toutes les photos de la liste en une seule fois
+    fun setProductPhotoUris(uris: List<Uri>) {
+        productPhotoUri.value = uris
+    }
+
+    //supprimer une photo de la liste
+    fun removeProductPhotoUri(uri: Uri) {
+        productPhotoUri.value = productPhotoUri.value.filter { it != uri }
+    }
+
+
+
+    fun loadItem(itemId: String) {
+        viewModelScope.launch {
+            Log.d("SellViewModel", "loadItem called with itemId=$itemId")
+            val item = repository.getItemById(itemId)
+            if (item != null) {
+                Log.d("SellViewModel", "Item loaded: $item")
+                productTitle.value = item.title
+                productDescription.value = item.description
+                productPrice.value = item.price.toString()
+                selectedCategory.value = item.category
+                selectedType.value = item.type
+                selectedState.value = item.state
+                selectedColors.value = item.color.toSet()
+                selectedMaterial.value = item.material.toSet()
+                selectedSize.value = item.size
+                selectedColis.value = item.colis
+                productPhotoUri.value = item.photos.map { Uri.parse(it) }
+                //productPhotoUri = item.photos.firstOrNull()?.let { Uri.parse(it) }
+            }
+        }
     }
 
     fun reset() {
@@ -88,6 +134,7 @@ class SellViewModel : ViewModel(){
         selectedSize.value = ""
         selectedColis.value = ""
         isAvailable.value = true
-        productPhotoUri = null
+        //productPhotoUri = null
+        productPhotoUri.value = emptyList()
     }
 }
