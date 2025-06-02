@@ -95,28 +95,18 @@ import java.util.Locale
 @Composable
 fun SellScreen(navController: NavController, sellViewModel: SellViewModel = viewModel(), itemId: String? = null) {
 //la modification ne fonctionne pas
-    val navBackStackEntry = navController.currentBackStackEntryAsState()
-
-    DisposableEffect(navBackStackEntry.value) {
-        onDispose {
-            // Quand on quitte l'écran ça remet les champs vide
-            sellViewModel.reset()
-        }
-    }
 
     LaunchedEffect(itemId) {
         if (itemId != null) {
-            // Charger les infos de l'article dans le ViewModel par exemple
+            // Charger les infos de l'article dans le ViewModel
             sellViewModel.loadItem(itemId)
-        } else {
-            // Mode ajout d'article : réinitialise les champs
-            sellViewModel.reset()
         }
     }
 
     val context = LocalContext.current
     val scrollState = rememberScrollState()
     var showDialog by remember { mutableStateOf(false) }
+    var showResetDialog by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("") }
 
     // Pour stocker le résultat de l'utilisateur
@@ -267,7 +257,9 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
 
     Scaffold(
         topBar = {
-            VintedTopBar(title = "Sell your item", navController, true)
+            Column {
+                VintedTopBar(title = "Sell your item", navController, true)
+            }
         },
         bottomBar = {
             VintedBottomBar(navController, VintedScreen.Sell)
@@ -281,8 +273,25 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            Button(
+                onClick = {
+                    showResetDialog = true
+                }, // Assurez-vous que cela appelle la fonction reset de votre ViewModel
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.White,
+                    contentColor = Color(0xFFFF1C1C)
+                ),
+                shape = RoundedCornerShape(16.dp),
+                modifier = Modifier
+                    .align(Alignment.End)
+                    .border(2.dp, Color(0xFFFF1C1C), RoundedCornerShape(16.dp))
+            ) {
+                Text(text = "Reset")
+            }
             // Section pour ajouter des photos
             Column {
+
+
                 // Bouton principal pour ajouter des photos
                 Button(
                     onClick = { showPhotoOptions = true },
@@ -294,6 +303,7 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
                     modifier = Modifier
                         .border(2.dp, Color(0xFF007782), RoundedCornerShape(16.dp))
                 ) {
+
                     Row(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -306,7 +316,6 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(text = "Add pictures (${photoList.size})")
                     }
-
                 }
 
                 // Menu pour choisir entre appareil photo et galerie
@@ -759,10 +768,16 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
                 modifier = Modifier
                     .border(2.dp, Color(0xFF007782), RoundedCornerShape(16.dp))
             ) {
-                Text(text = "Add")
+                if (itemId == null) {
+                    Text(text = "Add")
+                }
+                else {
+                    Text(text = "Update")
+                    }
             }
         }
     }
+
     if (showDialog) {
         AlertDialog(
             onDismissRequest = { showDialog = false },
@@ -775,6 +790,31 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
                     Text("OK")
                 }
             }
+        )
+    }
+
+    if (showResetDialog) {
+        AlertDialog(
+            onDismissRequest = { showResetDialog = false },
+            title = { Text("Confirm Reset") },
+            text = { Text("Are you sure you want to reset all fields?") },
+            dismissButton = {
+                Button(
+                    onClick = { showResetDialog = false }
+                ) {
+                    Text("No")
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        sellViewModel.reset()
+                        showResetDialog = false
+                    }
+                ) {
+                    Text("Yes")
+                }
+            },
         )
     }
 }
@@ -939,7 +979,7 @@ fun saveArticleToFirestore(
     Log.d("Firestore", "Photo URLs: $photoUrls")
 
     val calendar = Calendar.getInstance(Locale.FRANCE) // Récupère la date et l'heure actuelles
-    val dateFormat = SimpleDateFormat("dd-MM-yyyy") // Format désiré : "19-04-2025"
+    val dateFormat = SimpleDateFormat("yyyy-MM-dd-HH-mm-ss") // Format désiré : "2025-04-19-14-30-45"
     val currentDate = dateFormat.format(calendar.time) // Convertit en chaîne formatée
 
     val db = Firebase.firestore
