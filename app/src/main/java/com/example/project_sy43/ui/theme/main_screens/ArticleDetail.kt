@@ -45,7 +45,6 @@ import coil.compose.AsyncImage
 import com.example.project_sy43.model.Product
 import com.example.project_sy43.navigation.VintedScreen
 import com.example.project_sy43.ui.theme.components.VintedTopBar
-import com.example.project_sy43.ui.theme.second_screens.DetailRow
 import com.example.project_sy43.viewmodel.PersonViewModel
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlin.collections.isNotEmpty

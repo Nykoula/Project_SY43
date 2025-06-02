@@ -17,7 +17,7 @@ import com.example.project_sy43.ui.theme.main_screens.SellScreen
 import com.example.project_sy43.ui.theme.main_screens.SignUpScreen
 import com.example.project_sy43.ui.theme.second_screens.ColorScreen
 import com.example.project_sy43.ui.theme.second_screens.CombinaisonScreen
-import com.example.project_sy43.ui.theme.second_screens.Dressing
+import com.example.project_sy43.ui.theme.main_screens.Dressing
 import com.example.project_sy43.ui.theme.second_screens.HautScreen
 import com.example.project_sy43.ui.theme.second_screens.JupeScreen
 import com.example.project_sy43.ui.theme.second_screens.LingerieMaterniteScreen

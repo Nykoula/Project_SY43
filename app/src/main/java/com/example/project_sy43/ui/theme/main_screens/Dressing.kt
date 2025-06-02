@@ -1,4 +1,4 @@
-package com.example.project_sy43.ui.theme.second_screens
+package com.example.project_sy43.ui.theme.main_screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -63,7 +63,8 @@ data class SoldClothingItem(
     val color: List<String> = emptyList(),
     val material: List<String> = emptyList(),
     val photos: List<String> = emptyList(),
-    val userId: String = ""
+    val userId: String = "",
+    val dateCreation: String = ""
 )
 
 @Composable
@@ -105,9 +106,10 @@ fun Dressing(
                                 ?: emptyList(),
                             photos = (document.get("photos") as? List<*>)?.mapNotNull { it as? String }
                                 ?: emptyList(),
-                            userId = document.getString("userId") ?: ""
+                            userId = document.getString("userId") ?: "",
+                            dateCreation = document.getString("dateCreation") ?: ""
                         )
-                    }
+                    }.sortedByDescending { it.dateCreation }
                     isLoading = false
                 }
                 .addOnFailureListener { exception ->
