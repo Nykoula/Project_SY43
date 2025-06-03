@@ -50,6 +50,9 @@ import com.example.project_sy43.ui.theme.second_screens.VestesScreen
 
 import androidx.navigation.navArgument
 import com.example.project_sy43.ui.theme.main_screens.FlappyBirdGame
+import com.example.project_sy43.ui.theme.children_screen.BabyGirlScreen
+import com.example.project_sy43.ui.theme.children_screen.BabyScreen
+import com.example.project_sy43.ui.theme.children_screen.BabyShoesScreen
 
 @Composable
 fun VintedNavGraph(navController: NavHostController, viewModelProduct: ProductViewModel, viewModelSell: SellViewModel, viewModelPerson: PersonViewModel) {
@@ -220,14 +223,29 @@ fun VintedNavGraph(navController: NavHostController, viewModelProduct: ProductVi
                 sellViewModel = viewModelSell
             )
         }
+        composable(route = VintedScreen.BabyGirl.name) {
+            BabyGirlScreen(
+                navController = navController,
+                sellViewModel = viewModelSell
+            )
+        }
+        composable(route = VintedScreen.Baby.name) {
+            BabyScreen(
+                navController = navController,
+                sellViewModel = viewModelSell
+            )
+        }
+        composable(route = VintedScreen.BabyShoes.name) {
+            BabyShoesScreen(
+                navController = navController,
+                sellViewModel = viewModelSell
+            )
+        }
         composable(route = VintedScreen.Size.name) {
             SizeScreen(
                 navController = navController,
                 sellViewModel = viewModelSell
             )
-        }
-        composable(route = VintedScreen.FlappyBirdGames.name) {
-            FlappyBirdGame()
         }
         composable(route = VintedScreen.Search.name) {
             Search(
@@ -310,8 +328,8 @@ fun VintedNavGraph(navController: NavHostController, viewModelProduct: ProductVi
                 }
             )
         }
-        composable(VintedScreen.UpdatePassword.name) {
-            UpdatePassword(navController = navController)
+        composable(route = VintedScreen.FlappyBirdGames.name){
+            FlappyBirdGame()
         }
         composable(VintedScreen.UpdateProfile.name) {
             UpdateProfile(navController = navController,onCancel = {})

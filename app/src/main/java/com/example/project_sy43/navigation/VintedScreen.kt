@@ -39,5 +39,8 @@ enum class VintedScreen {
     LingerieMaternite,
     Sport,
     AccessoireSport,
-    ArticleDetail
+    ArticleDetail,
+    BabyGirl,
+    Baby,
+    BabyShoes
 }
