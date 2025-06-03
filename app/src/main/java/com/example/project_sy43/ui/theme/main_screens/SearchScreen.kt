@@ -4,6 +4,8 @@ import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
@@ -12,6 +14,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -36,6 +39,7 @@ fun Search(
     var filterDateAsc by remember { mutableStateOf(false) }
 
     val db = FirebaseFirestore.getInstance()
+    val keyboardController = LocalSoftwareKeyboardController.current
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -53,18 +57,33 @@ fun Search(
                 .padding(innerPadding)
                 .padding(16.dp)
         ) {
-            OutlinedTextField(
+            BasicTextField(
                 value = searchQuery,
                 onValueChange = { searchQuery = it },
-                label = { Text("Search by title") },
-                leadingIcon = {
-                    Icon(
-                        imageVector = Icons.Default.Search,
-                        contentDescription = "Search"
-                    )
-                },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-                modifier = Modifier.fillMaxWidth()
+                keyboardActions = KeyboardActions(
+                    onSearch = {
+                        keyboardController?.hide()
+                        if (searchQuery.isNotEmpty()) {
+                            performSearch(db, searchQuery, filterPriceAsc, filterDateAsc, sellViewModel)
+                        }
+                    }
+                ),
+                decorationBox = { innerTextField ->
+                    OutlinedTextField(
+                        value = searchQuery,
+                        onValueChange = { searchQuery = it },
+                        label = { Text("Search by title") },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Default.Search,
+                                contentDescription = "Search"
+                            )
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
+                    )
+                }
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -80,13 +99,17 @@ fun Search(
                     Text("Filter by Type")
                 }
 
-                Button(onClick = { filterPriceAsc = !filterPriceAsc },
-                       modifier = Modifier.weight(1f)) {
+                Button(
+                    onClick = { filterPriceAsc = !filterPriceAsc },
+                    modifier = Modifier.weight(1f)
+                ) {
                     Text(if (filterPriceAsc) "Price: Low to High" else "Price: High to Low")
                 }
 
-                Button(onClick = { filterDateAsc = !filterDateAsc },
-                       modifier = Modifier.weight(1f)) {
+                Button(
+                    onClick = { filterDateAsc = !filterDateAsc },
+                    modifier = Modifier.weight(1f)
+                ) {
                     Text(if (filterDateAsc) "Date: Old to New" else "Date: New to Old")
                 }
             }
@@ -111,56 +134,53 @@ fun Search(
             }
         }
     }
-
-    LaunchedEffect(searchQuery, filterPriceAsc, filterDateAsc) {
-        if (searchQuery.isNotEmpty()) {
-            isLoading = true
-            try {
-                var query = db.collection("Post")
-                    .orderBy("title")
-                    .startAt(searchQuery)
-                    .endAt(searchQuery + "\uf8ff")
-
-                if (filterPriceAsc) {
-                    query = query.orderBy("price", Query.Direction.ASCENDING)
-                } else {
-                    query = query.orderBy("price", Query.Direction.DESCENDING)
-                }
-
-                if (filterDateAsc) {
-                    query = query.orderBy("dateCreation", Query.Direction.ASCENDING)
-                } else {
-                    query = query.orderBy("dateCreation", Query.Direction.DESCENDING)
-                }
-
-                query.get()
-                    .addOnSuccessListener { documents ->
-                        val results = documents.mapNotNull { document ->
-                            try {
-                                SellViewModel().apply {
-                                    productTitle.value = document.getString("title") ?: ""
-                                    productPrice.value = document.getDouble("price")?.toString() ?: ""
-                                    dateCreation.value = document.getTimestamp("dateCreation")?.toDate()?.toString() ?: ""
-                                    // Map other fields as necessary
-                                }
-                            } catch (e: Exception) {
-                                null
-                            }
-                        }
-                        sellViewModel.setSearchResults(results)
-                        isLoading = false
-                    }
-                    .addOnFailureListener { exception ->
-                        Log.e("Search", "Error fetching documents", exception)
-                        isLoading = false
-                    }
-            } catch (e: Exception) {
-                Log.e("Search", "Error during search", e)
-                isLoading = false
-            }
-        }
-    }
 }
+
+fun performSearch(
+    db: FirebaseFirestore,
+    searchQuery: String,
+    filterPriceAsc: Boolean,
+    filterDateAsc: Boolean,
+    sellViewModel: SellViewModel
+) {
+    var query = db.collection("Post")
+        .orderBy("title")
+        .startAt(searchQuery)
+        .endAt(searchQuery + "\uf8ff")
+
+    if (filterPriceAsc) {
+        query = query.orderBy("price", Query.Direction.ASCENDING)
+    } else {
+        query = query.orderBy("price", Query.Direction.DESCENDING)
+    }
+
+    if (filterDateAsc) {
+        query = query.orderBy("dateCreation", Query.Direction.ASCENDING)
+    } else {
+        query = query.orderBy("dateCreation", Query.Direction.DESCENDING)
+    }
+
+    query.get()
+        .addOnSuccessListener { documents ->
+            val results = documents.mapNotNull { document ->
+                try {
+                    SellViewModel().apply {
+                        productTitle.value = document.getString("title") ?: ""
+                        productPrice.value = document.getDouble("price")?.toString() ?: ""
+                        dateCreation.value = document.getTimestamp("dateCreation")?.toDate()?.toString() ?: ""
+                    }
+                } catch (e: Exception) {
+                    null
+                }
+            }
+            sellViewModel.setSearchResults(results)
+        }
+        .addOnFailureListener { exception ->
+            Log.e("Search", "Error fetching documents", exception)
+        }
+}
+
+
 
 @Composable
 fun PostItem(item: SellViewModel, navController: NavController) {
