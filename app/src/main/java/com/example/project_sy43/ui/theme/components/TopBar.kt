@@ -1,5 +1,6 @@
 package com.example.project_sy43.ui.theme.components
 
+import android.R.attr.tint
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -27,6 +28,12 @@ import com.example.project_sy43.navigation.VintedScreen
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.getValue
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.runtime.*
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.project_sy43.viewmodel.SellViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)//pour la top bar
 @Composable
@@ -40,6 +47,7 @@ fun VintedTopBar(
     onDeleteClick: () -> Unit = {}
 ) {
     var expanded by remember { mutableStateOf(false) }
+    var showDeleteDialog by remember { mutableStateOf(false) }
 
     TopAppBar(
         colors = TopAppBarDefaults.topAppBarColors(
@@ -74,7 +82,11 @@ fun VintedTopBar(
             if (menuDeroulant) {
                 //affiche le bouton trois points
                 IconButton(onClick = { expanded = true }) {
-                    Icon(Icons.Default.MoreVert, contentDescription = "Menu")
+                    Icon(
+                        Icons.Default.MoreVert ,
+                        contentDescription = "Menu" ,
+                        tint = Color.White
+                    )
                 }
 
                 //quand on clique ca affiche de dropmenu

@@ -18,11 +18,19 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.outlined.Store
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -46,6 +54,7 @@ import com.example.project_sy43.model.Product
 import com.example.project_sy43.navigation.VintedScreen
 import com.example.project_sy43.ui.theme.components.VintedTopBar
 import com.example.project_sy43.viewmodel.PersonViewModel
+import com.example.project_sy43.viewmodel.SellViewModel
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlin.collections.isNotEmpty
 import kotlin.text.isNotEmpty
@@ -58,6 +67,7 @@ fun ClothingDetailView(
     onCancel: () -> Unit
 ) {
     var clothing by remember { mutableStateOf<Product?>(null) }
+    var showDeleteDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(itemId) {
         itemId?.let {
@@ -91,7 +101,10 @@ fun ClothingDetailView(
                 true,
                 "",
                 true,
-                onEditClick = { navController.navigate("${VintedScreen.Sell.name}?itemId=${clothing?.id}") }
+                onEditClick = { navController.navigate("${VintedScreen.Sell.name}?itemId=${clothing?.id}") },
+                onDeleteClick = {
+                    showDeleteDialog = true
+                }
             )
         }
     ) { innerPadding ->
@@ -106,115 +119,210 @@ fun ClothingDetailView(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             // Images du produit
-            if (clothing?.photos?.isNotEmpty() ?: false) {
-                LazyColumn(
-                    modifier = Modifier.height(250.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    items(clothing?.photos.orEmpty()) { photoUrl ->
-                        AsyncImage(
-                            model = photoUrl,
-                            contentDescription = clothing?.title,
-                            modifier = Modifier
-                                .width(400.dp)
-                                .height(250.dp)
-                                .height(200.dp)
-                                .clip(RoundedCornerShape(12.dp)),
-                            contentScale = ContentScale.Crop
+            clothing?.let { nonNullClothing ->
+                if (nonNullClothing.photos.isNotEmpty()) {
+                    PhotoCarousel(photos = nonNullClothing.photos)
+                } else {
+                    // Placeholder si pas de photos
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(200.dp)
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(Color(0xFF007782).copy(alpha = 0.1f)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.Store,
+                            contentDescription = null,
+                            tint = Color(0xFF007782),
+                            modifier = Modifier.size(80.dp)
                         )
                     }
                 }
-            } else {
-                // Placeholder si pas de photos
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(200.dp)
-                        .clip(RoundedCornerShape(12.dp))
-                        .background(Color(0xFF007782).copy(alpha = 0.1f)),
-                    contentAlignment = Alignment.Center
+
+                // Informations principales
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color.White)
                 ) {
-                    Icon(
-                        imageVector = Icons.Outlined.Store,
-                        contentDescription = null,
-                        tint = Color(0xFF007782),
-                        modifier = Modifier.size(80.dp)
-                    )
-                }
-            }
+                    Column(
+                        modifier = Modifier.padding(20.dp)
+                    ) {
+                        Text(
+                            text = clothing?.title.toString(),
+                            style = MaterialTheme.typography.headlineSmall,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.Black
+                        )
 
-            // Informations principales
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.White)
-            ) {
-                Column(
-                    modifier = Modifier.padding(20.dp)
-                ) {
-                    Text(
-                        text = clothing?.title.toString(),
-                        style = MaterialTheme.typography.headlineSmall,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.Black
-                    )
+                        Spacer(modifier = Modifier.height(8.dp))
 
-                    Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = "${clothing?.price}€",
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF007782)
+                        )
 
-                    Text(
-                        text = "${clothing?.price}€",
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold,
-                        color = Color(0xFF007782)
-                    )
-
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Divider(color = Color.LightGray)
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    // Détails du produit
-                    if (clothing?.category?.isNotEmpty() ?: false) {
-                        DetailRow("Catégorie", clothing?.category.toString())
-                    }
-                    if (clothing?.type?.isNotEmpty() ?: false) {
-                        DetailRow("Type de vêtement", clothing?.type.toString())
-                    }
-                    if (clothing?.size?.isNotEmpty() ?: false) {
-                        DetailRow("Taille", clothing?.size.toString())
-                    }
-                    if (clothing?.state?.isNotEmpty() ?: false) {
-                        DetailRow("État", clothing?.state.toString())
-                    }
-                    if (clothing?.colis?.isNotEmpty() ?: false) {
-                        DetailRow("Format du colis", clothing?.colis.toString())
-                    }
-                    if (clothing?.color?.isNotEmpty() ?: false) {
-                        DetailRow("Couleurs", clothing?.color?.joinToString(", ") ?: "")
-                    }
-                    if (clothing?.material?.isNotEmpty() ?: false) {
-                        DetailRow("Matières", clothing?.material?.joinToString(", ") ?: "")
-                    }
-
-                    if (clothing?.description?.isNotEmpty() ?: false) {
                         Spacer(modifier = Modifier.height(16.dp))
                         Divider(color = Color.LightGray)
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        Text(
-                            text = "Description",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = Color.Black
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            text = clothing?.description.toString(),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = Color.Gray
-                        )
+                        // Détails du produit
+                        if (clothing?.category?.isNotEmpty() ?: false) {
+                            DetailRow("Catégorie", clothing?.category.toString())
+                        }
+                        if (clothing?.type?.isNotEmpty() ?: false) {
+                            DetailRow("Type de vêtement", clothing?.type.toString())
+                        }
+                        if (clothing?.size?.isNotEmpty() ?: false) {
+                            DetailRow("Taille", clothing?.size.toString())
+                        }
+                        if (clothing?.state?.isNotEmpty() ?: false) {
+                            DetailRow("État", clothing?.state.toString())
+                        }
+                        if (clothing?.colis?.isNotEmpty() ?: false) {
+                            DetailRow("Format du colis", clothing?.colis.toString())
+                        }
+                        if (clothing?.color?.isNotEmpty() ?: false) {
+                            DetailRow("Couleurs", clothing?.color?.joinToString(", ") ?: "")
+                        }
+                        if (clothing?.material?.isNotEmpty() ?: false) {
+                            DetailRow("Matières", clothing?.material?.joinToString(", ") ?: "")
+                        }
+
+                        if (clothing?.description?.isNotEmpty() ?: false) {
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Divider(color = Color.LightGray)
+                            Spacer(modifier = Modifier.height(16.dp))
+
+                            Text(
+                                text = "Description",
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.Black
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(
+                                text = clothing?.description.toString(),
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = Color.Gray
+                            )
+                        }
                     }
                 }
             }
         }
     }
+    if (showDeleteDialog) {
+        AlertDialog(
+            onDismissRequest = { showDeleteDialog = false },
+            title = { Text("Confirmer la suppression") },
+            text = { Text("Êtes-vous sûr de vouloir supprimer cet article ?") },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        clothing?.id?.let { postId ->
+                            deletePost(
+                                postId = postId,
+                                onSuccess = {
+                                    navController.popBackStack()
+                                },
+                                onFailure = { exception ->
+                                    Log.e("DeletePost", "Erreur lors de la suppression du post", exception)
+                                }
+                            )
+                        }
+                        showDeleteDialog = false
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.Gray)
+                ) {
+                    Text("Oui", color = Color.White)
+                }
+            },
+            dismissButton = {
+                Button(
+                    onClick = { showDeleteDialog = false },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF007782))
+                ) {
+                    Text("Non")
+                }
+            }
+        )
+    }
 }
+
+private val db = FirebaseFirestore.getInstance()
+
+fun deletePost(postId: String, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
+    db.collection("Post").document(postId)
+        .delete()
+        .addOnSuccessListener {
+            onSuccess()
+        }
+        .addOnFailureListener { exception ->
+            onFailure(exception)
+        }
+}
+
+@Composable
+fun PhotoCarousel(photos: List<String>) {
+    var currentPhotoIndex by remember { mutableStateOf(0) }
+
+    Box(
+        modifier = Modifier
+            .height(250.dp)
+            .fillMaxWidth(),
+        contentAlignment = Alignment.Center
+    ) {
+        if (photos.isNotEmpty()) {
+            AsyncImage(
+                model = photos[currentPhotoIndex],
+                contentDescription = "Product Image",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(250.dp)
+                    .clip(RoundedCornerShape(12.dp)),
+                contentScale = ContentScale.Crop
+            )
+
+            if (photos.size > 1) {
+                // Flèche gauche
+                IconButton(
+                    onClick = {
+                        currentPhotoIndex = if (currentPhotoIndex > 0) currentPhotoIndex - 1 else photos.size - 1
+                    },
+                    modifier = Modifier
+                        .align(Alignment.CenterStart)
+                        .padding(8.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.ArrowBack,
+                        contentDescription = "Previous",
+                        tint = Color.White
+                    )
+                }
+
+                // Flèche droite
+                IconButton(
+                    onClick = {
+                        currentPhotoIndex = if (currentPhotoIndex < photos.size - 1) currentPhotoIndex + 1 else 0
+                    },
+                    modifier = Modifier
+                        .align(Alignment.CenterEnd)
+                        .padding(8.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.ArrowForward,
+                        contentDescription = "Next",
+                        tint = Color.White
+                    )
+                }
+            }
+        }
+    }
+}
+
+

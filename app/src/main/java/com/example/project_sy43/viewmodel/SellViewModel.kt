@@ -8,6 +8,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.example.project_sy43.repository.ProductRepository
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.launch
 
 class SellViewModel : ViewModel(){
@@ -31,6 +32,7 @@ class SellViewModel : ViewModel(){
     //    var productPhotoUri by mutableStateOf<Uri?>(null)
 //        private set
     var isAvailable = mutableStateOf(true)
+
 
     fun setProductTitle(title: String) {
         productTitle.value = title

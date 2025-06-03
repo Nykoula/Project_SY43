@@ -33,7 +33,7 @@ fun Search(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("Page search")
+
         }
     }
 }

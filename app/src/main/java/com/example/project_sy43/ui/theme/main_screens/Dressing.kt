@@ -64,7 +64,8 @@ data class SoldClothingItem(
     val material: List<String> = emptyList(),
     val photos: List<String> = emptyList(),
     val userId: String = "",
-    val dateCreation: String = ""
+    val dateCreation: String = "",
+    val isAvailable: Boolean = true
 )
 
 @Composable
@@ -107,7 +108,8 @@ fun Dressing(
                             photos = (document.get("photos") as? List<*>)?.mapNotNull { it as? String }
                                 ?: emptyList(),
                             userId = document.getString("userId") ?: "",
-                            dateCreation = document.getString("dateCreation") ?: ""
+                            dateCreation = document.getString("dateCreation") ?: "",
+                            isAvailable = document.getBoolean("isAvailable") ?: true
                         )
                     }.sortedByDescending { it.dateCreation }
                     isLoading = false
@@ -140,7 +142,7 @@ fun Dressing(
         ) {
             // Titre avec nombre d'articles
             Text(
-                text = "Mes vêtements vendus (${soldItems.size})",
+                text = "Mon dressing (${soldItems.size})",
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFF007782),
@@ -301,6 +303,15 @@ fun SoldClothingListItem(
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF007782)
+                )
+
+                Spacer(modifier = Modifier.height(2.dp))
+
+                Text(
+                    text = if (item.isAvailable) "À vendre" else "Vendu",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = if (item.isAvailable) Color.Green else Color.Red,
+                    fontWeight = FontWeight.Bold
                 )
 
                 if (item.state.isNotEmpty()) {
