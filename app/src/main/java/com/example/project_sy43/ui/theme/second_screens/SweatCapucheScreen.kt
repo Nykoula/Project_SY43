@@ -51,6 +51,13 @@ object Sweat {
 
     )
     val childrenType = listOf(
+        "Pulls",
+        "Pulls à col V",
+        "Pulls à col roulé",
+        "Gilets zippés",
+        "Boléros",
+        "Pulls à capuche & sweatshirts",
+        "Gilets",
         "Autres pulls/sweats"
     )
 }
@@ -76,25 +83,28 @@ fun SweatCapucheScreen(navController: NavController, sellViewModel: SellViewMode
                 .padding(innerPadding)
                 .fillMaxSize()
         ) {
-            item{
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 8.dp)
-                        .clickable {
-                            navController.popBackStack("Sell", inclusive = false)
-                        }
-                ) {
-                    Text(text = "Sweats", fontWeight = FontWeight.Bold)
-                    Spacer(modifier = Modifier.weight(1f))
-                    Icon(
-                        imageVector = Icons.Outlined.KeyboardArrowRight,
-                        contentDescription = "Arrow"
-                    )
+            if(sellViewModel.selectedCategory.value == "Woman" || sellViewModel.selectedCategory.value == "Man"){
+                item{
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 8.dp)
+                            .clickable {
+                                navController.navigate(VintedScreen.Sweat.name)
+                            }
+                    ) {
+                        Text(text = "Sweats", fontWeight = FontWeight.Bold)
+                        Spacer(modifier = Modifier.weight(1f))
+                        Icon(
+                            imageVector = Icons.Outlined.KeyboardArrowRight,
+                            contentDescription = "Arrow"
+                        )
+                    }
+                    Divider(thickness = 1.dp, color = Color.Gray)
                 }
-                Divider(thickness = 1.dp, color = Color.Gray)
             }
+
             items(
                 typeList
             ) { type ->

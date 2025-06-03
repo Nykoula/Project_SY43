@@ -48,9 +48,8 @@ fun BabyGirlScreen(navController: NavController, sellViewModel: SellViewModel) {
                     "Bébé filles" to VintedScreen.Baby.name,
                     "Chaussures" to VintedScreen.BabyShoes.name,
                     "Vêtements d'extérieur" to VintedScreen.Vestes.name,
-                    "Pulls & sweats" to VintedScreen.Vestes.name,
-                    "Chemises et t-shits" to VintedScreen.Vestes.name,
-                    "Robes" to VintedScreen.Vestes.name,
+                    "Pulls & sweats" to VintedScreen.SweatCapuche.name,
+                    "Chemises et t-shirts" to VintedScreen.Vestes.name,
                     "Pantalons et shorts" to VintedScreen.Vestes.name
                 )
             ) { (type, screen) ->
@@ -76,6 +75,8 @@ fun BabyGirlScreen(navController: NavController, sellViewModel: SellViewModel) {
             items(
                 listOf(
                     "Jupes",
+                    "Robes courtes",
+                    "Robes longues",
                     "Sacs et sacs à dos",
                     "Vêtements de sports",
                     "Lots de vêtements",
