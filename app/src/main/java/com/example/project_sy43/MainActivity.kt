@@ -1,6 +1,7 @@
 package com.example.project_sy43
 
 import android.os.Bundle
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -11,9 +12,12 @@ import com.example.project_sy43.viewmodel.PersonViewModel
 import com.example.project_sy43.viewmodel.ProductViewModel
 import com.example.project_sy43.viewmodel.SellViewModel
 
+
+
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
         setContent {
             Project_SY43Theme {
                 val navController = rememberNavController()
@@ -25,49 +29,3 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-/*class MainActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContent {
-            Project_SY43Theme {
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = Color(0xFF007782)
-                )
-                {
-                    Accueil()
-                }
-            }
-        }
-    }
-    @Composable
-
-    fun Accueil() {
-        val context = LocalContext.current
-
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(24.dp)
-        ) {
-
-            Button(
-                onClick = {
-                    val intent = Intent(context, Login::class.java)
-                    context.startActivity(intent)
-                }, colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.White, // Couleur d'arrière-plan du bouton
-                    contentColor = Color(0xFF007782)    // Couleur du texte
-                ), shape = RoundedCornerShape(16.dp),
-                modifier = Modifier
-                    .fillMaxWidth() // Le bouton occupe toute la largeur
-            )
-            {
-                Text(
-                    text = "Connexion/Login"
-                )
-            }
-        }
-    }
-}*/

@@ -44,7 +44,6 @@ android {
 }
 
 dependencies {
-
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -90,5 +89,7 @@ dependencies {
     implementation("com.google.firebase:firebase-firestore-ktx:25.0.0")
 
     implementation ("androidx.compose.material3:material3:latest-stable-version")
+
+    implementation ("androidx.appcompat:appcompat:1.6.1")
 
 }
