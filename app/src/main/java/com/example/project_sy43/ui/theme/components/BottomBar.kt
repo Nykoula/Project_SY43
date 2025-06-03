@@ -78,7 +78,7 @@ fun VintedBottomBar(
             onglet(
                 modifier = Modifier.weight(1f),
                 icon = Icons.Filled.MailOutline,
-                text = "Message",
+                text = "Inbox",
                 destination = VintedScreen.Messages,
                 navController = navController,
                 currentScreen = currentScreen,

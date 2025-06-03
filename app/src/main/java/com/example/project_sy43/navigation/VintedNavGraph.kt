@@ -28,6 +28,7 @@ import com.example.project_sy43.ui.theme.second_screens.ManteauxScreen
 import com.example.project_sy43.ui.theme.second_screens.MaterniteScreen
 import com.example.project_sy43.ui.theme.second_screens.MatieresScreen
 import com.example.project_sy43.ui.theme.main_screens.Messages
+import com.example.project_sy43.ui.theme.main_screens.ConversationScreen
 import com.example.project_sy43.ui.theme.main_screens.Profile
 import com.example.project_sy43.ui.theme.main_screens.Search
 import com.example.project_sy43.ui.theme.main_screens.Setting
@@ -46,6 +47,8 @@ import com.example.project_sy43.ui.theme.second_screens.SweatCapucheScreen
 import com.example.project_sy43.ui.theme.second_screens.SweatScreen
 import com.example.project_sy43.ui.theme.main_screens.TypeClotheScreen
 import com.example.project_sy43.ui.theme.second_screens.VestesScreen
+
+import androidx.navigation.navArgument
 
 @Composable
 fun VintedNavGraph(navController: NavHostController, viewModelProduct: ProductViewModel, viewModelSell: SellViewModel, viewModelPerson: PersonViewModel) {
@@ -238,6 +241,30 @@ fun VintedNavGraph(navController: NavHostController, viewModelProduct: ProductVi
                 }
             )
         }
+
+        composable(
+            route = "${VintedScreen.Conversation.name}/{conversationId}",
+            arguments = listOf(navArgument("conversationId") { type = NavType.StringType }) // Corrected: Moved parenthesis here
+        ) { backStackEntry -> // This lambda is now correctly passed as the content
+            val conversationId = backStackEntry.arguments?.getString("conversationId")
+
+            // It's good practice to handle the case where conversationId might be null
+            if (conversationId != null) {
+                ConversationScreen(
+                    navController = navController,
+                    conversationId = conversationId,
+//                    onCancel = {
+//                        navController.popBackStack()
+//                    }
+                )
+            } else {
+                // Handle the case where conversationId is not found,
+                // perhaps navigate back or show an error.
+                // For now, let's just pop back.
+                navController.popBackStack()
+            }
+        }
+
         composable(route = VintedScreen.Profile.name) {
             Profile(
                 personViewModel = viewModelPerson,
