@@ -40,6 +40,8 @@ fun Search(
     val db = FirebaseFirestore.getInstance()
     val keyboardController = LocalSoftwareKeyboardController.current
 
+    Log.d("SearchScreen", "Search screen initialized")
+
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         containerColor = Color.White,
@@ -73,11 +75,13 @@ fun Search(
                 ),
                 keyboardActions = KeyboardActions(
                     onSearch = {
+                        Log.d("SearchScreen", "Search initiated with query: $searchQuery")
                         keyboardController?.hide()
                         if (searchQuery.isNotEmpty()) {
                             isLoading = true
                             performSearch(db, searchQuery, filterPriceAsc, filterDateAsc, sellViewModel) {
                                 isLoading = false
+                                Log.d("SearchScreen", "Search completed")
                             }
                         }
                     }
@@ -91,21 +95,30 @@ fun Search(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Button(
-                    onClick = { navController.navigate(VintedScreen.TypeClothe.name) },
+                    onClick = {
+                        Log.d("SearchScreen", "Filter by Type button clicked")
+                        navController.navigate(VintedScreen.TypeClothe.name)
+                    },
                     modifier = Modifier.weight(1f)
                 ) {
                     Text("Filter by Type")
                 }
 
                 Button(
-                    onClick = { filterPriceAsc = !filterPriceAsc },
+                    onClick = {
+                        filterPriceAsc = !filterPriceAsc
+                        Log.d("SearchScreen", "Price filter toggled: ${if (filterPriceAsc) "Low to High" else "High to Low"}")
+                    },
                     modifier = Modifier.weight(1f)
                 ) {
                     Text(if (filterPriceAsc) "Price: Low to High" else "Price: High to Low")
                 }
 
                 Button(
-                    onClick = { filterDateAsc = !filterDateAsc },
+                    onClick = {
+                        filterDateAsc = !filterDateAsc
+                        Log.d("SearchScreen", "Date filter toggled: ${if (filterDateAsc) "Old to New" else "New to Old"}")
+                    },
                     modifier = Modifier.weight(1f)
                 ) {
                     Text(if (filterDateAsc) "Date: Old to New" else "Date: New to Old")
@@ -142,33 +155,32 @@ fun performSearch(
     sellViewModel: SellViewModel,
     onComplete: () -> Unit
 ) {
+    Log.d("SearchFunction", "Starting search with query: $searchQuery")
+
     var query = db.collection("Post")
         .orderBy("title")
         .startAt(searchQuery)
         .endAt(searchQuery + "\uf8ff")
 
-    if (filterPriceAsc) {
-        query = query.orderBy("price", Query.Direction.ASCENDING)
-    } else {
-        query = query.orderBy("price", Query.Direction.DESCENDING)
-    }
-
-    if (filterDateAsc) {
-        query = query.orderBy("dateCreation", Query.Direction.ASCENDING)
-    } else {
-        query = query.orderBy("dateCreation", Query.Direction.DESCENDING)
-    }
-
     query.get()
         .addOnSuccessListener { documents ->
+            Log.d("SearchFunction", "Search successful, ${documents.size()} documents found")
             val results = documents.mapNotNull { document ->
                 try {
                     SellViewModel().apply {
                         productTitle.value = document.getString("title") ?: ""
                         productPrice.value = document.getDouble("price")?.toString() ?: ""
-                        dateCreation.value = document.getTimestamp("dateCreation")?.toDate()?.toString() ?: ""
+
+                        // Vérifiez si dateCreation est un Timestamp
+                        val dateCreationValue = document.get("dateCreation")
+                        dateCreation.value = when (dateCreationValue) {
+                            is com.google.firebase.Timestamp -> dateCreationValue.toDate().toString()
+                            is String -> dateCreationValue
+                            else -> ""
+                        }
                     }
                 } catch (e: Exception) {
+                    Log.e("SearchFunction", "Error mapping document to SellViewModel", e)
                     null
                 }
             }
@@ -176,13 +188,15 @@ fun performSearch(
             onComplete()
         }
         .addOnFailureListener { exception ->
-            Log.e("Search", "Error fetching documents", exception)
+            Log.e("SearchFunction", "Error fetching documents", exception)
             onComplete()
         }
 }
 
+
 @Composable
 fun PostItem(item: SellViewModel, navController: NavController) {
+    Log.d("PostItem", "Rendering post item: ${item.productTitle.value}")
     Card(
         modifier = Modifier
             .fillMaxWidth()
