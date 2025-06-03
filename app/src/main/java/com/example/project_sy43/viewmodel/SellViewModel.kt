@@ -31,8 +31,14 @@ class SellViewModel : ViewModel(){
         private set
     //    var productPhotoUri by mutableStateOf<Uri?>(null)
 //        private set
+    var searchResults = mutableStateOf<List<SellViewModel>>(emptyList())
+        private set
     var isAvailable = mutableStateOf(true)
 
+
+    fun setSearchResults(results: List<SellViewModel>) {
+        searchResults.value = results
+    }
 
     fun setProductTitle(title: String) {
         productTitle.value = title

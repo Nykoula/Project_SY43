@@ -184,6 +184,10 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
 
     fun validateFields(): Boolean {
         return when {
+            photoList.isEmpty() -> {
+                errorMessage = "At least one photo is required"
+                false
+            }
             title.isEmpty() -> {
                 errorMessage = "Title is required"
                 false
