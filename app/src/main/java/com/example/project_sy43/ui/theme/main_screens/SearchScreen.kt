@@ -1,24 +1,35 @@
 package com.example.project_sy43.ui.theme.main_screens
 
+import android.net.Uri
 import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import coil.compose.AsyncImage
+import com.example.project_sy43.model.Product
 import com.example.project_sy43.navigation.VintedScreen
 import com.example.project_sy43.ui.theme.components.VintedBottomBar
 import com.example.project_sy43.ui.theme.components.VintedTopBar
@@ -167,18 +178,24 @@ fun performSearch(
             Log.d("SearchFunction", "Search successful, ${documents.size()} documents found")
             val results = documents.mapNotNull { document ->
                 try {
-                    SellViewModel().apply {
+                    val viewModel = SellViewModel().apply {
                         productTitle.value = document.getString("title") ?: ""
                         productPrice.value = document.getDouble("price")?.toString() ?: ""
+                        productDescription.value = document.getString("description") ?: ""
 
                         // Vérifiez si dateCreation est un Timestamp
                         val dateCreationValue = document.get("dateCreation")
                         dateCreation.value = when (dateCreationValue) {
                             is com.google.firebase.Timestamp -> dateCreationValue.toDate().toString()
-                            is String -> dateCreationValue
+                            is String -> dateCreationValue.toString()
                             else -> ""
                         }
+
+                        // Récupérez les URLs des photos
+                        val photos = document.get("photos") as? List<String> ?: emptyList()
+                        setProductPhotoUris(photos.map { Uri.parse(it) })
                     }
+                    viewModel
                 } catch (e: Exception) {
                     Log.e("SearchFunction", "Error mapping document to SellViewModel", e)
                     null
@@ -194,9 +211,15 @@ fun performSearch(
 }
 
 
+
 @Composable
 fun PostItem(item: SellViewModel, navController: NavController) {
     Log.d("PostItem", "Rendering post item: ${item.productTitle.value}")
+
+    // Convertir les URIs en URLs pour le PhotoCarousel
+    val photoUrls = item.productPhotoUri.value.map { it.toString() }
+    Log.d("PostItem", "Photo URLs: $photoUrls") // Log pour vérifier les URLs
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -210,9 +233,19 @@ fun PostItem(item: SellViewModel, navController: NavController) {
         ) {
             Text(text = item.productTitle.value, style = MaterialTheme.typography.headlineSmall)
             Spacer(modifier = Modifier.height(8.dp))
+
+            // Utilisation du PhotoCarousel pour afficher les photos
+            if (photoUrls.isNotEmpty()) {
+                PhotoCarousel(photos = photoUrls)
+            } else {
+                Log.d("PostItem", "No photos to display")
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
             Text(text = "Price: ${item.productPrice.value}", style = MaterialTheme.typography.bodyMedium)
             Spacer(modifier = Modifier.height(8.dp))
-            Text(text = "Date: ${item.dateCreation.value}", style = MaterialTheme.typography.bodyMedium)
+            Text(text = "Description: ${item.productDescription.value}", style = MaterialTheme.typography.bodyMedium)
         }
     }
 }
+

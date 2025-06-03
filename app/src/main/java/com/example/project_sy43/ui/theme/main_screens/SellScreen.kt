@@ -871,9 +871,16 @@ fun InputFields(
     ) {
         Text(text = label)
         Spacer(modifier = Modifier.height(8.dp))
+
         BasicTextField(
             value = value,
-            onValueChange = onValueChange,
+            onValueChange = { newValue ->
+                if (label == "Title" && newValue.length <= 25) {
+                    onValueChange(newValue)
+                } else if (label != "Title") {
+                    onValueChange(newValue)
+                }
+            },
             keyboardOptions = if (label == "Price") {
                 KeyboardOptions(keyboardType = KeyboardType.Decimal)
             } else {
@@ -903,9 +910,24 @@ fun InputFields(
                 }
             }
         )
+
+        if (label == "Title" && value.length == 25) {
+            Text(
+                text = "Limite de 25 caractères atteinte",
+                color = Color.Red,
+                modifier = Modifier.padding(start = 8.dp)
+            )
+        }
+
+        if (label == "Description" && value.length == 120) {
+            Text(
+                text = "Limite de 120 caractères atteinte",
+                color = Color.Red,
+                modifier = Modifier.padding(start = 8.dp)
+            )
+        }
     }
 }
-
 fun generateUniqueUri(context: Context): Uri {
     val outputDirectory = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
     if (outputDirectory != null && !outputDirectory.exists()) {
