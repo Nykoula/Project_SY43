@@ -89,11 +89,7 @@ fun LoginScreen(
                 )
             },
             placeholder = { Text("Email") },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-            colors = TextFieldDefaults.colors(
-                focusedTextColor = Color.Black, // Définit la couleur du texte en noir lorsque le champ est en focus
-                unfocusedTextColor = Color.Black
-            )
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
         )
 
         Spacer(modifier = Modifier.height(16.dp))
