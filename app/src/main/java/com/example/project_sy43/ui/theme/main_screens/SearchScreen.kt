@@ -4,7 +4,6 @@ import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -15,6 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -25,7 +25,6 @@ import com.example.project_sy43.ui.theme.components.VintedTopBar
 import com.example.project_sy43.viewmodel.SellViewModel
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
-import java.util.*
 
 @Composable
 fun Search(
@@ -57,33 +56,32 @@ fun Search(
                 .padding(innerPadding)
                 .padding(16.dp)
         ) {
-            BasicTextField(
+            OutlinedTextField(
                 value = searchQuery,
                 onValueChange = { searchQuery = it },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+                label = { Text("Search by title") },
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Default.Search,
+                        contentDescription = "Search"
+                    )
+                },
+                modifier = Modifier.fillMaxWidth(),
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Text,
+                    imeAction = ImeAction.Search
+                ),
                 keyboardActions = KeyboardActions(
                     onSearch = {
                         keyboardController?.hide()
                         if (searchQuery.isNotEmpty()) {
-                            performSearch(db, searchQuery, filterPriceAsc, filterDateAsc, sellViewModel)
+                            isLoading = true
+                            performSearch(db, searchQuery, filterPriceAsc, filterDateAsc, sellViewModel) {
+                                isLoading = false
+                            }
                         }
                     }
-                ),
-                decorationBox = { innerTextField ->
-                    OutlinedTextField(
-                        value = searchQuery,
-                        onValueChange = { searchQuery = it },
-                        label = { Text("Search by title") },
-                        leadingIcon = {
-                            Icon(
-                                imageVector = Icons.Default.Search,
-                                contentDescription = "Search"
-                            )
-                        },
-                        modifier = Modifier.fillMaxWidth(),
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
-                    )
-                }
+                )
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -141,7 +139,8 @@ fun performSearch(
     searchQuery: String,
     filterPriceAsc: Boolean,
     filterDateAsc: Boolean,
-    sellViewModel: SellViewModel
+    sellViewModel: SellViewModel,
+    onComplete: () -> Unit
 ) {
     var query = db.collection("Post")
         .orderBy("title")
@@ -174,13 +173,13 @@ fun performSearch(
                 }
             }
             sellViewModel.setSearchResults(results)
+            onComplete()
         }
         .addOnFailureListener { exception ->
             Log.e("Search", "Error fetching documents", exception)
+            onComplete()
         }
 }
-
-
 
 @Composable
 fun PostItem(item: SellViewModel, navController: NavController) {
@@ -203,4 +202,3 @@ fun PostItem(item: SellViewModel, navController: NavController) {
         }
     }
 }
-

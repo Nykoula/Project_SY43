@@ -143,7 +143,10 @@ fun Profile(
                             modifier = Modifier
                                 .size(60.dp)
                                 .clip(CircleShape)
-                                .background(Color(0xFF007782)),
+                                .background(Color(0xFF007782))
+                                .clickable {
+                                    navController.navigate("FlappyBirdGames")
+                                },
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(

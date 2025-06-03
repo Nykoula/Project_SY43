@@ -49,6 +49,7 @@ import com.example.project_sy43.ui.theme.main_screens.TypeClotheScreen
 import com.example.project_sy43.ui.theme.second_screens.VestesScreen
 
 import androidx.navigation.navArgument
+import com.example.project_sy43.ui.theme.main_screens.FlappyBirdGame
 
 @Composable
 fun VintedNavGraph(navController: NavHostController, viewModelProduct: ProductViewModel, viewModelSell: SellViewModel, viewModelPerson: PersonViewModel) {
@@ -224,6 +225,9 @@ fun VintedNavGraph(navController: NavHostController, viewModelProduct: ProductVi
                 navController = navController,
                 sellViewModel = viewModelSell
             )
+        }
+        composable(route = VintedScreen.FlappyBirdGames.name) {
+            FlappyBirdGame()
         }
         composable(route = VintedScreen.Search.name) {
             Search(
