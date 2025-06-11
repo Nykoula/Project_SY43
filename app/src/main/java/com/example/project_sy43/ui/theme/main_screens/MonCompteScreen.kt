@@ -35,7 +35,8 @@ data class Post(
     val taille: String = "",
     val price: Double = 0.0,
     val photos: List<String> = emptyList(),
-    val state: String = ""
+    val state: String = "",
+    val id: String = ""
 )
 
 @Composable
@@ -58,7 +59,8 @@ fun MonCompte(
                         taille = document.getString("size") ?: "",
                         state = document.getString("state") ?: "",
                         price = document.getDouble("price") ?: 0.0,
-                        photos = document.get("photos") as? List<String> ?: emptyList()
+                        photos = document.get("photos") as? List<String> ?: emptyList(),
+                        id = document.id
                     )
                 }
                 posts = fetchedPosts
@@ -88,16 +90,21 @@ fun MonCompte(
             }
 
             item {
+
                 LazyRow(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+
                 ) {
                     items(posts.take(10)) { post ->
                         Card(
                             modifier = Modifier
                                 .width(150.dp)
                                 .height(350.dp),
-                            elevation = CardDefaults.cardElevation(4.dp)
+                            elevation = CardDefaults.cardElevation(4.dp),
+                            onClick = {
+                                    navController.navigate("${VintedScreen.ArticleDetail.name}/${post.id}")
+                            }
                         ) {
                             Column(
                                 modifier = Modifier
@@ -158,7 +165,10 @@ fun MonCompte(
                     modifier = Modifier
                         .width(400.dp)
                         .height(350.dp),
-                    elevation = CardDefaults.cardElevation(4.dp)
+                    elevation = CardDefaults.cardElevation(4.dp),
+                    onClick = {
+                        navController.navigate("${VintedScreen.ArticleDetail.name}/${post.id}")
+                    }
                 ) {
                     Column(
                         modifier = Modifier

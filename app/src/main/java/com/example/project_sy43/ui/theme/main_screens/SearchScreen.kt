@@ -4,7 +4,10 @@ import android.net.Uri
 import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -95,6 +98,7 @@ fun Search(
                                 Log.d("SearchScreen", "Search completed")
                             }
                         }
+                        Log.d("SearchScreen", "Search initiated")
                     }
                 )
             )
@@ -150,7 +154,7 @@ fun Search(
                     modifier = Modifier.fillMaxSize()
                 ) {
                     items(sellViewModel.searchResults.value) { item ->
-                        PostItem(item, navController)
+                        PostItemsGrid(items = listOf(item), navController = navController)
                     }
                 }
             }
@@ -182,18 +186,18 @@ fun performSearch(
                         productTitle.value = document.getString("title") ?: ""
                         productPrice.value = document.getDouble("price")?.toString() ?: ""
                         productDescription.value = document.getString("description") ?: ""
+                        productId.value = document.id
 
-                        // Vérifiez si dateCreation est un Timestamp
                         val dateCreationValue = document.get("dateCreation")
                         dateCreation.value = when (dateCreationValue) {
                             is com.google.firebase.Timestamp -> dateCreationValue.toDate().toString()
-                            is String -> dateCreationValue.toString()
+                            is String -> dateCreationValue
                             else -> ""
                         }
 
-                        // Récupérez les URLs des photos
                         val photos = document.get("photos") as? List<String> ?: emptyList()
                         setProductPhotoUris(photos.map { Uri.parse(it) })
+                        Log.d("SearchFunction", "Test pass")
                     }
                     viewModel
                 } catch (e: Exception) {
@@ -201,51 +205,68 @@ fun performSearch(
                     null
                 }
             }
+            Log.d("SearchFunction", "Results size: ${results.size}")
             sellViewModel.setSearchResults(results)
+            Log.d("SearchFunction", "Search results set")
             onComplete()
+            Log.d("SearchFunction", "Search completed 1")
         }
         .addOnFailureListener { exception ->
             Log.e("SearchFunction", "Error fetching documents", exception)
             onComplete()
         }
+    Log.d("SearchFunction", "Search completed 2")
 }
 
 
+@Composable
+fun PostItemsGrid(items: List<SellViewModel>, navController: NavController) {
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(2), // Deux colonnes
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(8.dp)
+    ) {
+        items(items) { item ->
+            PostItem(item = item, navController = navController)
+        }
+    }
+}
 
 @Composable
 fun PostItem(item: SellViewModel, navController: NavController) {
     Log.d("PostItem", "Rendering post item: ${item.productTitle.value}")
 
-    // Convertir les URIs en URLs pour le PhotoCarousel
     val photoUrls = item.productPhotoUri.value.map { it.toString() }
-    Log.d("PostItem", "Photo URLs: $photoUrls") // Log pour vérifier les URLs
+    Log.d("PostItem", "Photo URLs: $photoUrls")
 
     Card(
         modifier = Modifier
+            .padding(8.dp)
             .fillMaxWidth()
-            .padding(8.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+            .aspectRatio(0.75f), // Ajustez l'aspect ratio selon vos besoins
+        elevation = CardDefaults.cardElevation(4.dp),
+        onClick = {
+            navController.navigate("${VintedScreen.ArticleDetail.name}/${item.productId.value}")
+        }
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp)
+                .padding(8.dp)
         ) {
-            Text(text = item.productTitle.value, style = MaterialTheme.typography.headlineSmall)
-            Spacer(modifier = Modifier.height(8.dp))
+            Text(text = item.productTitle.value, style = MaterialTheme.typography.bodyMedium)
+            Spacer(modifier = Modifier.height(4.dp))
 
-            // Utilisation du PhotoCarousel pour afficher les photos
             if (photoUrls.isNotEmpty()) {
                 PhotoCarousel(photos = photoUrls)
             } else {
                 Log.d("PostItem", "No photos to display")
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(text = "Price: ${item.productPrice.value}", style = MaterialTheme.typography.bodyMedium)
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(text = "Description: ${item.productDescription.value}", style = MaterialTheme.typography.bodyMedium)
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(text = "Price: ${item.productPrice.value}", style = MaterialTheme.typography.bodySmall)
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(text = "Description: ${item.productDescription.value}", style = MaterialTheme.typography.bodySmall)
         }
     }
 }
-

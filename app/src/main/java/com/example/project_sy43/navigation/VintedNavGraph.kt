@@ -35,7 +35,6 @@ import com.example.project_sy43.ui.theme.main_screens.Setting
 import com.example.project_sy43.ui.theme.second_screens.SizeScreen
 import com.example.project_sy43.viewmodel.PersonViewModel
 import com.example.project_sy43.viewmodel.SellViewModel
-import com.example.project_sy43.ui.theme.main_screens.UpdatePassword
 import com.example.project_sy43.ui.theme.main_screens.UpdateProfile
 import com.example.project_sy43.ui.theme.main_screens.NotificationSetting
 import com.example.project_sy43.ui.theme.second_screens.PantalonScreen
@@ -48,7 +47,6 @@ import com.example.project_sy43.ui.theme.second_screens.SweatScreen
 import com.example.project_sy43.ui.theme.main_screens.TypeClotheScreen
 import com.example.project_sy43.ui.theme.second_screens.VestesScreen
 
-import androidx.navigation.navArgument
 import com.example.project_sy43.ui.theme.main_screens.FlappyBirdGame
 import com.example.project_sy43.ui.theme.children_screen.BabyGirlScreen
 import com.example.project_sy43.ui.theme.children_screen.BabyScreen
@@ -314,20 +312,29 @@ fun VintedNavGraph(navController: NavHostController, viewModelProduct: ProductVi
             )
         }
         composable(
-            route = "${VintedScreen.ArticleDetail.name}/{itemId}",
-            //la route accepte un argument de type string
-            arguments = listOf(navArgument("itemId") { type = NavType.StringType })
-        ){
-            val itemId = it.arguments?.getString("itemId")
+            route = "${VintedScreen.ArticleDetail.name}/{itemId}?menuDeroulant={menuDeroulant}",
+            arguments = listOf(
+                navArgument("itemId") { type = NavType.StringType },
+                navArgument("menuDeroulant") {
+                    type = NavType.BoolType
+                    defaultValue = false
+                }
+            )
+        ) { backStackEntry ->
+            val itemId = backStackEntry.arguments?.getString("itemId")
+            val menuDeroulant = backStackEntry.arguments?.getBoolean("menuDeroulant") ?: false
+
             ClothingDetailView(
                 personViewModel = viewModelPerson,
                 navController = navController,
                 itemId = itemId,
                 onCancel = {
                     navController.popBackStack()
-                }
+                },
+                menuDeroulant = menuDeroulant
             )
         }
+
         composable(route = VintedScreen.FlappyBirdGames.name){
             FlappyBirdGame()
         }

@@ -16,6 +16,7 @@ class SellViewModel : ViewModel(){
     private val repository = ProductRepository()
 
     var idUser = mutableStateOf("")
+    var productId = mutableStateOf("")
     var productTitle = mutableStateOf("")
     var productDescription = mutableStateOf("")
     var productPrice = mutableStateOf("")
