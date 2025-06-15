@@ -1,5 +1,6 @@
 package com.example.project_sy43.ui.theme.main_screens
 
+import android.content.Intent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -46,6 +47,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -75,6 +77,8 @@ fun Profile(
     var userAddress by remember { mutableStateOf("") }
     var userPhone by remember { mutableStateOf("") }
     var userDate by remember { mutableStateOf("") }
+
+    val context = LocalContext.current
 
     // Charger les informations utilisateur depuis Firestore
     LaunchedEffect(userId) {
@@ -272,13 +276,26 @@ fun Profile(
 
                     Divider(color = Color.LightGray, modifier = Modifier.padding(horizontal = 16.dp))
 
+                    // Modifications du compte
+                    ProfileMenuItem(
+                        icon = Icons.Outlined.Settings,
+                        title = "Modifications du compte",
+                        subtitle = "Modifier mon compte",
+                        onClick = {
+                            navController.navigate(VintedScreen.Setting.name)
+                        }
+                    )
+
+                    Divider(color = Color.LightGray, modifier = Modifier.padding(horizontal = 16.dp))
+
                     // Paramètres
                     ProfileMenuItem(
                         icon = Icons.Outlined.Settings,
                         title = "Paramètres",
                         subtitle = "Gérer les préférences",
                         onClick = {
-                            navController.navigate(VintedScreen.Setting.name)
+                            val intent = Intent(android.provider.Settings.ACTION_SETTINGS)
+                            context.startActivity(intent)
                         }
                     )
                 }
