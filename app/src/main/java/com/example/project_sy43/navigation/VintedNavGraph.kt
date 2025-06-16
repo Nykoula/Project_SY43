@@ -55,7 +55,12 @@ import com.example.project_sy43.ui.theme.children_screen.BabyScreen
 import com.example.project_sy43.ui.theme.children_screen.BabyShoesScreen
 
 @Composable
-fun VintedNavGraph(navController: NavHostController, viewModelProduct: ProductViewModel, viewModelSell: SellViewModel, viewModelPerson: PersonViewModel) {
+fun VintedNavGraph(
+    navController: NavHostController,
+    viewModelProduct: ProductViewModel,
+    viewModelSell: SellViewModel,
+    viewModelPerson: PersonViewModel
+) {
     NavHost(navController = navController, startDestination = VintedScreen.MonCompte.name) {
         composable(route = VintedScreen.Accueil.name) {
             Accueil(
@@ -265,25 +270,31 @@ fun VintedNavGraph(navController: NavHostController, viewModelProduct: ProductVi
         }
 
         composable(
-            route = "${VintedScreen.Conversation.name}/{conversationId}",
-            arguments = listOf(navArgument("conversationId") { type = NavType.StringType }) // Corrected: Moved parenthesis here
-        ) { backStackEntry -> // This lambda is now correctly passed as the content
+            // Original route: "${VintedScreen.Conversation.name}/{conversationId}"
+            // New route:
+            route = "${VintedScreen.Conversation.name}/{conversationId}/{otherUserName}", // Add otherUserName
+            arguments = listOf(
+                navArgument("conversationId") { type = NavType.StringType },
+                navArgument("otherUserName") {
+                    type = NavType.StringType
+                    nullable =
+                        true // Make it nullable if it can sometimes be missing, otherwise remove this line
+                    defaultValue =
+                        null // Or a sensible default string if not nullable, e.g., "User"
+                }
+            )
+        ) { backStackEntry ->
             val conversationId = backStackEntry.arguments?.getString("conversationId")
+            val otherUserName = backStackEntry.arguments?.getString("otherUserName") // Retrieve it
 
-            // It's good practice to handle the case where conversationId might be null
             if (conversationId != null) {
                 ConversationScreen(
                     navController = navController,
                     conversationId = conversationId,
-//                    onCancel = {
-//                        navController.popBackStack()
-//                    }
+                    otherUserName = otherUserName // Pass it to the Composable
                 )
             } else {
-                // Handle the case where conversationId is not found,
-                // perhaps navigate back or show an error.
-                // For now, let's just pop back.
-                navController.popBackStack()
+                navController.popBackStack() // Or handle error
             }
         }
 
@@ -317,7 +328,7 @@ fun VintedNavGraph(navController: NavHostController, viewModelProduct: ProductVi
             route = "${VintedScreen.ArticleDetail.name}/{itemId}",
             //la route accepte un argument de type string
             arguments = listOf(navArgument("itemId") { type = NavType.StringType })
-        ){
+        ) {
             val itemId = it.arguments?.getString("itemId")
             ClothingDetailView(
                 personViewModel = viewModelPerson,
@@ -328,14 +339,16 @@ fun VintedNavGraph(navController: NavHostController, viewModelProduct: ProductVi
                 }
             )
         }
-        composable(route = VintedScreen.FlappyBirdGames.name){
+        composable(route = VintedScreen.FlappyBirdGames.name) {
             FlappyBirdGame()
         }
         composable(VintedScreen.UpdateProfile.name) {
-            UpdateProfile(navController = navController,onCancel = {})
+            UpdateProfile(navController = navController, onCancel = {})
         }
         composable(VintedScreen.NotificationSettings.name) {
-            NotificationSetting(navController = navController,onCancel = {navController.popBackStack()})
+            NotificationSetting(
+                navController = navController,
+                onCancel = { navController.popBackStack() })
         }
         /*composable(
             route = "${VintedScreen.Sell.name}/{itemId}",

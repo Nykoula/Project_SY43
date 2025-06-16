@@ -93,4 +93,8 @@ dependencies {
 
     implementation ("androidx.appcompat:appcompat:1.6.1")
 
+
+    //For the message input row
+    implementation("androidx.compose.material3:material3:1.2.1")
+
 }
