@@ -339,11 +339,14 @@ fun VintedNavGraph(
                 }
             )
         }
-        composable(route = VintedScreen.FlappyBirdGames.name) {
+        /*composable(route = VintedScreen.FlappyBirdGames.name) {
             FlappyBirdGame()
-        }
+        }*/
         composable(VintedScreen.UpdateProfile.name) {
             UpdateProfile(navController = navController, onCancel = {})
+        }
+        composable(VintedScreen.UpdatePassword.name) {
+            UpdatePassword(navController)
         }
         composable(VintedScreen.NotificationSettings.name) {
             NotificationSetting(

@@ -23,7 +23,7 @@ enum class VintedScreen {
     SweatCapuche,
     Manteaux,
     Vestes,
-    FlappyBirdGames,
+    //FlappyBirdGames,
     Sweat,
     Blazer,
     Robe,
