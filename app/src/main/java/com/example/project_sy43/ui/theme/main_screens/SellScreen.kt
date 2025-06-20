@@ -131,11 +131,34 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
 
     // Liste pour stocker toutes les photos sélectionnées
     //val photoList = remember { mutableStateListOf<Uri>() }
-    val photoList = rememberSaveable(saver = listSaver(
-        save = { it.toList() }, // Sauvegarde en tant que List<Uri> (Uri est Parcelable)
-        restore = { it.toMutableStateList() }
+    val photoList = rememberSaveable(
+        saver = listSaver(
+            save = { it.toList() }, // Sauvegarde en tant que List<Uri> (Uri est Parcelable)
+            restore = { it.toMutableStateList() }
     )) {
         mutableStateListOf<Uri>()
+    }
+
+    // Synchroniser photoList avec productPhotoUri du ViewModel
+    LaunchedEffect(sellViewModel.productPhotoUri.value) {
+        photoList.clear()
+        photoList.addAll(sellViewModel.productPhotoUri.value)
+    }
+
+    // Fonction pour ajouter une photo (met à jour photoList et ViewModel)
+    fun addPhoto(uri: Uri) {
+        if (!photoList.contains(uri)) {
+            photoList.add(uri)
+            sellViewModel.setProductPhotoUris(photoList)
+        }
+    }
+
+    // Fonction pour supprimer une photo (met à jour photoList et ViewModel)
+    fun removePhoto(uri: Uri) {
+        if (photoList.contains(uri)) {
+            photoList.remove(uri)
+            sellViewModel.setProductPhotoUris(photoList)
+        }
     }
 
     // État pour gérer l'URI de la photo en cours
@@ -149,7 +172,7 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
             Log.d("Photo", "Photo prise avec succès: $currentPhotoUri")
             // Ajouter seulement si pas déjà dans la liste
             if (!photoList.contains(currentPhotoUri!!)) {
-                photoList.add(currentPhotoUri!!)
+                addPhoto(currentPhotoUri!!)
             }
         } else {
             Log.d("Photo", "Échec de la capture de l'image.")
@@ -177,7 +200,7 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
         uri?.let {
-            photoList.add(it)
+            addPhoto(it)
             Log.d("Photo", "Photo sélectionnée depuis la galerie: $it")
         }
     }
@@ -353,7 +376,9 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
                         items(photoList) { uri ->
                             PhotoThumbnail(
                                 uri = uri,
-                                onRemove = { photoList.remove(uri) }
+                                onRemove = {
+                                    removePhoto(uri)
+                                }
                             )
                         }
                     }
