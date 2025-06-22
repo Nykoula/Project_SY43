@@ -100,9 +100,10 @@ class SellViewModel : ViewModel(){
         productPhotoUri.value = uris
     }
 
-    //supprimer une photo de la liste
     fun removeProductPhotoUri(uri: Uri) {
-        productPhotoUri.value = productPhotoUri.value.filter { it != uri }
+        val currentList = productPhotoUri.value.toMutableList()
+        currentList.remove(uri)
+        productPhotoUri.value = currentList
     }
 
     fun loadItem(itemId: String) {

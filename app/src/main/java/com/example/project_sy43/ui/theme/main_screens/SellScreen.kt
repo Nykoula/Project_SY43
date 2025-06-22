@@ -53,16 +53,11 @@ import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.listSaver
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -77,7 +72,6 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import androidx.navigation.compose.currentBackStackEntryAsState
 import coil.compose.AsyncImage
 import com.example.project_sy43.navigation.VintedScreen
 import com.example.project_sy43.ui.theme.components.VintedBottomBar
@@ -304,22 +298,22 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
             Column {
                 // Bouton principal pour ajouter des photos
                 Button(
-                    onClick = { showPhotoOptions = true },
+                    onClick = { showPhotoOptions = true } ,
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.White,
+                        containerColor = Color.White ,
                         contentColor = Color(0xFF007782)
-                    ),
-                    shape = RoundedCornerShape(16.dp),
+                    ) ,
+                    shape = RoundedCornerShape(16.dp) ,
                     modifier = Modifier
-                        .border(2.dp, Color(0xFF007782), RoundedCornerShape(16.dp))
+                        .border(2.dp , Color(0xFF007782) , RoundedCornerShape(16.dp))
                 ) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Icon(
-                            imageVector = Icons.Filled.Add,
-                            contentDescription = "add pictures",
-                            tint = Color(0xFF007782),
+                            imageVector = Icons.Filled.Add ,
+                            contentDescription = "add pictures" ,
+                            tint = Color(0xFF007782) ,
                             modifier = Modifier.size(24.dp)
                         )
                         Spacer(modifier = Modifier.width(8.dp))
@@ -329,18 +323,18 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
 
                 // Menu pour choisir entre appareil photo et galerie
                 DropdownMenu(
-                    expanded = showPhotoOptions,
+                    expanded = showPhotoOptions ,
                     onDismissRequest = { showPhotoOptions = false }
                 ) {
                     DropdownMenuItem(
-                        text = { Text("Take Photo") },
+                        text = { Text("Take Photo") } ,
                         onClick = {
                             showPhotoOptions = false
                             takePhoto()
                         }
                     )
                     DropdownMenuItem(
-                        text = { Text("Choose from Gallery") },
+                        text = { Text("Choose from Gallery") } ,
                         onClick = {
                             showPhotoOptions = false
                             launcherGallery.launch("image/*")
@@ -352,13 +346,15 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
                 if (photoList.isNotEmpty()) {
                     Spacer(modifier = Modifier.height(8.dp))
                     LazyRow(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp) ,
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         items(photoList) { uri ->
                             PhotoThumbnail(
-                                uri = uri,
-                                onRemove = { photoList.remove(uri) }
+                                uri = uri ,
+                                onRemove = {
+                                    sellViewModel.removeProductPhotoUri(uri)
+                                }
                             )
                         }
                     }
@@ -722,42 +718,48 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
                         if (photoList.isNotEmpty()) {
                             uploadPhotosToFirebase(photoList) { photoUrls ->
                                 saveArticleToFirestore(
-                                    userId.toString(),
-                                    sellViewModel.productTitle.value,
-                                    sellViewModel.productDescription.value,
-                                    sellViewModel.productPrice.value,
-                                    sellViewModel.selectedCategory.value,
-                                    sellViewModel.selectedType.value,
-                                    sellViewModel.selectedState.value,
-                                    sellViewModel.selectedColors.value.toSet(),
-                                    sellViewModel.selectedMaterial.value.toSet(),
-                                    sellViewModel.selectedSize.value,
-                                    sellViewModel.selectedColis.value,
-                                    sellViewModel.isAvailable.value,
-                                    photoUrls
+                                    userId.toString() ,
+                                    sellViewModel.productTitle.value ,
+                                    sellViewModel.productDescription.value ,
+                                    sellViewModel.productPrice.value ,
+                                    sellViewModel.selectedCategory.value ,
+                                    sellViewModel.selectedType.value ,
+                                    sellViewModel.selectedState.value ,
+                                    sellViewModel.selectedColors.value.toSet() ,
+                                    sellViewModel.selectedMaterial.value.toSet() ,
+                                    sellViewModel.selectedSize.value ,
+                                    sellViewModel.selectedColis.value ,
+                                    sellViewModel.isAvailable.value ,
+                                    sellViewModel.productPhotoUri.value ,
+                                    productId = sellViewModel.productId.value.takeIf { it.isNotEmpty() } // Passe l'ID si non vide
                                 )
                                 sellViewModel.reset()
                             }
                         } else {
-                            // Gérer le cas sans photos
                             saveArticleToFirestore(
-                                userId.toString(),
-                                sellViewModel.productTitle.value,
-                                sellViewModel.productDescription.value,
-                                sellViewModel.productPrice.value,
-                                sellViewModel.selectedCategory.value,
-                                sellViewModel.selectedType.value,
-                                sellViewModel.selectedState.value,
-                                sellViewModel.selectedColors.value.toSet(),
-                                sellViewModel.selectedMaterial.value.toSet(),
-                                sellViewModel.selectedSize.value,
-                                sellViewModel.selectedColis.value,
-                                sellViewModel.isAvailable.value,
-                                emptyList()
+                                userId.toString() ,
+                                sellViewModel.productTitle.value ,
+                                sellViewModel.productDescription.value ,
+                                sellViewModel.productPrice.value ,
+                                sellViewModel.selectedCategory.value ,
+                                sellViewModel.selectedType.value ,
+                                sellViewModel.selectedState.value ,
+                                sellViewModel.selectedColors.value.toSet() ,
+                                sellViewModel.selectedMaterial.value.toSet() ,
+                                sellViewModel.selectedSize.value ,
+                                sellViewModel.selectedColis.value ,
+                                sellViewModel.isAvailable.value ,
+                                emptyList() ,
+                                productId = sellViewModel.productId.value.takeIf { it.isNotEmpty() }
                             )
                             sellViewModel.reset()
                         }
-                        Toast.makeText(context, "Product added", Toast.LENGTH_LONG).show()
+                        if(itemId == null) {
+                            Toast.makeText(context , "Product added" , Toast.LENGTH_LONG).show()
+                        }
+                        else {
+                            Toast.makeText(context , "Product updated" , Toast.LENGTH_LONG).show()
+                        }
                         navController.navigate(VintedScreen.MonCompte.name)
                     } else {
                         showDialog = true
@@ -987,26 +989,27 @@ fun uploadPhotosToFirebase(
 }
 
 fun saveArticleToFirestore(
-    userId: String,
-    title: String,
-    description: String,
-    price: String,
-    category: String,
-    type: String,
-    state: String,
-    couleurs: Set<String>,
-    matieres: Set<String>,
-    size: String,
-    colis: String,
-    isAvailable: Boolean,
-    photoUrls: List<String>,
+    userId: String ,
+    title: String ,
+    description: String ,
+    price: String ,
+    category: String ,
+    type: String ,
+    state: String ,
+    couleurs: Set<String> ,
+    matieres: Set<String> ,
+    size: String ,
+    colis: String ,
+    isAvailable: Boolean ,
+    photoUrls: List<Uri> ,
+    productId: String? = null // Ajout du paramètre productId
 ) {
     Log.d("Firestore", "Photo URLs: $photoUrls")
 
     val formattedTitle = formatTitle(title)
-    val calendar = Calendar.getInstance(Locale.FRANCE) // Récupère la date et l'heure actuelles
-    val dateFormat = SimpleDateFormat("yyyy-MM-dd-HH-mm-ss") // Format désiré : "2025-04-19-14-30-45"
-    val currentDate = dateFormat.format(calendar.time) // Convertit en chaîne formatée
+    val calendar = Calendar.getInstance(Locale.FRANCE)
+    val dateFormat = SimpleDateFormat("yyyy-MM-dd-HH-mm-ss")
+    val currentDate = dateFormat.format(calendar.time)
 
     val db = Firebase.firestore
     val article = hashMapOf(
@@ -1026,15 +1029,30 @@ fun saveArticleToFirestore(
         "dateCreation" to currentDate,
     )
 
-    db.collection("Post")
-        .add(article)
-        .addOnSuccessListener { documentReference ->
-            Log.d("Firestore", "Article enregistré avec ID : ${documentReference.id}")
-        }
-        .addOnFailureListener { exception ->
-            Log.e("Firestore", "Erreur lors de l'enregistrement : ${exception.message}")
-        }
+    if (productId != null) {
+        // Mise à jour du document existant
+        db.collection("Post")
+            .document(productId)
+            .set(article)
+            .addOnSuccessListener {
+                Log.d("Firestore", "Article mis à jour avec ID : $productId")
+            }
+            .addOnFailureListener { exception ->
+                Log.e("Firestore", "Erreur lors de la mise à jour : ${exception.message}")
+            }
+    } else {
+        // Création d'un nouveau document
+        db.collection("Post")
+            .add(article)
+            .addOnSuccessListener { documentReference ->
+                Log.d("Firestore", "Article enregistré avec ID : ${documentReference.id}")
+            }
+            .addOnFailureListener { exception ->
+                Log.e("Firestore", "Erreur lors de l'enregistrement : ${exception.message}")
+            }
+    }
 }
+
 
 
 fun formatTitle(title: String): String {
