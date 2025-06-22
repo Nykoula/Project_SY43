@@ -164,7 +164,7 @@ fun MonCompte(
                 Card(
                     modifier = Modifier
                         .width(400.dp)
-                        .height(350.dp),
+                        .height(410.dp),
                     elevation = CardDefaults.cardElevation(4.dp),
                     onClick = {
                         navController.navigate("${VintedScreen.ArticleDetail.name}/${post.id}")
@@ -181,7 +181,10 @@ fun MonCompte(
                             Image(
                                 painter = rememberImagePainter(post.photos[0]),
                                 contentDescription = "Post Image",
-                                modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(4.dp)),
+                                modifier = Modifier
+                                    .width(380.dp)
+                                    .height(300.dp)
+                                    .clip(RoundedCornerShape(10.dp)),
                                 contentScale = ContentScale.Crop
                             )
                         }

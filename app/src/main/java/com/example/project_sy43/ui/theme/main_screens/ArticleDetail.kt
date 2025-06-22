@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -12,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -207,6 +209,34 @@ fun ClothingDetailView(
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = Color.Gray
                             )
+                        }
+                    }
+                }
+                if (menuDeroulant == false) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 8.dp),
+                        horizontalArrangement = Arrangement.SpaceEvenly
+                    ) {
+                        Button(
+                            onClick = {
+                                // TODO: route pour "Acheter" --> redirection directement sur l'achat
+                            },
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Text("Acheter")
+                        }
+
+                        Spacer(modifier = Modifier.width(16.dp))
+
+                        Button(
+                            onClick = {
+                                // TODO: route pour "Négocier" --> redirection vers une nouvelle conv'
+                            },
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Text("Négocier")
                         }
                     }
                 }
