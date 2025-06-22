@@ -42,5 +42,9 @@ enum class VintedScreen {
     ArticleDetail,
     BabyGirl,
     Baby,
-    BabyShoes
+    BabyShoes,
+    WomanClothesScreen,
+    ManClothesScreen,
+    ChildrenClothesScreen,
+    CategorySelectionScreen
 }

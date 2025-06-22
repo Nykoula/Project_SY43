@@ -28,7 +28,6 @@ import com.example.project_sy43.ui.theme.second_screens.ManteauxScreen
 import com.example.project_sy43.ui.theme.second_screens.MaterniteScreen
 import com.example.project_sy43.ui.theme.second_screens.MatieresScreen
 import com.example.project_sy43.ui.theme.main_screens.Messages
-import com.example.project_sy43.ui.theme.main_screens.ConversationScreen
 import com.example.project_sy43.ui.theme.main_screens.Profile
 import com.example.project_sy43.ui.theme.main_screens.Search
 import com.example.project_sy43.ui.theme.main_screens.Setting
@@ -48,11 +47,14 @@ import com.example.project_sy43.ui.theme.second_screens.SweatScreen
 import com.example.project_sy43.ui.theme.main_screens.TypeClotheScreen
 import com.example.project_sy43.ui.theme.second_screens.VestesScreen
 
-import androidx.navigation.navArgument
-import com.example.project_sy43.ui.theme.main_screens.FlappyBirdGame
 import com.example.project_sy43.ui.theme.children_screen.BabyGirlScreen
 import com.example.project_sy43.ui.theme.children_screen.BabyScreen
 import com.example.project_sy43.ui.theme.children_screen.BabyShoesScreen
+import com.example.project_sy43.ui.theme.main_screens.CategorySelectionScreen
+import com.example.project_sy43.ui.theme.second_screens.ChildrenClothesScreen
+import com.example.project_sy43.ui.theme.second_screens.ManClothesScreen
+import com.example.project_sy43.ui.theme.second_screens.WomanClothesScreen
+import com.example.project_sy43.viewmodel.SharedViewModel
 
 @Composable
 fun VintedNavGraph(
@@ -110,6 +112,30 @@ fun VintedNavGraph(
         }
         composable(route = VintedScreen.TypeClothe.name) {
             TypeClotheScreen(
+                navController = navController,
+                sellViewModel = viewModelSell
+            )
+        }
+        composable(route = VintedScreen.CategorySelectionScreen.name) {
+            CategorySelectionScreen(
+                navController = navController
+            )
+        }
+        composable(route = VintedScreen.WomanClothesScreen.name) {
+            WomanClothesScreen(
+                navController = navController,
+                sellViewModel = viewModelSell,
+                sharedViewModel = SharedViewModel()
+            )
+        }
+        composable(route = VintedScreen.ManClothesScreen.name) {
+            ManClothesScreen(
+                navController = navController,
+                sellViewModel = viewModelSell
+            )
+        }
+        composable(route = VintedScreen.ChildrenClothesScreen.name) {
+            ChildrenClothesScreen(
                 navController = navController,
                 sellViewModel = viewModelSell
             )
@@ -257,7 +283,8 @@ fun VintedNavGraph(
                 navController = navController,
                 onCancel = {
                     navController.popBackStack()
-                }
+                },
+                sharedViewModel = SharedViewModel()
             )
         }
         composable(route = VintedScreen.Messages.name) {
@@ -268,7 +295,7 @@ fun VintedNavGraph(
                 }
             )
         }
-
+/*
         composable(
             // Original route: "${VintedScreen.Conversation.name}/{conversationId}"
             // New route:
@@ -296,7 +323,7 @@ fun VintedNavGraph(
             } else {
                 navController.popBackStack() // Or handle error
             }
-        }
+        }*/
 
         composable(route = VintedScreen.Profile.name) {
             Profile(

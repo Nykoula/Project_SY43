@@ -11,7 +11,7 @@ import com.example.project_sy43.ui.theme.theme.Project_SY43Theme
 import com.example.project_sy43.viewmodel.PersonViewModel
 import com.example.project_sy43.viewmodel.ProductViewModel
 import com.example.project_sy43.viewmodel.SellViewModel
-
+import com.example.project_sy43.viewmodel.SharedViewModel
 
 
 class MainActivity : ComponentActivity() {
@@ -23,6 +23,7 @@ class MainActivity : ComponentActivity() {
                 val navController = rememberNavController()
                 val productViewModel: ProductViewModel = viewModel()
                 val sellViewModel: SellViewModel = viewModel()
+                val sharedViewModel: SharedViewModel = viewModel()
                 val personViewModel: PersonViewModel = viewModel()
                 VintedNavGraph(navController, productViewModel, sellViewModel, personViewModel)
             }

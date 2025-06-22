@@ -92,7 +92,6 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 
-@Preview
 @Composable
 fun SellScreen(navController: NavController, sellViewModel: SellViewModel = viewModel(), itemId: String? = null) {
 //la modification ne fonctionne pas
@@ -364,7 +363,7 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
             Spacer(modifier = Modifier.height(16.dp))
 
             InputFields(
-                "Title", "ex: Blue T-shirt",
+                "Title", "ex: T-shirt Nike Black",
                 value = title, onValueChange = { title = it })
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -381,10 +380,6 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Le reste du code reste identique...
-            // [Tous les autres composants restent les mêmes que dans la version précédente]
-
-            // Boutons de menu déroulant
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -431,8 +426,6 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
                                 )
                             },
                             onClick = {
-                                //category = text
-                                //sellViewModel.selectedCategory.value = text
                                 sellViewModel.setProductCategory(text)
                                 expandedCategory = false
                             }
@@ -1005,6 +998,7 @@ fun saveArticleToFirestore(
 ) {
     Log.d("Firestore", "Photo URLs: $photoUrls")
 
+    val formattedTitle = formatTitle(title)
     val calendar = Calendar.getInstance(Locale.FRANCE) // Récupère la date et l'heure actuelles
     val dateFormat = SimpleDateFormat("yyyy-MM-dd-HH-mm-ss") // Format désiré : "2025-04-19-14-30-45"
     val currentDate = dateFormat.format(calendar.time) // Convertit en chaîne formatée
@@ -1012,7 +1006,7 @@ fun saveArticleToFirestore(
     val db = Firebase.firestore
     val article = hashMapOf(
         "userId" to userId,
-        "title" to title,
+        "title" to formattedTitle,
         "description" to description,
         "price" to price.toDoubleOrNull(),
         "category" to category,
@@ -1035,4 +1029,17 @@ fun saveArticleToFirestore(
         .addOnFailureListener { exception ->
             Log.e("Firestore", "Erreur lors de l'enregistrement : ${exception.message}")
         }
+}
+
+
+fun formatTitle(title: String): String {
+    // Supprimer uniquement les espaces superflus
+    val cleanedTitle = title.trim()
+
+    // Mettre la première lettre en majuscule et le reste en minuscules
+    return if (cleanedTitle.isNotEmpty()) {
+        cleanedTitle.lowercase().replaceFirstChar { it.uppercase() }
+    } else {
+        ""
+    }
 }

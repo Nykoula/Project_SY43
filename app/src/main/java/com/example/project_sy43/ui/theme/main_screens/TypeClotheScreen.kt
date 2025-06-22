@@ -1,5 +1,6 @@
 package com.example.project_sy43.ui.theme.main_screens
 
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -28,6 +29,8 @@ import androidx.navigation.NavController
 import com.example.project_sy43.navigation.VintedScreen
 import com.example.project_sy43.ui.theme.components.VintedTopBar
 import com.example.project_sy43.viewmodel.SellViewModel
+import androidx.lifecycle.ViewModel
+
 
 object TypeClothes {
     val womanType = listOf(
@@ -76,6 +79,7 @@ object TypeClothesChoice {
     )
 }
 
+
 @Composable
 fun TypeClotheScreen(navController: NavController, sellViewModel: SellViewModel) {
     var selectedType by sellViewModel.selectedType
@@ -99,60 +103,128 @@ fun TypeClotheScreen(navController: NavController, sellViewModel: SellViewModel)
             VintedTopBar(title = "Vêtements", navController, true)
         }
     ) { innerPadding ->
-        LazyColumn(
-            modifier = Modifier
-                .padding(innerPadding)
-                .fillMaxSize()
-        ) {
-            items(
-                typeList
-            ) { (type, screen) ->
+        if (typeList.isEmpty() && typeListChoice.isEmpty()) {
+            Text(
+                text = "Please choose a category first" ,
+                color = Color.Black ,
+                fontWeight = FontWeight.Bold ,
+                modifier = Modifier
+                    .padding(innerPadding)
+                    .padding(16.dp)
+            )
+        } else {
+            LazyColumn(
+                modifier = Modifier
+                    .padding(innerPadding)
+                    .fillMaxSize()
+            ) {
+                items(
+                    typeList
+                ) { (type , screen) ->
 
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 8.dp)
-                        .clickable {
-                            navController.navigate(screen)
-                        }
-                ) {
-                    Text(text = type, fontWeight = FontWeight.Bold)
-                    Spacer(modifier = Modifier.weight(1f))
-                    Icon(
-                        imageVector = Icons.Outlined.KeyboardArrowRight,
-                        contentDescription = "Arrow"
-                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically ,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp , vertical = 8.dp)
+                            .clickable {
+                                navController.navigate(screen)
+                            }
+                    ) {
+                        Text(text = type , fontWeight = FontWeight.Bold)
+                        Spacer(modifier = Modifier.weight(1f))
+                        Icon(
+                            imageVector = Icons.Outlined.KeyboardArrowRight ,
+                            contentDescription = "Arrow"
+                        )
+                    }
+                    Divider(thickness = 1.dp , color = Color.Gray)
                 }
-                Divider(thickness = 1.dp, color = Color.Gray)
-            }
-            items(
-                typeListChoice
-            ) { type ->
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 8.dp)
-                        .clickable {
-                            selectedType = type
-                            sellViewModel.setProductType(type)
-                            navController.popBackStack()
-                        }
-                ) {
-                    Text(text = type, fontWeight = FontWeight.Bold)
-                    Spacer(modifier = Modifier.weight(1f))
-                    RadioButton(
-                        selected = selectedType == type,
-                        onClick = null // on désactive onClick
-                    )
+                items(
+                    typeListChoice
+                ) { type ->
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically ,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp , vertical = 8.dp)
+                            .clickable {
+                                selectedType = type
+                                sellViewModel.setProductType(type)
+                                navController.popBackStack()
+                            }
+                    ) {
+                        Text(text = type , fontWeight = FontWeight.Bold)
+                        Spacer(modifier = Modifier.weight(1f))
+                        RadioButton(
+                            selected = selectedType == type ,
+                            onClick = null // on désactive onClick
+                        )
+                    }
+                    Divider(thickness = 1.dp , color = Color.Gray)
                 }
-                Divider(thickness = 1.dp, color = Color.Gray)
-            }
-            item {
-                Spacer(modifier = Modifier.height(16.dp))
+                item {
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
             }
         }
     }
 }
 
+@Composable
+fun CategorySelectionScreen(navController: NavController) {
+
+    Scaffold(
+        topBar = {
+            VintedTopBar(title = "Select Category", navController = navController, canGoBack = true)
+        }
+    ) { innerPadding ->
+        LazyColumn(
+            modifier = Modifier
+                .padding(innerPadding)
+                .fillMaxSize()
+        ) {
+            item {
+                val categoryNavigation = listOf(
+                    "Woman" to "WomanClothesScreen",
+                    "Man" to "ManClothesScreen",
+                    "Children" to "ChildrenClothesScreen"
+                )
+
+                categoryNavigation.forEach { (category, route) ->
+                    CategoryItem(
+                        category = category,
+                        onClick = {
+                            Log.d("CategorySelection", "Clicked category: $category, navigating to: $route")
+                            try {
+                                navController.navigate(route)
+                            } catch (e: Exception) {
+                                Log.e("CategorySelection", "Navigation error: ${e.message}", e)
+                            }
+                        }
+                    )
+                }
+            }
+
+        }
+    }
+}
+
+@Composable
+fun CategoryItem(category: String, onClick: () -> Unit) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .clickable(onClick = onClick)
+    ) {
+        Text(text = category, fontWeight = FontWeight.Bold)
+        Spacer(modifier = Modifier.weight(1f))
+        Icon(
+            imageVector = Icons.Outlined.KeyboardArrowRight,
+            contentDescription = "Arrow"
+        )
+    }
+    Divider(thickness = 1.dp, color = Color.Gray)
+}

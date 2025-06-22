@@ -2,68 +2,77 @@ package com.example.project_sy43.ui.theme.main_screens
 
 import android.net.Uri
 import android.util.Log
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import coil.compose.AsyncImage
-import com.example.project_sy43.model.Product
 import com.example.project_sy43.navigation.VintedScreen
 import com.example.project_sy43.ui.theme.components.VintedBottomBar
 import com.example.project_sy43.ui.theme.components.VintedTopBar
 import com.example.project_sy43.viewmodel.SellViewModel
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.Query
+import androidx.compose.foundation.background
+import com.example.project_sy43.viewmodel.SharedViewModel
+
 
 @Composable
 fun Search(
     navController: NavController,
     onCancel: () -> Unit,
-    sellViewModel: SellViewModel = viewModel()
+    searchViewModel: SellViewModel = viewModel(),
+    sharedViewModel: SharedViewModel = viewModel()
 ) {
+    var expandedCategory by remember { mutableStateOf(false) }
     var searchQuery by remember { mutableStateOf("") }
     var isLoading by remember { mutableStateOf(false) }
     var filterPriceAsc by remember { mutableStateOf(false) }
     var filterDateAsc by remember { mutableStateOf(false) }
-
     val db = FirebaseFirestore.getInstance()
     val keyboardController = LocalSoftwareKeyboardController.current
+    var selectedType by sharedViewModel.selectedType
 
-    Log.d("SearchScreen", "Search screen initialized")
+    Log.d("SearchScreen", "Search screen initialized with selected type: $selectedType")
+
+    LaunchedEffect(selectedType) {
+        if (selectedType.isNotEmpty() && searchQuery.isNotEmpty()) {
+            Log.d("SearchScreen", "Triggered search after type selection: $selectedType")
+            isLoading = true
+            performSearch(
+                db,
+                searchQuery,
+                filterPriceAsc,
+                filterDateAsc,
+                filterCategory = selectedType,
+                sellViewModel = searchViewModel
+            ) {
+                isLoading = false
+            }
+        }
+    }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         containerColor = Color.White,
         topBar = {
-            VintedTopBar(title = "Search", navController, true)
+            VintedTopBar(title = "Search", navController = navController, canGoBack = true)
         },
         bottomBar = {
-            VintedBottomBar(navController, VintedScreen.Search)
+            VintedBottomBar(navController = navController, currentScreen = VintedScreen.Search)
         }
     ) { innerPadding ->
         Column(
@@ -79,7 +88,25 @@ fun Search(
                 leadingIcon = {
                     Icon(
                         imageVector = Icons.Default.Search,
-                        contentDescription = "Search"
+                        contentDescription = "Search",
+                        modifier = Modifier.clickable {
+                            Log.d("SearchScreen", "Search initiated with query: $searchQuery")
+                            keyboardController?.hide()
+                            if (searchQuery.isNotEmpty()) {
+                                isLoading = true
+                                performSearch(
+                                    db,
+                                    searchQuery,
+                                    filterPriceAsc,
+                                    filterDateAsc,
+                                    filterCategory = "",
+                                    searchViewModel
+                                ) {
+                                    isLoading = false
+                                    Log.d("SearchScreen", "Search completed")
+                                }
+                            }
+                        }
                     )
                 },
                 modifier = Modifier.fillMaxWidth(),
@@ -93,18 +120,22 @@ fun Search(
                         keyboardController?.hide()
                         if (searchQuery.isNotEmpty()) {
                             isLoading = true
-                            performSearch(db, searchQuery, filterPriceAsc, filterDateAsc, sellViewModel) {
+                            performSearch(
+                                db,
+                                searchQuery,
+                                filterPriceAsc,
+                                filterDateAsc,
+                                filterCategory = "",
+                                searchViewModel
+                            ) {
                                 isLoading = false
                                 Log.d("SearchScreen", "Search completed")
                             }
                         }
-                        Log.d("SearchScreen", "Search initiated")
                     }
                 )
             )
-
             Spacer(modifier = Modifier.height(16.dp))
-
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
@@ -112,138 +143,200 @@ fun Search(
                 Button(
                     onClick = {
                         Log.d("SearchScreen", "Filter by Type button clicked")
-                        navController.navigate(VintedScreen.TypeClothe.name)
+                        navController.navigate("CategorySelectionScreen")
+                        selectedType = searchViewModel.selectedType.value
+                        if (searchQuery.isNotEmpty()) {
+                            isLoading = true
+                            performSearch(
+                                db,
+                                searchQuery,
+                                filterPriceAsc,
+                                filterDateAsc,
+                                searchViewModel.selectedType.value,
+                                searchViewModel
+                            ) {
+                                isLoading = false
+                                Log.d("SearchScreen", "Search completed")
+                            }
+                        }
                     },
                     modifier = Modifier.weight(1f)
                 ) {
-                    Text("Filter by Type")
+                    Log.d("FilterSearch", "Selected Type: $selectedType")
+                    Text(text = "Selected Type: ${selectedType ?: "None"}")
                 }
-
                 Button(
                     onClick = {
                         filterPriceAsc = !filterPriceAsc
-                        Log.d("SearchScreen", "Price filter toggled: ${if (filterPriceAsc) "Low to High" else "High to Low"}")
+                        Log.d(
+                            "SearchScreen",
+                            "Price filter toggled: ${if (filterPriceAsc) "Low to High" else "High to Low"}"
+                        )
+                        if (searchQuery.isNotEmpty()) {
+                            isLoading = true
+                            performSearch(
+                                db,
+                                searchQuery,
+                                filterPriceAsc,
+                                filterDateAsc,
+                                filterCategory = "",
+                                searchViewModel
+                            ) {
+                                isLoading = false
+                                Log.d("SearchScreen", "Search completed")
+                            }
+                        }
                     },
                     modifier = Modifier.weight(1f)
                 ) {
                     Text(if (filterPriceAsc) "Price: Low to High" else "Price: High to Low")
                 }
-
                 Button(
                     onClick = {
                         filterDateAsc = !filterDateAsc
-                        Log.d("SearchScreen", "Date filter toggled: ${if (filterDateAsc) "Old to New" else "New to Old"}")
+                        Log.d(
+                            "SearchScreen",
+                            "Date filter toggled: ${if (filterDateAsc) "Old to New" else "New to Old"}"
+                        )
+                        if (searchQuery.isNotEmpty()) {
+                            isLoading = true
+                            performSearch(
+                                db,
+                                searchQuery,
+                                filterPriceAsc,
+                                filterDateAsc,
+                                filterCategory = "",
+                                searchViewModel
+                            ) {
+                                isLoading = false
+                                Log.d("SearchScreen", "Search completed")
+                            }
+                        }
                     },
                     modifier = Modifier.weight(1f)
                 ) {
                     Text(if (filterDateAsc) "Date: Old to New" else "Date: New to Old")
                 }
             }
-
             Spacer(modifier = Modifier.height(16.dp))
-
             if (isLoading) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     CircularProgressIndicator()
                 }
             } else {
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    items(sellViewModel.searchResults.value) { item ->
-                        PostItemsGrid(items = listOf(item), navController = navController)
+                if (searchViewModel.searchResults.isNotEmpty()) {
+                    PostItemsGrid(viewModels = searchViewModel.searchResults, navController = navController)
+                } else {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Text("Aucun résultat trouvé")
                     }
                 }
             }
         }
     }
 }
+
+
 
 fun performSearch(
     db: FirebaseFirestore,
     searchQuery: String,
     filterPriceAsc: Boolean,
     filterDateAsc: Boolean,
+    filterCategory: String,
     sellViewModel: SellViewModel,
     onComplete: () -> Unit
 ) {
-    Log.d("SearchFunction", "Starting search with query: $searchQuery")
-
+    val formattedSearchQuery = formatTitle(searchQuery)
     var query = db.collection("Post")
         .orderBy("title")
-        .startAt(searchQuery)
-        .endAt(searchQuery + "\uf8ff")
+        .startAt(formattedSearchQuery)
+        .endAt("$formattedSearchQuery\uf8ff")
 
     query.get()
         .addOnSuccessListener { documents ->
-            Log.d("SearchFunction", "Search successful, ${documents.size()} documents found")
             val results = documents.mapNotNull { document ->
                 try {
-                    val viewModel = SellViewModel().apply {
-                        productTitle.value = document.getString("title") ?: ""
-                        productPrice.value = document.getDouble("price")?.toString() ?: ""
-                        productDescription.value = document.getString("description") ?: ""
-                        productId.value = document.id
-
-                        val dateCreationValue = document.get("dateCreation")
-                        dateCreation.value = when (dateCreationValue) {
-                            is com.google.firebase.Timestamp -> dateCreationValue.toDate().toString()
-                            is String -> dateCreationValue
-                            else -> ""
+                    val title = document.getString("title") ?: ""
+                    val formattedTitle = formatTitle(title)
+                    if (formattedTitle.contains(formattedSearchQuery)) {
+                        SellViewModel().apply {
+                            productTitle.value = title
+                            productPrice.value = document.getDouble("price")?.toString() ?: "0.0"
+                            productDescription.value = document.getString("description") ?: ""
+                            selectedState.value = document.getString("state") ?: ""
+                            productId.value = document.id
+                            val dateCreationValue = document.get("dateCreation")
+                            dateCreation.value = when (dateCreationValue) {
+                                is com.google.firebase.Timestamp -> dateCreationValue.toDate().toString()
+                                is String -> dateCreationValue
+                                else -> ""
+                            }
+                            val photos = document.get("photos") as? List<String> ?: emptyList()
+                            setProductPhotoUris(photos.map { Uri.parse(it) })
                         }
-
-                        val photos = document.get("photos") as? List<String> ?: emptyList()
-                        setProductPhotoUris(photos.map { Uri.parse(it) })
-                        Log.d("SearchFunction", "Test pass")
+                    } else {
+                        null
                     }
-                    viewModel
                 } catch (e: Exception) {
                     Log.e("SearchFunction", "Error mapping document to SellViewModel", e)
                     null
                 }
             }
-            Log.d("SearchFunction", "Results size: ${results.size}")
-            sellViewModel.setSearchResults(results)
-            Log.d("SearchFunction", "Search results set")
+
+            // Appliquer les filtres
+            val filteredResults = if (filterPriceAsc) {
+                results.sortedWith(compareBy<SellViewModel> { it.productPrice.value.toDoubleOrNull() ?: 0.0 }
+                                       .thenBy { it.dateCreation.value })
+            } else {
+                results.sortedWith(compareByDescending<SellViewModel> { it.productPrice.value.toDoubleOrNull() ?: 0.0 }
+                                       .thenByDescending { it.dateCreation.value })
+            }
+
+
+            sellViewModel.setSearchResults(filteredResults)
             onComplete()
-            Log.d("SearchFunction", "Search completed 1")
         }
         .addOnFailureListener { exception ->
             Log.e("SearchFunction", "Error fetching documents", exception)
             onComplete()
         }
-    Log.d("SearchFunction", "Search completed 2")
 }
 
 
+
+
 @Composable
-fun PostItemsGrid(items: List<SellViewModel>, navController: NavController) {
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(2), // Deux colonnes
-        modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(8.dp)
-    ) {
-        items(items) { item ->
-            PostItem(item = item, navController = navController)
+fun PostItemsGrid(viewModels: List<SellViewModel>, navController: NavController) {
+    if (viewModels.isNotEmpty()) {
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(2),
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(8.dp)
+        ) {
+            items(viewModels.size) { index ->
+                PostItem(item = viewModels[index] , navController = navController)
+            }
+        }
+    } else {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Text("Aucun article à afficher")
         }
     }
 }
 
+
+
 @Composable
 fun PostItem(item: SellViewModel, navController: NavController) {
     Log.d("PostItem", "Rendering post item: ${item.productTitle.value}")
-
     val photoUrls = item.productPhotoUri.value.map { it.toString() }
-    Log.d("PostItem", "Photo URLs: $photoUrls")
 
     Card(
         modifier = Modifier
             .padding(8.dp)
             .fillMaxWidth()
-            .aspectRatio(0.75f), // Ajustez l'aspect ratio selon vos besoins
+            .aspectRatio(0.75f),
         elevation = CardDefaults.cardElevation(4.dp),
         onClick = {
             navController.navigate("${VintedScreen.ArticleDetail.name}/${item.productId.value}")
@@ -255,18 +348,25 @@ fun PostItem(item: SellViewModel, navController: NavController) {
                 .padding(8.dp)
         ) {
             Text(text = item.productTitle.value, style = MaterialTheme.typography.bodyMedium)
-            Spacer(modifier = Modifier.height(4.dp))
+            Text(text = "${item.productPrice.value} €", style = MaterialTheme.typography.bodySmall)
+            Text(text = "${item.selectedState.value}", style = MaterialTheme.typography.bodySmall)
 
             if (photoUrls.isNotEmpty()) {
                 PhotoCarousel(photos = photoUrls)
             } else {
-                Log.d("PostItem", "No photos to display")
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(100.dp)
+                        .background(Color.LightGray),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text("No Image Available", color = Color.Gray)
+                }
             }
+            Log.d("SearchFunction", "state and price : ${item.selectedState.value} ${item.productPrice.value}")
 
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(text = "Price: ${item.productPrice.value}", style = MaterialTheme.typography.bodySmall)
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(text = "Description: ${item.productDescription.value}", style = MaterialTheme.typography.bodySmall)
+
         }
     }
 }

@@ -10,6 +10,7 @@ import com.example.project_sy43.repository.ProductRepository
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.launch
+import androidx.compose.runtime.mutableStateListOf
 
 class SellViewModel : ViewModel(){
 
@@ -32,13 +33,15 @@ class SellViewModel : ViewModel(){
         private set
     //    var productPhotoUri by mutableStateOf<Uri?>(null)
 //        private set
-    var searchResults = mutableStateOf<List<SellViewModel>>(emptyList())
-        private set
+    var searchResults = mutableStateListOf<SellViewModel>()
     var isAvailable = mutableStateOf(true)
 
 
+
+
     fun setSearchResults(results: List<SellViewModel>) {
-        searchResults.value = results
+        searchResults.clear()
+        searchResults.addAll(results)
     }
 
     fun setProductTitle(title: String) {
