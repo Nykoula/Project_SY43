@@ -549,7 +549,7 @@ class ConversationRepository(
             // 1. Try to find an existing conversation
             // This query assumes you want only ONE conversation per buyer/seller/product.
             // Adjust if users can have multiple.
-            val querySnapshot = firestore.collection("conversations")
+            val querySnapshot = firestore.collection("conversation")
                 .whereEqualTo("type", "marketplace_chat") // Ensure it's the right type
                 .whereEqualTo("productId", productId)
                 // Firestore requires that array-contains/array-contains-any queries
@@ -712,4 +712,10 @@ class ConversationRepository(
             return Result.failure(e)
         }
     }
+
+    suspend fun createConversation(conversation: Conversation): String {
+        val docRef = firestore.collection("Conversations").add(conversation).await()
+        return docRef.id
+    }
+
 }

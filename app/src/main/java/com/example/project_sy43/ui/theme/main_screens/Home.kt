@@ -157,7 +157,7 @@ fun MonCompte(
             }
 
             item {
-                Text("Maybe Interesting You", style = MaterialTheme.typography.headlineSmall)
+                Text("You might be interested in", style = MaterialTheme.typography.headlineSmall)
             }
 
             items(posts.drop(10).take(displayCount)) { post ->

@@ -43,8 +43,11 @@ import kotlin.text.format
 import androidx.compose.runtime.getValue
 import com.example.project_sy43.model.Product
 import com. example. project_sy43.model. Conversation
+import com.example.project_sy43.navigation.VintedScreen
 
 import com. example. project_sy43.ui. theme. components. MessageInputSection
+import com.example.project_sy43.ui.theme.components.VintedBottomBar
+import com.example.project_sy43.ui.theme.components.VintedTopBar
 
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -87,24 +90,16 @@ fun ConversationScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text(otherParticipantName ?: "Conversation") }
-                // navigationIcon = { IconButton(onClick = onNavigateBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back") } } // Example
+            VintedTopBar(
+                title = otherParticipantName ?: "Conversation",
+                navController = navController,
+                canGoBack = true
             )
         },
         bottomBar = {
-            // Message Input Area - we'll detail this later
-            MessageInputSection(
-                currentMessageText = currentMessageText,
-                onMessageChange = { viewModel.onCurrentMessageTextChanged(it) },
-                onSendMessage = { viewModel.sendTextMessage() },
-                isSending = isSendingMessage,
-                // Pass offer states and handlers if combined input area
-                currentOfferPrice = currentOfferPrice,
-                onOfferPriceChange = { viewModel.onOfferPriceChanged(it) },
-                currentOfferOptionalText = currentOfferOptionalText,
-                onOfferOptionalTextChange = { viewModel.onOfferOptionalTextChanged(it) },
-                onSendOffer = { viewModel.sendOfferMessage() } // Add button/logic for this
+            VintedBottomBar(
+                navController = navController,
+                currentScreen = VintedScreen.Conversation // Ajoute Conversation dans ton enum si besoin
             )
         }
     ) { paddingValues ->
@@ -138,6 +133,18 @@ fun ConversationScreen(
                     }
                 }
             }
+
+            MessageInputSection(
+                currentMessageText = currentMessageText,
+                onMessageChange = { viewModel.onCurrentMessageTextChanged(it) },
+                onSendMessage = { viewModel.sendTextMessage() },
+                isSending = isSendingMessage,
+                currentOfferPrice = "",
+                onOfferPriceChange = {},
+                currentOfferOptionalText = "",
+                onOfferOptionalTextChange = {},
+                onSendOffer = {}
+            )
         }
     }
 }

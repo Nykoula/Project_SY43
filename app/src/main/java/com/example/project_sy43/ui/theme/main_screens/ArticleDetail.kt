@@ -26,6 +26,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -55,17 +56,26 @@ import com.example.project_sy43.viewmodel.PersonViewModel
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlin.collections.isNotEmpty
 import kotlin.text.isNotEmpty
+import androidx.lifecycle.viewmodel.compose.viewModel
+import kotlinx.coroutines.launch
+import androidx.compose.runtime.rememberCoroutineScope
+import com.example.project_sy43.viewmodel.MessagesViewModel
+
 
 @Composable
 fun ClothingDetailView(
-    personViewModel: PersonViewModel = viewModel() ,
-    navController: NavController ,
-    itemId: String? ,
-    onCancel: () -> Unit ,
+    personViewModel: PersonViewModel = viewModel(),
+    messagesViewModel: MessagesViewModel = viewModel(), // Injection du ViewModel Messages
+    navController: NavController,
+    itemId: String?,
+    onCancel: () -> Unit,
     menuDeroulant: Boolean = false
 ) {
     var clothing by remember { mutableStateOf<Product?>(null) }
     var showDeleteDialog by remember { mutableStateOf(false) }
+    val coroutineScope = rememberCoroutineScope()
+    var isCreatingConversation by remember { mutableStateOf(false) }
+
 
     LaunchedEffect(itemId) {
         itemId?.let {id ->
@@ -216,13 +226,13 @@ fun ClothingDetailView(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 8.dp),
+                            .padding(horizontal = 16.dp , vertical = 8.dp) ,
                         horizontalArrangement = Arrangement.SpaceEvenly
                     ) {
                         Button(
                             onClick = {
-                                // TODO: route pour "Acheter" --> redirection directement sur l'achat
-                            },
+                                // TODO: route pour "Acheter"
+                            } ,
                             modifier = Modifier.weight(1f)
                         ) {
                             Text("Acheter")
@@ -232,11 +242,44 @@ fun ClothingDetailView(
 
                         Button(
                             onClick = {
-                                // TODO: route pour "Négocier" --> redirection vers une nouvelle conv'
-                            },
-                            modifier = Modifier.weight(1f)
+                                clothing?.let { product ->
+                                    if (!isCreatingConversation) {
+                                        isCreatingConversation = true
+                                        coroutineScope.launch {
+                                            try {
+                                                val conversationId = messagesViewModel.createOrGetConversationWithUser(
+                                                    otherUserId = product.userId,
+                                                    productId = product.id
+                                                )
+                                                messagesViewModel.refreshConversations() // Force le rechargement
+                                                navController.navigate("${VintedScreen.Conversation.name}/$conversationId")
+                                            } catch (e: Exception) {
+                                                // Gérer l'erreur (ex: Toast, Snackbar, Log)
+                                                // Exemple simple :
+                                                Log.e(
+                                                    "ClothingDetailView" ,
+                                                    "Erreur création conversation" ,
+                                                    e
+                                                )
+                                            } finally {
+                                                isCreatingConversation = false
+                                            }
+                                        }
+                                    }
+                                }
+                            } ,
+                            modifier = Modifier.weight(1f) ,
+                            enabled = !isCreatingConversation
                         ) {
-                            Text("Négocier")
+                            if (isCreatingConversation) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(20.dp) ,
+                                    strokeWidth = 2.dp ,
+                                    color = MaterialTheme.colorScheme.onPrimary
+                                )
+                            } else {
+                                Text("Négocier")
+                            }
                         }
                     }
                 }

@@ -398,6 +398,7 @@ class ConversationViewModel : ViewModel() {
         val details = _conversationDetails.value
         val currentUid = auth.currentUser?.uid
 
+
         if (details == null || currentUid == null) {
             _otherParticipantDisplayName.value = "Chat Partner"
             return

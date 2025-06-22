@@ -368,6 +368,15 @@ fun VintedNavGraph(
             }
         }
 
+        composable(route = VintedScreen.Messages.name) {
+            Messages(
+                navController = navController ,
+                onCancel = {
+                    navController.popBackStack()
+                }
+            )
+        }
+
         composable(route = VintedScreen.Profile.name) {
             Profile(
                 personViewModel = viewModelPerson,

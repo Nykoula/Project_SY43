@@ -65,6 +65,35 @@ class MessagesViewModel(
     private val usersNameCache = mutableMapOf<String, String?>()
     private val productImagesCache = mutableMapOf<String, String?>()
 
+    suspend fun createOrGetConversationWithUser(otherUserId: String, productId: String): String {
+        val currentUserId = auth.currentUser?.uid ?: throw IllegalStateException("User not logged in")
+
+        // Chercher conversation existante
+        val existingConversationsResult = conversationRepository.getConversationsForCurrentUser()
+        val existingConversation = existingConversationsResult.getOrNull()?.find { conv ->
+            conv.participants.contains(otherUserId) &&
+                    conv.participants.contains(currentUserId) &&
+                    conv.productId == productId
+        }
+        if (existingConversation != null) {
+            return existingConversation.id
+        }
+
+        // Sinon, créer une nouvelle conversation
+        val newConversation = Conversation(
+            id = "", // Firestore générera l'ID
+            participants = listOf(currentUserId, otherUserId),
+            productId = productId,
+            lastMessageText = null,
+            lastMessageTimestamp = null,
+            otherUserName = null,
+            productImageUrl = null
+        )
+        val createdId = conversationRepository.createConversation(newConversation)
+        return createdId
+    }
+
+
 
     init {
         // Observer les changements d'état d'authentification pour charger/vider les conversations
