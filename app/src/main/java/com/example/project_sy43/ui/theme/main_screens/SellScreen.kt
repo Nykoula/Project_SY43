@@ -94,12 +94,24 @@ import java.util.Locale
 
 @Composable
 fun SellScreen(navController: NavController, sellViewModel: SellViewModel = viewModel(), itemId: String? = null) {
-//la modification ne fonctionne pas
 
     LaunchedEffect(itemId) {
         if (itemId != null) {
-            // Charger les infos de l'article dans le ViewModel
             sellViewModel.loadItem(itemId)
+            sellViewModel.productId.value = itemId // Important: définir l'ID du produit
+            Log.d("SellScreen", "Item loaded: $itemId")
+            Log.d("SellScreen", "Item loaded: ${sellViewModel.productTitle.value}")
+            Log.d("SellScreen", "Item loaded: ${sellViewModel.productDescription.value}")
+            Log.d("SellScreen", "Item loaded: ${sellViewModel.productPrice.value}")
+            Log.d("SellScreen", "Item loaded: ${sellViewModel.isAvailable.value}")
+            Log.d("SellScreen", "Item loaded: ${sellViewModel.selectedCategory.value}")
+            Log.d("SellScreen", "Item loaded: ${sellViewModel.selectedType.value}")
+            Log.d("SellScreen", "Item loaded: ${sellViewModel.selectedColors.value}")
+            Log.d("SellScreen", "Item loaded: ${sellViewModel.selectedMaterial.value}")
+            Log.d("SellScreen", "Item loaded: ${sellViewModel.selectedSize.value}")
+            Log.d("SellScreen", "Item loaded: ${sellViewModel.selectedState.value}")
+            Log.d("SellScreen", "Item loaded: ${sellViewModel.selectedColis.value}")
+            Log.d("SellScreen", "Item loaded photos: ${sellViewModel.productPhotoUri.value}")
         }
     }
 
@@ -113,7 +125,6 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
     val userId = FirebaseAuth.getInstance().currentUser?.uid //stocker l'id utilisateur
     var title by sellViewModel.productTitle
     var description by sellViewModel.productDescription
-    //var category by sellViewModel.selectedCategory
     var type by sellViewModel.selectedType
     var couleurs by sellViewModel.selectedColors
     var matieres by sellViewModel.selectedMaterial
@@ -130,12 +141,9 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
     var showPhotoOptions by remember { mutableStateOf(false) }
 
     // Liste pour stocker toutes les photos sélectionnées
-    //val photoList = remember { mutableStateListOf<Uri>() }
-    val photoList = rememberSaveable(saver = listSaver(
-        save = { it.toList() }, // Sauvegarde en tant que List<Uri> (Uri est Parcelable)
-        restore = { it.toMutableStateList() }
-    )) {
-        mutableStateListOf<Uri>()
+    // MODIFICATION: Utiliser directement les photos du ViewModel
+    val photoList = remember(sellViewModel.productPhotoUri.value) {
+        sellViewModel.productPhotoUri.value.toMutableList()
     }
 
     // État pour gérer l'URI de la photo en cours
@@ -147,9 +155,8 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
     ) { success ->
         if (success && currentPhotoUri != null) {
             Log.d("Photo", "Photo prise avec succès: $currentPhotoUri")
-            // Ajouter seulement si pas déjà dans la liste
-            if (!photoList.contains(currentPhotoUri!!)) {
-                photoList.add(currentPhotoUri!!)
+            currentPhotoUri?.let { uri ->
+                sellViewModel.addProductPhotoUri(uri)
             }
         } else {
             Log.d("Photo", "Échec de la capture de l'image.")
@@ -177,14 +184,14 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
         uri?.let {
-            photoList.add(it)
+            sellViewModel.addProductPhotoUri(it)
             Log.d("Photo", "Photo sélectionnée depuis la galerie: $it")
         }
     }
 
     fun validateFields(): Boolean {
         return when {
-            photoList.isEmpty() -> {
+            sellViewModel.productPhotoUri.value.isEmpty() -> {
                 errorMessage = "At least one photo is required"
                 false
             }
@@ -204,10 +211,6 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
                 errorMessage = "Category is required"
                 false
             }
-            /*category.isEmpty() -> {
-                errorMessage = "Category is required"
-                false
-            }*/
             state.isEmpty() -> {
                 errorMessage = "State is required"
                 false
@@ -262,7 +265,11 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
     Scaffold(
         topBar = {
             Column {
-                VintedTopBar(title = "Sell your item", navController, true)
+                VintedTopBar(
+                    title = if (itemId != null) "Edit your item" else "Sell your item",
+                    navController,
+                    true
+                )
             }
         },
         bottomBar = {
@@ -280,7 +287,7 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
             Button(
                 onClick = {
                     showResetDialog = true
-                }, // Assurez-vous que cela appelle la fonction reset de votre ViewModel
+                },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color.White,
                     contentColor = Color(0xFFFF1C1C)
@@ -292,10 +299,9 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
             ) {
                 Text(text = "Reset")
             }
+
             // Section pour ajouter des photos
             Column {
-
-
                 // Bouton principal pour ajouter des photos
                 Button(
                     onClick = { showPhotoOptions = true },
@@ -307,7 +313,6 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
                     modifier = Modifier
                         .border(2.dp, Color(0xFF007782), RoundedCornerShape(16.dp))
                 ) {
-
                     Row(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -318,7 +323,7 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
                             modifier = Modifier.size(24.dp)
                         )
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text(text = "Add pictures (${photoList.size})")
+                        Text(text = "Add pictures (${sellViewModel.productPhotoUri.value.size})")
                     }
                 }
 
