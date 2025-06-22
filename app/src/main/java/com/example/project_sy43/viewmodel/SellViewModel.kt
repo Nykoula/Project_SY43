@@ -10,12 +10,14 @@ import com.example.project_sy43.repository.ProductRepository
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.launch
+import androidx.compose.runtime.mutableStateListOf
 
 class SellViewModel : ViewModel(){
 
     private val repository = ProductRepository()
 
     var idUser = mutableStateOf("")
+    var productId = mutableStateOf("")
     var productTitle = mutableStateOf("")
     var productDescription = mutableStateOf("")
     var productPrice = mutableStateOf("")
@@ -29,15 +31,12 @@ class SellViewModel : ViewModel(){
     var dateCreation = mutableStateOf("")
     var productPhotoUri = mutableStateOf<List<Uri>>(emptyList())
         private set
-    //    var productPhotoUri by mutableStateOf<Uri?>(null)
-//        private set
-    var searchResults = mutableStateOf<List<SellViewModel>>(emptyList())
-        private set
+    var searchResults = mutableStateListOf<SellViewModel>()
     var isAvailable = mutableStateOf(true)
 
-
     fun setSearchResults(results: List<SellViewModel>) {
-        searchResults.value = results
+        searchResults.clear()
+        searchResults.addAll(results)
     }
 
     fun setProductTitle(title: String) {
@@ -88,12 +87,12 @@ class SellViewModel : ViewModel(){
         dateCreation.value = date
     }
 
-    // updateProductPhotoUri
-//    fun updateProductPhotoUri(uri: Uri) {
-//        productPhotoUri = uri
-//    }
     fun addProductPhotoUri(uri: Uri) {
-        productPhotoUri.value = productPhotoUri.value + uri
+        val currentList = productPhotoUri.value.toMutableList()
+        if (!currentList.contains(uri)) {
+            currentList.add(uri)
+            productPhotoUri.value = currentList
+        }
     }
 
     //remplace toutes les photos de la liste en une seule fois
@@ -106,14 +105,13 @@ class SellViewModel : ViewModel(){
         productPhotoUri.value = productPhotoUri.value.filter { it != uri }
     }
 
-
-
     fun loadItem(itemId: String) {
         viewModelScope.launch {
             Log.d("SellViewModel", "loadItem called with itemId=$itemId")
             val item = repository.getItemById(itemId)
             if (item != null) {
                 Log.d("SellViewModel", "Item loaded: $item")
+                productId.value = itemId
                 productTitle.value = item.title
                 productDescription.value = item.description
                 productPrice.value = item.price.toString()
@@ -124,13 +122,32 @@ class SellViewModel : ViewModel(){
                 selectedMaterial.value = item.material.toSet()
                 selectedSize.value = item.size
                 selectedColis.value = item.colis
-                productPhotoUri.value = item.photos.map { Uri.parse(it) }
-                //productPhotoUri = item.photos.firstOrNull()?.let { Uri.parse(it) }
+                isAvailable.value = item.available
+                dateCreation.value = item.dateCreation
+
+                // CORRECTION IMPORTANTE: Convertir les URLs en Uri
+                val photoUris = item.photos.mapNotNull { photoUrl ->
+                    try {
+                        Uri.parse(photoUrl)
+                    } catch (e: Exception) {
+                        Log.e("SellViewModel", "Erreur conversion URL vers Uri: $photoUrl", e)
+                        null
+                    }
+                }
+                productPhotoUri.value = photoUris
+
+                Log.d("SellViewModel", "Photos loaded: ${photoUris.size} photos")
+                photoUris.forEachIndexed { index, uri ->
+                    Log.d("SellViewModel", "Photo $index: $uri")
+                }
+            } else {
+                Log.e("SellViewModel", "Item not found for ID: $itemId")
             }
         }
     }
 
     fun reset() {
+        productId.value = ""
         productTitle.value = ""
         productDescription.value = ""
         productPrice.value = ""
@@ -142,7 +159,7 @@ class SellViewModel : ViewModel(){
         selectedSize.value = ""
         selectedColis.value = ""
         isAvailable.value = true
-        //productPhotoUri = null
+        dateCreation.value = ""
         productPhotoUri.value = emptyList()
     }
 }

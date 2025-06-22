@@ -192,18 +192,9 @@ fun ConversationItem(
 
             Spacer(modifier = Modifier.height(4.dp))
 
-//                //ici afficher le dernier message plutôt que le prix
-//                val lastMessageText = when (conversation.lastMessage?.type) {
-//                    "proposition" -> {
-//                        val price = conversation.lastMessage?.proposedPrice?.let { "%.2f".format(it) } ?: "N/A"
-//                        "Proposition: $price€ - ${conversation.lastMessage?.text ?: ""}"
-//                    }
-//                    else -> conversation.lastMessage?.text ?: "No messages yet"
-//                }
-//                //cette section à modifier
 
             Text(
-                text = conversation.lastMessage?.text ?: "No messages yet",
+                text = conversation.lastMessageText?: "No messages yet",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 maxLines = 1,
@@ -214,12 +205,12 @@ fun ConversationItem(
         Spacer(modifier = Modifier.width(8.dp))
 
         // Optional: Timestamp of the last message
-        conversation.lastMessage?.timestamp?.let { timestamp ->
-            Text(
-                text = SimpleDateFormat("HH:mm", Locale.getDefault()).format(timestamp.toDate()),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.outline
-            )
-        }
+//        conversation.lastMessage?.timestamp?.let { timestamp ->
+//            Text(
+//                text = SimpleDateFormat("HH:mm", Locale.getDefault()).format(timestamp.toDate()),
+//                style = MaterialTheme.typography.bodySmall,
+//                color = MaterialTheme.colorScheme.outline
+//            )
+//        }
     }
 }

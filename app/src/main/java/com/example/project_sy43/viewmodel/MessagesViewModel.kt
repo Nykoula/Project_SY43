@@ -38,8 +38,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 
-// Assurez-vous d'avoir une manière d'injecter ou d'initialiser vos dépendances
-// Pour cet exemple, je vais les initialiser directement, mais l'injection de dépendances (Hilt, Koin) est recommandée.
+
 class MessagesViewModel(
     private val conversationRepository: ConversationRepository, // Injection de dépendance est préférable
     private val auth: FirebaseAuth // Peut aussi être injecté ou obtenu via le repo si nécessaire
@@ -123,7 +122,7 @@ class MessagesViewModel(
 
                     // Trier par timestamp du dernier message (si disponible et pertinent)
                     _conversations.value = enrichedConversations.sortedWith(
-                        compareByDescending { it.lastMessage?.timestamp }
+                        compareByDescending { it.lastMessageTimestamp }
                     )
                     Log.d("MessagesViewModel", "Conversations updated in StateFlow. Total: ${_conversations.value.size}")
                 },
@@ -149,15 +148,19 @@ class MessagesViewModel(
         // Collect all unique IDs needed for enrichment
         val otherUserIds = conversations.mapNotNull { it.participants.firstOrNull { p -> p != currentUserId } }.distinct()
         val productIdsToFetch = conversations.mapNotNull { if (it.productId.isNotBlank()) it.productId else null }.distinct()
+        Log.d("MessagesViewModelDebug", "otherUserId ${otherUserIds} ")
+        Log.d("MessagesViewModelDebug", "productIdsToFetch ${productIdsToFetch} ")
 
         // Fetch user names and product images in batch
         // Using async/awaitAll to run these fetches concurrently
         val userNamesDeferred = viewModelScope.async {
             if (otherUserIds.isNotEmpty()) conversationRepository.fetchUserNamesInBatch(otherUserIds) else Result.success(emptyMap())
         }
+        Log.d("MessagesViewModel", "User names fetch deferred : ${userNamesDeferred}")
         val productImagesDeferred = viewModelScope.async {
             if (productIdsToFetch.isNotEmpty()) conversationRepository.fetchProductImagesInBatch(productIdsToFetch) else Result.success(emptyMap())
         }
+        Log.d("MessagesViewModel", "Product images fetch deferred : ${productImagesDeferred}")
 
         val userNamesResult = userNamesDeferred.await()
         val productImagesResult = productImagesDeferred.await()

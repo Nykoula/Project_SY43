@@ -5,21 +5,19 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.outlined.Store
@@ -54,26 +52,27 @@ import com.example.project_sy43.model.Product
 import com.example.project_sy43.navigation.VintedScreen
 import com.example.project_sy43.ui.theme.components.VintedTopBar
 import com.example.project_sy43.viewmodel.PersonViewModel
-import com.example.project_sy43.viewmodel.SellViewModel
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlin.collections.isNotEmpty
 import kotlin.text.isNotEmpty
 
 @Composable
 fun ClothingDetailView(
-    personViewModel: PersonViewModel = viewModel(),
-    navController: NavController,
-    itemId: String?,
-    onCancel: () -> Unit
+    personViewModel: PersonViewModel = viewModel() ,
+    navController: NavController ,
+    itemId: String? ,
+    onCancel: () -> Unit ,
+    menuDeroulant: Boolean = false
 ) {
     var clothing by remember { mutableStateOf<Product?>(null) }
     var showDeleteDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(itemId) {
-        itemId?.let {
+        itemId?.let {id ->
+            Log.d("ClothingDetailView", "Fetching details for itemId: $id")
             FirebaseFirestore.getInstance()
                 .collection("Post")
-                .document(it)
+                .document(id)
                 .get()
                 .addOnSuccessListener { document ->
                     if (document != null && document.exists()) {
@@ -100,7 +99,7 @@ fun ClothingDetailView(
                 navController,
                 true,
                 "",
-                true,
+                menuDeroulant = menuDeroulant ?: false,
                 onEditClick = { navController.navigate("${VintedScreen.Sell.name}?itemId=${clothing?.id}") },
                 onDeleteClick = {
                     showDeleteDialog = true
@@ -213,6 +212,34 @@ fun ClothingDetailView(
                         }
                     }
                 }
+                if (menuDeroulant == false) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 8.dp),
+                        horizontalArrangement = Arrangement.SpaceEvenly
+                    ) {
+                        Button(
+                            onClick = {
+                                // TODO: route pour "Acheter" --> redirection directement sur l'achat
+                            },
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Text("Acheter")
+                        }
+
+                        Spacer(modifier = Modifier.width(16.dp))
+
+                        Button(
+                            onClick = {
+                                // TODO: route pour "Négocier" --> redirection vers une nouvelle conv'
+                            },
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Text("Négocier")
+                        }
+                    }
+                }
             }
         }
     }
@@ -273,7 +300,7 @@ fun PhotoCarousel(photos: List<String>) {
 
     Box(
         modifier = Modifier
-            .height(250.dp)
+            .height(400.dp)
             .fillMaxWidth(),
         contentAlignment = Alignment.Center
     ) {
@@ -283,7 +310,7 @@ fun PhotoCarousel(photos: List<String>) {
                 contentDescription = "Product Image",
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(250.dp)
+                    .fillMaxHeight()
                     .clip(RoundedCornerShape(12.dp)),
                 contentScale = ContentScale.Crop
             )

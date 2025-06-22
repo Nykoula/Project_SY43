@@ -97,4 +97,8 @@ dependencies {
     //For the message input row
     implementation("androidx.compose.material3:material3:1.2.1")
 
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
+    implementation("com.google.firebase:firebase-firestore-ktx")
+
 }
