@@ -280,7 +280,6 @@ fun performSearch(
                             selectedState.value = document.getString("state") ?: ""
                             productId.value = document.id
 
-                            // Correction pour la gestion de la date
                             val dateCreationValue = document.getString("dateCreation") ?: ""
                             dateCreation.value = dateCreationValue
                             Log.d("SearchFunction", "Date from DB: $dateCreationValue")
@@ -297,33 +296,16 @@ fun performSearch(
                 }
             }
 
-            // Tri amélioré avec gestion correcte des dates
-            val filteredResults = when {
-                filterPriceAsc && filterDateAsc -> {
-                    results.sortedWith(
-                        compareBy<SellViewModel> { it.productPrice.value.toDoubleOrNull() ?: 0.0 }
-                            .thenBy { parseCustomDateFormat(it.dateCreation.value) ?: Date(0) }
-                    )
+            // Tri avec prix prioritaire, puis date
+            val filteredResults = results.sortedWith(
+                compareBy<SellViewModel> {
+                    if (filterPriceAsc) it.productPrice.value.toDoubleOrNull() ?: 0.0
+                    else -(it.productPrice.value.toDoubleOrNull() ?: 0.0)
+                }.thenBy {
+                    if (filterDateAsc) parseCustomDateFormat(it.dateCreation.value) ?: Date(0)
+                    else parseCustomDateFormat(it.dateCreation.value)?.let { date -> Date(Long.MAX_VALUE - date.time) } ?: Date(Long.MAX_VALUE)
                 }
-                filterPriceAsc && !filterDateAsc -> {
-                    results.sortedWith(
-                        compareBy<SellViewModel> { it.productPrice.value.toDoubleOrNull() ?: 0.0 }
-                            .thenByDescending { parseCustomDateFormat(it.dateCreation.value) ?: Date(0) }
-                    )
-                }
-                !filterPriceAsc && filterDateAsc -> {
-                    results.sortedWith(
-                        compareByDescending<SellViewModel> { it.productPrice.value.toDoubleOrNull() ?: 0.0 }
-                            .thenBy { parseCustomDateFormat(it.dateCreation.value) ?: Date(0) }
-                    )
-                }
-                filterDateAsc -> {
-                    results.sortedBy { parseCustomDateFormat(it.dateCreation.value) ?: Date(0) }
-                }
-                else -> {
-                    results.sortedByDescending { parseCustomDateFormat(it.dateCreation.value) ?: Date(Long.MAX_VALUE) }
-                }
-            }
+            )
 
             Log.d("SearchFunction", "Number of results after filtering: ${filteredResults.size}")
             sellViewModel.setSearchResults(filteredResults)
@@ -334,6 +316,7 @@ fun performSearch(
             onComplete()
         }
 }
+
 
 @Composable
 fun PostItemsGrid(viewModels: List<SellViewModel>, navController: NavController) {
