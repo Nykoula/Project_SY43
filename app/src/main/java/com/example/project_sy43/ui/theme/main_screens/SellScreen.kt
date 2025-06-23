@@ -85,6 +85,11 @@ import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
+import android.graphics.Bitmap
+import android.graphics.ImageDecoder
+import android.os.Build
+import android.provider.MediaStore
+import java.io.ByteArrayOutputStream
 
 @Composable
 fun SellScreen(navController: NavController, sellViewModel: SellViewModel = viewModel(), itemId: String? = null) {
@@ -720,7 +725,7 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
                     if (validateFields()) {
                         sellViewModel.isAvailable.value = true
                         if (photoList.isNotEmpty()) {
-                            uploadPhotosToFirebase(photoList) { photoUrls ->
+                            uploadPhotosToFirebase(context, photoList) { photoUrls ->
                                 saveArticleToFirestore(
                                     userId.toString() ,
                                     sellViewModel.productTitle.value ,
@@ -951,6 +956,7 @@ fun generateUniqueUri(context: Context): Uri {
 }
 
 fun uploadPhotosToFirebase(
+    context: Context,
     uriList: List<Uri>,
     onUploadSuccess: (List<String>) -> Unit
 ) {
@@ -965,17 +971,43 @@ fun uploadPhotosToFirebase(
     }
 
     uriList.forEach { uri ->
-        val photoRef = storageRef.child("Post/${System.currentTimeMillis()}_${uri.lastPathSegment}")
-        Log.d("FirebaseUpload", "Uploading URI: $uri")
+        // Charger le bitmap depuis l'URI
+        val bitmap: Bitmap? = try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                val source = ImageDecoder.createSource(context.contentResolver, uri)
+                ImageDecoder.decodeBitmap(source)
+            } else {
+                MediaStore.Images.Media.getBitmap(context.contentResolver, uri)
+            }
+        } catch (e: Exception) {
+            Log.e("PhotoCompression", "Erreur lors du chargement du bitmap: ${e.message}")
+            null
+        }
 
-        photoRef.putFile(uri)
-            .addOnSuccessListener { taskSnapshot ->
+        if (bitmap == null) {
+            Log.e("PhotoCompression", "Bitmap null, upload ignoré pour $uri")
+            uploadCount++
+            if (uploadCount == uriList.size) {
+                onUploadSuccess(uploadedUrls)
+            }
+            return@forEach
+        }
+
+        val baos = ByteArrayOutputStream()
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 50, baos)
+        val data = baos.toByteArray()
+
+        val photoRef = storageRef.child("Post/${System.currentTimeMillis()}_${uri.lastPathSegment}")
+        Log.d("FirebaseUpload", "Uploading compressed image for URI: $uri")
+
+        val uploadTask = photoRef.putBytes(data)
+        uploadTask
+            .addOnSuccessListener {
                 photoRef.downloadUrl.addOnSuccessListener { downloadUri ->
                     val url = downloadUri.toString()
                     Log.d("FirebaseUpload", "Uploaded URL: $url")
                     uploadedUrls.add(url)
                     uploadCount++
-
                     if (uploadCount == uriList.size) {
                         onUploadSuccess(uploadedUrls)
                     }
@@ -984,7 +1016,6 @@ fun uploadPhotosToFirebase(
             .addOnFailureListener { exception ->
                 Log.e("FirebaseUpload", "Upload failed: ${exception.message}")
                 uploadCount++
-
                 if (uploadCount == uriList.size) {
                     onUploadSuccess(uploadedUrls)
                 }
