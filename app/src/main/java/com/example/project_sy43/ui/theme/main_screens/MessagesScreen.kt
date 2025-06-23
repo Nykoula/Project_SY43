@@ -53,11 +53,10 @@ import com.example.project_sy43.ui.theme.components.VintedBottomBar
 import com.example.project_sy43.ui.theme.components.VintedTopBar
 import java.text.SimpleDateFormat
 import java.util.Locale
+import kotlinx.coroutines.tasks.await
+import com.google.firebase.firestore.FirebaseFirestore
 
-import androidx.compose.runtime.collectAsState
 
-import androidx.compose.foundation.layout.*
-//import androidx.wear.compose.foundation.weight
 
 @Composable
 fun Messages(
@@ -99,9 +98,7 @@ fun Messages(
                 Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center,
-                    //align to the center
-//                    verticalArrangement = Arrangement.Center,
-//                    horizontalAlignment = Alignment.CenterHorizontally
+
                 ) {
                     Text(
                         "You have no active conversations. Go to the Search Tab to start looking for a product !",
@@ -127,6 +124,15 @@ fun Messages(
     }
 }
 
+suspend fun getUserName(userId: String): String? {
+    val firestore = FirebaseFirestore.getInstance()
+    val userDoc = firestore.collection("users").document(userId).get().await()
+    return if (userDoc.exists()) {
+        userDoc.getString("username")
+    } else {
+        null
+    }
+}
 
 @Composable
 fun ConversationItem(
@@ -172,15 +178,13 @@ fun ConversationItem(
             }
         }
 
-
-        //Spacer(modifier = Modifier.width(16.dp))
-
         Column(
             modifier = Modifier
                 .weight(1f)
                 .padding(start = 16.dp),
             verticalArrangement = Arrangement.Center
         ) {
+
             Text(
                 text = conversation.otherUserName ?: "Unknown User",
                 style = MaterialTheme.typography.titleMedium.copy(
@@ -192,25 +196,17 @@ fun ConversationItem(
 
             Spacer(modifier = Modifier.height(4.dp))
 
-
             Text(
-                text = conversation.lastMessageText?: "No messages yet",
+                text = conversation.lastMessageText ?: "No messages yet",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
+
         }
 
         Spacer(modifier = Modifier.width(8.dp))
 
-        // Optional: Timestamp of the last message
-//        conversation.lastMessage?.timestamp?.let { timestamp ->
-//            Text(
-//                text = SimpleDateFormat("HH:mm", Locale.getDefault()).format(timestamp.toDate()),
-//                style = MaterialTheme.typography.bodySmall,
-//                color = MaterialTheme.colorScheme.outline
-//            )
-//        }
     }
 }

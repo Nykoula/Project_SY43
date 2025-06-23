@@ -1,6 +1,7 @@
 package com.example.project_sy43.ui.theme.main_screens
 
 import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -29,6 +30,8 @@ import com.example.project_sy43.viewmodel.PersonViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import androidx.compose.foundation.Image
+import android.provider.Settings
+
 
 @Composable
 fun Profile(
@@ -187,7 +190,11 @@ fun Profile(
                     }
                     Divider(color = Color.LightGray, modifier = Modifier.padding(horizontal = 16.dp))
                     ProfileMenuItem(Icons.Outlined.Settings, "Paramètres", "Gérer les préférences") {
-                        val intent = Intent(android.provider.Settings.ACTION_SETTINGS)
+                        val intent = Intent().apply {
+                            action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+                            data = Uri.fromParts("package", context.packageName, null)
+                            flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                        }
                         context.startActivity(intent)
                     }
                 }

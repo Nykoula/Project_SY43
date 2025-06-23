@@ -255,11 +255,13 @@ fun performSearch(
 
     query.get()
         .addOnSuccessListener { documents ->
+            Log.d("SearchFunction", "Number of documents retrieved: ${documents.size()}")
             val results = documents.mapNotNull { document ->
                 try {
                     val title = document.getString("title") ?: ""
                     val formattedTitle = formatTitle(title)
-                    if (formattedTitle.contains(formattedSearchQuery)) {
+                    val isAvailable = document.getBoolean("available") != false
+                    if (formattedTitle.contains(formattedSearchQuery) && isAvailable) {
                         SellViewModel().apply {
                             productTitle.value = title
                             productPrice.value = document.getDouble("price")?.toString() ?: "0.0"
@@ -284,7 +286,7 @@ fun performSearch(
                 }
             }
 
-            // Appliquer les filtres
+
             val filteredResults = if (filterPriceAsc) {
                 results.sortedWith(compareBy<SellViewModel> { it.productPrice.value.toDoubleOrNull() ?: 0.0 }
                                        .thenBy { it.dateCreation.value })
@@ -293,7 +295,7 @@ fun performSearch(
                                        .thenByDescending { it.dateCreation.value })
             }
 
-
+            Log.d("SearchFunction", "Number of results after filtering: ${filteredResults.size}")
             sellViewModel.setSearchResults(filteredResults)
             onComplete()
         }
@@ -302,6 +304,7 @@ fun performSearch(
             onComplete()
         }
 }
+
 
 
 

@@ -70,23 +70,13 @@ fun ConversationScreen(
     val isSendingMessage by viewModel.isSendingMessage.collectAsState()
     val error by viewModel.error.collectAsState()
 
-    // Offer states (if you have a separate UI for offers)
     val currentOfferPrice by viewModel.currentOfferPrice.collectAsState()
     val currentOfferOptionalText by viewModel.currentOfferOptionalText.collectAsState()
-
-//    val isLoading by viewModel.isLoading.collectAsState()
-//    val listState = rememberLazyListState()
-//    val coroutineScope = rememberCoroutineScope()
-//    val otherUserName = "John Doe"
-//    var conv by remember { mutableStateOf<Conversation?>(null) }
 
     LaunchedEffect(key1 = conversationId) {
         if (conversationId.isNotBlank()) {
             viewModel.initialize(conversationId)
         }
-        // else: Handle error state - conversationId is missing.
-        // The ViewModel already logs an error if conversationId is blank during initialize.
-        // You might want to show a UI error here or navigate back.
     }
 
     Scaffold(
