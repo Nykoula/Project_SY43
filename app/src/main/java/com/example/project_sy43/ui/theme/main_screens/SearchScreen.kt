@@ -287,12 +287,12 @@ fun performSearch(
             }
 
 
-            val filteredResults = if (filterPriceAsc) {
-                results.sortedWith(compareBy<SellViewModel> { it.productPrice.value.toDoubleOrNull() ?: 0.0 }
-                                       .thenBy { it.dateCreation.value })
-            } else {
-                results.sortedWith(compareByDescending<SellViewModel> { it.productPrice.value.toDoubleOrNull() ?: 0.0 }
-                                       .thenByDescending { it.dateCreation.value })
+            val filteredResults = when {
+                filterPriceAsc -> results.sortedWith(compareBy<SellViewModel> { it.productPrice.value.toDoubleOrNull() ?: 0.0 }
+                                                         .thenBy { it.dateCreation.value })
+                filterDateAsc -> results.sortedWith(compareBy { it.dateCreation.value })
+                else -> results.sortedWith(compareByDescending<SellViewModel> { it.productPrice.value.toDoubleOrNull() ?: 0.0 }
+                                               .thenByDescending { it.dateCreation.value })
             }
 
             Log.d("SearchFunction", "Number of results after filtering: ${filteredResults.size}")
