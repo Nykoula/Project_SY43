@@ -28,7 +28,8 @@ import com.example.project_sy43.viewmodel.SellViewModel
 import com.google.firebase.firestore.FirebaseFirestore
 import androidx.compose.foundation.background
 import com.example.project_sy43.viewmodel.SharedViewModel
-
+import java.text.SimpleDateFormat
+import java.util.*
 
 @Composable
 fun Search(
@@ -236,7 +237,17 @@ fun Search(
     }
 }
 
-
+// Fonction utilitaire pour convertir le format de date personnalisé en Date
+fun parseCustomDateFormat(dateString: String): Date? {
+    return try {
+        // Format: "2025-06-22-11-42-53"
+        val formatter = SimpleDateFormat("yyyy-MM-dd-HH-mm-ss", Locale.getDefault())
+        formatter.parse(dateString)
+    } catch (e: Exception) {
+        Log.e("DateParsing", "Error parsing date: $dateString", e)
+        null
+    }
+}
 
 fun performSearch(
     db: FirebaseFirestore,
@@ -268,12 +279,12 @@ fun performSearch(
                             productDescription.value = document.getString("description") ?: ""
                             selectedState.value = document.getString("state") ?: ""
                             productId.value = document.id
-                            val dateCreationValue = document.get("dateCreation")
-                            dateCreation.value = when (dateCreationValue) {
-                                is com.google.firebase.Timestamp -> dateCreationValue.toDate().toString()
-                                is String -> dateCreationValue
-                                else -> ""
-                            }
+
+                            // Correction pour la gestion de la date
+                            val dateCreationValue = document.getString("dateCreation") ?: ""
+                            dateCreation.value = dateCreationValue
+                            Log.d("SearchFunction", "Date from DB: $dateCreationValue")
+
                             val photos = document.get("photos") as? List<String> ?: emptyList()
                             setProductPhotoUris(photos.map { Uri.parse(it) })
                         }
@@ -286,13 +297,32 @@ fun performSearch(
                 }
             }
 
-
+            // Tri amélioré avec gestion correcte des dates
             val filteredResults = when {
-                filterPriceAsc -> results.sortedWith(compareBy<SellViewModel> { it.productPrice.value.toDoubleOrNull() ?: 0.0 }
-                                                         .thenBy { it.dateCreation.value })
-                filterDateAsc -> results.sortedWith(compareBy { it.dateCreation.value })
-                else -> results.sortedWith(compareByDescending<SellViewModel> { it.productPrice.value.toDoubleOrNull() ?: 0.0 }
-                                               .thenByDescending { it.dateCreation.value })
+                filterPriceAsc && filterDateAsc -> {
+                    results.sortedWith(
+                        compareBy<SellViewModel> { it.productPrice.value.toDoubleOrNull() ?: 0.0 }
+                            .thenBy { parseCustomDateFormat(it.dateCreation.value) ?: Date(0) }
+                    )
+                }
+                filterPriceAsc && !filterDateAsc -> {
+                    results.sortedWith(
+                        compareBy<SellViewModel> { it.productPrice.value.toDoubleOrNull() ?: 0.0 }
+                            .thenByDescending { parseCustomDateFormat(it.dateCreation.value) ?: Date(0) }
+                    )
+                }
+                !filterPriceAsc && filterDateAsc -> {
+                    results.sortedWith(
+                        compareByDescending<SellViewModel> { it.productPrice.value.toDoubleOrNull() ?: 0.0 }
+                            .thenBy { parseCustomDateFormat(it.dateCreation.value) ?: Date(0) }
+                    )
+                }
+                filterDateAsc -> {
+                    results.sortedBy { parseCustomDateFormat(it.dateCreation.value) ?: Date(0) }
+                }
+                else -> {
+                    results.sortedByDescending { parseCustomDateFormat(it.dateCreation.value) ?: Date(Long.MAX_VALUE) }
+                }
             }
 
             Log.d("SearchFunction", "Number of results after filtering: ${filteredResults.size}")
@@ -304,10 +334,6 @@ fun performSearch(
             onComplete()
         }
 }
-
-
-
-
 
 @Composable
 fun PostItemsGrid(viewModels: List<SellViewModel>, navController: NavController) {
@@ -327,8 +353,6 @@ fun PostItemsGrid(viewModels: List<SellViewModel>, navController: NavController)
         }
     }
 }
-
-
 
 @Composable
 fun PostItem(item: SellViewModel, navController: NavController) {
@@ -368,8 +392,6 @@ fun PostItem(item: SellViewModel, navController: NavController) {
                 }
             }
             Log.d("SearchFunction", "state and price : ${item.selectedState.value} ${item.productPrice.value}")
-
-
         }
     }
 }
