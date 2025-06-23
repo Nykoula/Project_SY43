@@ -92,11 +92,10 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
 
     val loadKey = remember(itemId) { itemId }
 
-
     LaunchedEffect(loadKey) {
         if (loadKey != null && sellViewModel.productId.value != loadKey) {
             sellViewModel.loadItem(loadKey)
-            sellViewModel.productId.value = loadKey // Important: définir l'ID du produit
+            sellViewModel.productId.value = loadKey
             Log.d("SellScreen", "Item loaded: $loadKey")
             Log.d("SellScreen", "Item loaded: ${sellViewModel.productTitle.value}")
             Log.d("SellScreen", "Item loaded: ${sellViewModel.productDescription.value}")

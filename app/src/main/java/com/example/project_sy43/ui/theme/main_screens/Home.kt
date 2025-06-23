@@ -96,7 +96,7 @@ fun MonCompte(
                     items(posts.take(10)) { post ->
                         Card(
                             modifier = Modifier
-                                .width(150.dp)
+                                .width(170.dp)
                                 .height(350.dp),
                             elevation = CardDefaults.cardElevation(4.dp),
                             onClick = {
