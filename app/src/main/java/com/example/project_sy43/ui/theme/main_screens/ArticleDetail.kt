@@ -69,7 +69,8 @@ fun ClothingDetailView(
     navController: NavController,
     itemId: String?,
     onCancel: () -> Unit,
-    menuDeroulant: Boolean = false
+    menuDeroulant: Boolean = false,
+    topBar: Boolean? = true
 ) {
     var clothing by remember { mutableStateOf<Product?>(null) }
     var showDeleteDialog by remember { mutableStateOf(false) }
@@ -104,17 +105,19 @@ fun ClothingDetailView(
         modifier = Modifier.fillMaxSize(),
         containerColor = Color.White,
         topBar = {
-            VintedTopBar(
-                title = clothing?.title ?: "",
-                navController,
-                true,
-                "",
-                menuDeroulant = menuDeroulant ?: false,
-                onEditClick = { navController.navigate("${VintedScreen.Sell.name}?itemId=${clothing?.id}") },
-                onDeleteClick = {
-                    showDeleteDialog = true
-                }
-            )
+            if (topBar == true) {
+                VintedTopBar(
+                    title = clothing?.title ?: "" ,
+                    navController ,
+                    true ,
+                    "" ,
+                    menuDeroulant = menuDeroulant ?: false ,
+                    onEditClick = { navController.navigate("${VintedScreen.Sell.name}?itemId=${clothing?.id}") } ,
+                    onDeleteClick = {
+                        showDeleteDialog = true
+                    }
+                )
+            }
         }
     ) { innerPadding ->
 
@@ -231,7 +234,7 @@ fun ClothingDetailView(
                     ) {
                         Button(
                             onClick = {
-                                // TODO: route pour "Acheter"
+                                navController.navigate("${VintedScreen.PurchaseScreen.name}/${clothing?.id}/${clothing?.price}")
                             } ,
                             modifier = Modifier.weight(1f)
                         ) {

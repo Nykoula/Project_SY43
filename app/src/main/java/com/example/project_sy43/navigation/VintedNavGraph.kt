@@ -56,6 +56,7 @@ import com.example.project_sy43.ui.theme.children_screen.BabyScreen
 import com.example.project_sy43.ui.theme.children_screen.BabyShoesScreen
 import com.example.project_sy43.viewmodel.ConversationViewModel
 import com.example.project_sy43.ui.theme.main_screens.CategorySelectionScreen
+import com.example.project_sy43.ui.theme.main_screens.PurchaseScreenWithNegotiatedPrice
 import com.example.project_sy43.ui.theme.second_screens.ChildrenClothesScreen
 import com.example.project_sy43.ui.theme.second_screens.ManClothesScreen
 import com.example.project_sy43.ui.theme.second_screens.WomanClothesScreen
@@ -69,16 +70,16 @@ fun VintedNavGraph(
     viewModelPerson: PersonViewModel,
     viewModelConversation: ConversationViewModel
 ) {
-    NavHost(navController = navController, startDestination = VintedScreen.MonCompte.name) {
+    NavHost(navController = navController , startDestination = VintedScreen.MonCompte.name) {
         composable(route = VintedScreen.Accueil.name) {
             Accueil(
-                viewModel = viewModelProduct,
+                viewModel = viewModelProduct ,
                 navController = navController
             )
         }
         composable(route = VintedScreen.Login.name) {
             LoginScreen(
-                navController = navController,
+                navController = navController ,
                 onCancel = {
                     navController.popBackStack()
                 }
@@ -91,8 +92,8 @@ fun VintedNavGraph(
         }
         composable(route = VintedScreen.MonCompte.name) {
             MonCompte(
-                viewModel = viewModelProduct,
-                navController = navController,
+                viewModel = viewModelProduct ,
+                navController = navController ,
                 onCancel = {
                     navController.popBackStack()
                 }
@@ -106,19 +107,19 @@ fun VintedNavGraph(
         }*/
         composable(route = VintedScreen.ColorScreen.name) {
             ColorScreen(
-                navController = navController,
+                navController = navController ,
                 sellViewModel = viewModelSell
             )
         }
         composable(route = VintedScreen.Matieres.name) {
             MatieresScreen(
-                navController = navController,
+                navController = navController ,
                 sellViewModel = viewModelSell
             )
         }
         composable(route = VintedScreen.TypeClothe.name) {
             TypeClotheScreen(
-                navController = navController,
+                navController = navController ,
                 sellViewModel = viewModelSell
             )
         }
@@ -129,173 +130,173 @@ fun VintedNavGraph(
         }
         composable(route = VintedScreen.WomanClothesScreen.name) {
             WomanClothesScreen(
-                navController = navController,
-                sellViewModel = viewModelSell,
+                navController = navController ,
+                sellViewModel = viewModelSell ,
                 sharedViewModel = SharedViewModel()
             )
         }
         composable(route = VintedScreen.ManClothesScreen.name) {
             ManClothesScreen(
-                navController = navController,
+                navController = navController ,
                 sellViewModel = viewModelSell
             )
         }
         composable(route = VintedScreen.ChildrenClothesScreen.name) {
             ChildrenClothesScreen(
-                navController = navController,
+                navController = navController ,
                 sellViewModel = viewModelSell
             )
         }
         composable(route = VintedScreen.ManteauxEtVestes.name) {
             ManteauxEtVestesScreen(
-                navController = navController,
+                navController = navController ,
                 sellViewModel = viewModelSell
             )
         }
         composable(route = VintedScreen.Vestes.name) {
             VestesScreen(
-                navController = navController,
+                navController = navController ,
                 sellViewModel = viewModelSell
             )
         }
         composable(route = VintedScreen.SweatCapuche.name) {
             SweatCapucheScreen(
-                navController = navController,
+                navController = navController ,
                 sellViewModel = viewModelSell
             )
         }
         composable(route = VintedScreen.Manteaux.name) {
             ManteauxScreen(
-                navController = navController,
+                navController = navController ,
                 sellViewModel = viewModelSell
             )
         }
         composable(route = VintedScreen.Sweat.name) {
             SweatScreen(
-                navController = navController,
+                navController = navController ,
                 sellViewModel = viewModelSell
             )
         }
         composable(route = VintedScreen.Blazer.name) {
             BlazerScreen(
-                navController = navController,
+                navController = navController ,
                 sellViewModel = viewModelSell
             )
         }
         composable(route = VintedScreen.Robe.name) {
             RobeScreen(
-                navController = navController,
+                navController = navController ,
                 sellViewModel = viewModelSell
             )
         }
         composable(route = VintedScreen.RobeOccasion.name) {
             RobeOccasionScreen(
-                navController = navController,
+                navController = navController ,
                 sellViewModel = viewModelSell
             )
         }
         composable(route = VintedScreen.Jupe.name) {
             JupeScreen(
-                navController = navController,
+                navController = navController ,
                 sellViewModel = viewModelSell
             )
         }
         composable(route = VintedScreen.Haut.name) {
             HautScreen(
-                navController = navController,
+                navController = navController ,
                 sellViewModel = viewModelSell
             )
         }
         composable(route = VintedScreen.Pantalon.name) {
             PantalonScreen(
-                navController = navController,
+                navController = navController ,
                 sellViewModel = viewModelSell
             )
         }
         composable(route = VintedScreen.Short.name) {
             ShortScreen(
-                navController = navController,
+                navController = navController ,
                 sellViewModel = viewModelSell
             )
         }
         composable(route = VintedScreen.Combinaison.name) {
             CombinaisonScreen(
-                navController = navController,
+                navController = navController ,
                 sellViewModel = viewModelSell
             )
         }
         composable(route = VintedScreen.MaillotDeBain.name) {
             MaillotDeBainScreen(
-                navController = navController,
+                navController = navController ,
                 sellViewModel = viewModelSell
             )
         }
         composable(route = VintedScreen.LingeriePyjama.name) {
             LingeriePyjamaScreen(
-                navController = navController,
+                navController = navController ,
                 sellViewModel = viewModelSell
             )
         }
         composable(route = VintedScreen.Maternite.name) {
             MaterniteScreen(
-                navController = navController,
+                navController = navController ,
                 sellViewModel = viewModelSell
             )
         }
         composable(route = VintedScreen.LingerieMaternite.name) {
             LingerieMaterniteScreen(
-                navController = navController,
+                navController = navController ,
                 sellViewModel = viewModelSell
             )
         }
         composable(route = VintedScreen.Sport.name) {
             SportScreen(
-                navController = navController,
+                navController = navController ,
                 sellViewModel = viewModelSell
             )
         }
         composable(route = VintedScreen.AccessoireSport.name) {
             AccessoireSportScreen(
-                navController = navController,
+                navController = navController ,
                 sellViewModel = viewModelSell
             )
         }
         composable(route = VintedScreen.BabyGirl.name) {
             BabyGirlScreen(
-                navController = navController,
+                navController = navController ,
                 sellViewModel = viewModelSell
             )
         }
         composable(route = VintedScreen.Baby.name) {
             BabyScreen(
-                navController = navController,
+                navController = navController ,
                 sellViewModel = viewModelSell
             )
         }
         composable(route = VintedScreen.BabyShoes.name) {
             BabyShoesScreen(
-                navController = navController,
+                navController = navController ,
                 sellViewModel = viewModelSell
             )
         }
         composable(route = VintedScreen.Size.name) {
             SizeScreen(
-                navController = navController,
+                navController = navController ,
                 sellViewModel = viewModelSell
             )
         }
         composable(route = VintedScreen.Search.name) {
             Search(
-                navController = navController,
+                navController = navController ,
                 onCancel = {
                     navController.popBackStack()
-                },
+                } ,
                 sharedViewModel = SharedViewModel()
             )
         }
         composable(route = VintedScreen.Messages.name) {
             Messages(
-                navController = navController,
+                navController = navController ,
                 onCancel = {
                     navController.popBackStack()
                 }
@@ -332,7 +333,7 @@ fun VintedNavGraph(
 //        }
 
         composable(
-            route = "${VintedScreen.Conversation.name}/{conversationId}",
+            route = "${VintedScreen.Conversation.name}/{conversationId}" ,
             arguments = listOf(navArgument("conversationId") { type = NavType.StringType })
         ) {
             val conversationIdArg = it.arguments?.getString("conversationId")
@@ -348,22 +349,25 @@ fun VintedNavGraph(
                     conversationViewModel.initialize(conversationIdArg)
                 } else {
                     // Handle missing conversationId, e.g., log error, navigate back
-                    Log.e("NavGraph", "ConversationId is null, cannot initialize ViewModel.")
+                    Log.e("NavGraph" , "ConversationId is null, cannot initialize ViewModel.")
                     // navController.popBackStack() // Example
                 }
             }
 
             if (conversationIdArg != null) {
                 ConversationScreen(
-                    viewModel = viewModelConversation,
-                    navController = navController,
-                    conversationId = conversationIdArg,
+                    viewModel = viewModelConversation ,
+                    navController = navController ,
+                    conversationId = conversationIdArg ,
                     onCancel = {
                         navController.popBackStack()
                     }
                 )
             } else {
-                Log.e("VintedNavGraph", "ConversationId is null, cannot navigate to ConversationScreen.")
+                Log.e(
+                    "VintedNavGraph" ,
+                    "ConversationId is null, cannot navigate to ConversationScreen."
+                )
                 navController.popBackStack()
             }
         }
@@ -379,8 +383,8 @@ fun VintedNavGraph(
 
         composable(route = VintedScreen.Profile.name) {
             Profile(
-                personViewModel = viewModelPerson,
-                navController = navController,
+                personViewModel = viewModelPerson ,
+                navController = navController ,
                 onCancel = {
                     navController.popBackStack()
                 }
@@ -388,7 +392,7 @@ fun VintedNavGraph(
         }
         composable(route = VintedScreen.Setting.name) {
             Setting(
-                navController = navController,
+                navController = navController ,
                 onCancel = {
                     navController.popBackStack()
                 }
@@ -396,17 +400,17 @@ fun VintedNavGraph(
         }
         composable(route = VintedScreen.Dressing.name) {
             Dressing(
-                personViewModel = viewModelPerson,
-                navController = navController,
+                personViewModel = viewModelPerson ,
+                navController = navController ,
                 onCancel = {
                     navController.popBackStack()
                 }
             )
         }
         composable(
-            route = "${VintedScreen.ArticleDetail.name}/{itemId}?menuDeroulant={menuDeroulant}",
+            route = "${VintedScreen.ArticleDetail.name}/{itemId}?menuDeroulant={menuDeroulant}" ,
             arguments = listOf(
-                navArgument("itemId") { type = NavType.StringType },
+                navArgument("itemId") { type = NavType.StringType } ,
                 navArgument("menuDeroulant") {
                     type = NavType.BoolType
                     defaultValue = false
@@ -417,12 +421,12 @@ fun VintedNavGraph(
             val menuDeroulant = backStackEntry.arguments?.getBoolean("menuDeroulant") ?: false
 
             ClothingDetailView(
-                personViewModel = viewModelPerson,
-                navController = navController,
-                itemId = itemId,
+                personViewModel = viewModelPerson ,
+                navController = navController ,
+                itemId = itemId ,
                 onCancel = {
                     navController.popBackStack()
-                },
+                } ,
                 menuDeroulant = menuDeroulant
             )
         }
@@ -430,14 +434,14 @@ fun VintedNavGraph(
             FlappyBirdGame()
         }*/
         composable(VintedScreen.UpdateProfile.name) {
-            UpdateProfile(navController = navController, onCancel = {})
+            UpdateProfile(navController = navController , onCancel = {})
         }
         composable(VintedScreen.UpdatePassword.name) {
             UpdatePassword(navController)
         }
         composable(VintedScreen.NotificationSettings.name) {
             NotificationSetting(
-                navController = navController,
+                navController = navController ,
                 onCancel = { navController.popBackStack() })
         }
         /*composable(
@@ -453,7 +457,7 @@ fun VintedNavGraph(
             )
         }*/
         composable(
-            route = "${VintedScreen.Sell.name}?itemId={itemId}",
+            route = "${VintedScreen.Sell.name}?itemId={itemId}" ,
             arguments = listOf(navArgument("itemId") {
                 type = NavType.StringType
                 nullable = true
@@ -462,9 +466,28 @@ fun VintedNavGraph(
         ) {
             val itemId = it.arguments?.getString("itemId")
             SellScreen(
-                navController = navController,
-                sellViewModel = viewModelSell,
+                navController = navController ,
+                sellViewModel = viewModelSell ,
                 itemId = itemId
+            )
+        }
+
+        composable(
+            route = "${VintedScreen.PurchaseScreen.name}/{productId}/{negotiatedPrice}",
+            arguments = listOf(
+                navArgument("productId") { type = NavType.StringType },
+                navArgument("negotiatedPrice") { type = NavType.FloatType }
+            )
+        ) { backStackEntry ->
+            val productId = backStackEntry.arguments?.getString("productId") ?: ""
+            val negotiatedPriceFloat = backStackEntry.arguments?.getFloat("negotiatedPrice") ?: 0f
+            val negotiatedPrice = negotiatedPriceFloat.toDouble()
+
+            PurchaseScreenWithNegotiatedPrice(
+                productId = productId,
+                negotiatedPrice = negotiatedPrice,
+                navController = navController,
+                onBackClick = { navController.popBackStack() }
             )
         }
 

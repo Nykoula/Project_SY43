@@ -51,6 +51,7 @@ fun MonCompte(
     LaunchedEffect(Unit) {
         val db = FirebaseFirestore.getInstance()
         db.collection("Post")
+            .whereEqualTo("available", true) // Filtrer les documents où "available" est true
             .get()
             .addOnSuccessListener { result ->
                 val fetchedPosts = result.map { document ->
@@ -66,7 +67,6 @@ fun MonCompte(
                 posts = fetchedPosts
             }
             .addOnFailureListener { exception ->
-                // Gérer l'erreur
                 Log.e("Firestore", "Erreur lors de la récupération des posts : $exception")
             }
     }
@@ -88,13 +88,10 @@ fun MonCompte(
             item {
                 Text("Recommandations", style = MaterialTheme.typography.headlineSmall)
             }
-
             item {
-
                 LazyRow(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     modifier = Modifier.fillMaxWidth(),
-
                 ) {
                     items(posts.take(10)) { post ->
                         Card(
@@ -103,7 +100,7 @@ fun MonCompte(
                                 .height(350.dp),
                             elevation = CardDefaults.cardElevation(4.dp),
                             onClick = {
-                                    navController.navigate("${VintedScreen.ArticleDetail.name}/${post.id}")
+                                navController.navigate("${VintedScreen.ArticleDetail.name}/${post.id}")
                             }
                         ) {
                             Column(
@@ -155,11 +152,9 @@ fun MonCompte(
                     }
                 }
             }
-
             item {
                 Text("You might be interested in", style = MaterialTheme.typography.headlineSmall)
             }
-
             items(posts.drop(10).take(displayCount)) { post ->
                 Card(
                     modifier = Modifier
@@ -217,7 +212,6 @@ fun MonCompte(
                     }
                 }
             }
-
             item {
                 Button(
                     onClick = { displayCount += 10 },

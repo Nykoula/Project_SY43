@@ -59,7 +59,8 @@ fun ConversationScreen(
     conversationId: String,
     onCancel: () -> Unit
 ) {
-
+    val auth = FirebaseAuth.getInstance()
+    val currentUserId = auth.currentUser?.uid
     val messages by viewModel.messages.collectAsState()
     val currentMessageText by viewModel.currentMessageText.collectAsState()
     // val conversationDetails by viewModel.conversationDetails.collectAsState() // If needed directly
@@ -125,11 +126,13 @@ fun ConversationScreen(
             } else {
                 // 3. Messages List
                 LazyColumn(
-                    modifier = Modifier.weight(1f), // Takes up available space
-                    reverseLayout = true // New messages appear at the bottom and list starts from bottom
+                    modifier = Modifier.weight(1f),
+                    contentPadding = PaddingValues(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    items(messages.reversed()) { message -> // Reverse for chronological order if reverseLayout is true
-                        MessageItem(message = message) // You'll need to create this Composable
+                    items(messages) { message ->
+                        val isCurrentUser = message.senderId == currentUserId
+                        MessageBubble(message = message, isCurrentUserSender = isCurrentUser)
                     }
                 }
             }
@@ -182,171 +185,44 @@ fun MessageItem(message: Message) {
         }
     }
 }
+@Composable
+fun MessageBubble(
+    message: Message ,
+    isCurrentUserSender: Boolean
+) {
+    val bubbleColor =
+        if (isCurrentUserSender) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant
+    val textColor =
+        if (isCurrentUserSender) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant
 
+    // Alignement horizontal : à droite si message de l'utilisateur, à gauche sinon
+    val horizontalArrangement = if (isCurrentUserSender) Arrangement.End else Arrangement.Start
 
-
-//    LaunchedEffect(conversationId) {
-//        conversationId?.let {
-//            FirebaseFirestore.getInstance()
-//                .collection("conversation")
-//                .document(it)
-//                .get()
-//                .addOnSuccessListener { document ->
-//                    if (document != null && document.exists()) {
-//                        // Convertir directement en data class
-//                        val conversation = document.toObject(Conversation::class.java)
-//                        conv = conversation?.copy(id = document.id) // on met l'id du document
-//                    } else {
-//                        Log.d("ConversationView", "Pas de document trouvé")
-//                    }
-//                }
-//                .addOnFailureListener { e ->
-//                    Log.e("ConversationView", "Erreur Firestore", e)
-//                }
-//        }
-//    }
-//
-//    // Faire défiler vers le bas lorsque de nouveaux messages arrivent ou que le clavier apparaît
-//    LaunchedEffect(messages.size) {
-//        if (messages.isNotEmpty()) {
-//            coroutineScope.launch {
-//                listState.animateScrollToItem(messages.size - 1)
-//            }
-//        }
-//    }
-//
-//    Scaffold(
-//        topBar = {
-//            TopAppBar(
-//                title = { Text(otherUserName ?: "Conversation") }, // Afficher le nom de l'autre utilisateur
-//                navigationIcon = {
-//                    IconButton(onClick = { navController.popBackStack() }) {
-//                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.White)
-//                    }
-//                },
-//                colors = TopAppBarDefaults.topAppBarColors(
-//                    containerColor = Color(0xFF007782),
-//                    titleContentColor = Color.White
-//                )
-//            )
-//        },
-//        content = { paddingValues ->
-//            Column(
-//                modifier = Modifier
-//                    .fillMaxSize()
-//                    .padding(paddingValues) // Appliquer le padding du Scaffold
-//                    .background(MaterialTheme.colorScheme.background)
-//            ) {
-//                if (isLoading && messages.isEmpty()) {
-//                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-//                        CircularProgressIndicator()
-//                    }
-//                } else if (error != null) {
-//                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-//                        Text("Error: $error", color = MaterialTheme.colorScheme.error)
-//                    }
-//                }
-//
-//                LazyColumn(
-//                    state = listState,
-//                    modifier = Modifier
-//                        .weight(1f)
-//                        .padding(horizontal = 8.dp),
-//                    contentPadding = PaddingValues(vertical = 8.dp)
-//                ) {
-//                    items(messages, key = { it.id }) { message ->
-//                        MessageBubble(message = message)
-//                    }
-//                }
-//
-//                MessageInputRow(
-//                    text = currentMessageText,
-//                    onTextChanged = { viewModel.onCurrentMessageTextChanged(it) },
-//                    onSendClicked = {
-//                        if (currentMessageText.isNotBlank()) {
-//                            viewModel.sendMessage()
-//                        }
-//                    }
-//                )
-//            }
-//        }
-//    )
-//}
-//
-//object DateFormatter {
-//    // Consider using a specific Locale if consistency is important
-//    // across different user device settings.
-//    private val messageTimeFormatter = SimpleDateFormat("HH:mm", Locale.getDefault())
-//
-//    fun formatMessageTime(date: Date): String {
-//        return messageTimeFormatter.format(date)
-//    }
-//}
-
-//@Composable
-//fun MessageBubble(message: Message) {
-//    val bubbleColor = if (message.isSentByCurrentUser) MaterialTheme.colorScheme.primaryContainer
-//    else MaterialTheme.colorScheme.secondaryContainer
-//    val textColor = if (message.isSentByCurrentUser) MaterialTheme.colorScheme.onPrimaryContainer
-//    else MaterialTheme.colorScheme.onSecondaryContainer
-//    val bubbleAlignment = if (message.isSentByCurrentUser) Alignment.CenterEnd else Alignment.CenterStart
-//
-//    val bubbleShape = RoundedCornerShape(
-//        topStart = 16.dp,
-//        topEnd = 16.dp,
-//        bottomStart = if (message.isSentByCurrentUser) 16.dp else 0.dp,
-//        bottomEnd = if (message.isSentByCurrentUser) 0.dp else 16.dp
-//    )
-//
-//    Column(
-//        modifier = Modifier
-//            .fillMaxWidth()
-//            .padding(vertical = 4.dp),
-//        horizontalAlignment = bubbleAlignment as Alignment.Horizontal
-//    ) {
-//        Box(
-//            modifier = Modifier
-//                .clip(
-//                    RoundedCornerShape(
-//                        topStart = 16.dp,
-//                        topEnd = 16.dp,
-//                        bottomStart = if (message.isSentByCurrentUser) 16.dp else 0.dp,
-//                        bottomEnd = if (message.isSentByCurrentUser) 0.dp else 16.dp
-//                    )
-//                )
-//                .background(bubbleColor)
-//                .padding(horizontal = 12.dp, vertical = 8.dp)
-//        ) {
-//            Column {
-//                if (!message.isSentByCurrentUser && message.senderName != null) {
-//                    Text(
-//                        text = message.senderName!!,
-//                        style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
-//                        color = textColor.copy(alpha = 0.8f),
-//                        modifier = Modifier.padding(bottom = 2.dp)
-//                    )
-//                }
-//                message.text?.let {
-//                    Text(
-//                        text = it,
-//                        color = textColor,
-//                        style = MaterialTheme.typography.bodyLarge
-//                    )
-//                }
-////                message.imageUrl?.let {
-////                    // TODO: Afficher l'image
-////
-////                    Text("Image: $it", color = textColor) // Placeholder
-////                }
-//            }
-//        }
-//        message.timestamp?.toDate()?.let { date ->
-//            Text(
-//                text = DateFormatter.formatMessageTime(date),
-//                style = MaterialTheme.typography.labelSmall,
-//                color = MaterialTheme.colorScheme.onSurfaceVariant,
-//                modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp)
-//            )
-//        }
-//    }
-//}
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 8.dp , vertical = 4.dp) ,
+        horizontalArrangement = horizontalArrangement
+    ) {
+        Box(
+            modifier = Modifier
+                .widthIn(max = 280.dp) // Limite la largeur max de la bulle
+                .background(
+                    color = bubbleColor ,
+                    shape = RoundedCornerShape(
+                        topStart = 16.dp ,
+                        topEnd = 16.dp ,
+                        bottomStart = if (isCurrentUserSender) 16.dp else 0.dp ,
+                        bottomEnd = if (isCurrentUserSender) 0.dp else 16.dp
+                    )
+                )
+                .padding(horizontal = 12.dp , vertical = 8.dp)
+        ) {
+            Text(
+                text = message.text ?: "" ,
+                color = textColor ,
+                style = MaterialTheme.typography.bodyMedium
+            )
+        }
+    }
+}

@@ -1,5 +1,6 @@
 package com.example.project_sy43.ui.theme.main_screens
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -109,7 +110,7 @@ fun Dressing(
                                 ?: emptyList(),
                             userId = document.getString("userId") ?: "",
                             dateCreation = document.getString("dateCreation") ?: "",
-                            isAvailable = document.getBoolean("isAvailable") ?: true
+                            isAvailable = document.getBoolean("available") ?: true
                         )
                     }.sortedByDescending { it.dateCreation }
                     isLoading = false
@@ -307,7 +308,7 @@ fun SoldClothingListItem(
                 )
 
                 Spacer(modifier = Modifier.height(2.dp))
-
+                Log.d("SoldClothingListItem", "isAvailable: ${item.isAvailable} + ${item.title}")
                 Text(
                     text = if (item.isAvailable) "À vendre" else "Vendu",
                     style = MaterialTheme.typography.bodySmall,

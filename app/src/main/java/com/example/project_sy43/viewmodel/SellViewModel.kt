@@ -17,6 +17,7 @@ class SellViewModel : ViewModel(){
     private val repository = ProductRepository()
 
     var idUser = mutableStateOf("")
+    var buyer = mutableStateOf("")
     var productId = mutableStateOf("")
     var productTitle = mutableStateOf("")
     var productDescription = mutableStateOf("")
@@ -33,6 +34,14 @@ class SellViewModel : ViewModel(){
         private set
     var searchResults = mutableStateListOf<SellViewModel>()
     var isAvailable = mutableStateOf(true)
+
+    fun setBuyer(buyer: String) {
+        this.buyer.value = buyer
+    }
+
+    fun getBuyer(): String {
+        return buyer.value
+    }
 
     fun setSearchResults(results: List<SellViewModel>) {
         searchResults.clear()
