@@ -108,10 +108,7 @@ fun Profile(
                             modifier = Modifier
                                 .size(60.dp)
                                 .clip(CircleShape)
-                                .background(Color.LightGray)
-                                .clickable {
-                                    navController.navigate("FlappyBirdGames")
-                                },
+                                .background(Color.LightGray),
                             contentAlignment = Alignment.Center
                         ) {
                             if (userPhotoUrl.isNotEmpty()) {
