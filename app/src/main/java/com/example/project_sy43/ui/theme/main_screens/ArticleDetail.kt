@@ -234,7 +234,7 @@ fun ClothingDetailView(
                     ) {
                         Button(
                             onClick = {
-                                navController.navigate("${VintedScreen.PurchaseScreen.name}/${clothing?.id}/${clothing?.price}")
+                                navController.navigate("${VintedScreen.ResumeBeforePurchaseScreen.name}/${clothing?.id}/${clothing?.price}")
                             } ,
                             modifier = Modifier.weight(1f)
                         ) {

@@ -6,14 +6,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-//import androidx.compose.runtime.Composable
-//import androidx.compose.ui.Alignment
-//import androidx.compose.ui.Modifier
-//import androidx.compose.ui.graphics.Color
-//import androidx.navigation.NavController
-//import com.example.project_sy43.navigation.VintedScreen
 import com.example.project_sy43.ui.theme.components.VintedBottomBar
-
 import com.example.project_sy43.viewmodel.MessagesViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 
@@ -34,29 +27,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.key.type
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.semantics.text
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
-import com.example.project_sy43.R // Assuming you have a placeholder image in res/drawable
+import com.example.project_sy43.R
 import com.example.project_sy43.model.Conversation
-import com.example.project_sy43.navigation.VintedScreen // Your navigation routes
-import com.example.project_sy43.ui.theme.components.VintedBottomBar
+import com.example.project_sy43.navigation.VintedScreen
 import com.example.project_sy43.ui.theme.components.VintedTopBar
 import java.text.SimpleDateFormat
+import java.util.Date
 import java.util.Locale
-import kotlinx.coroutines.tasks.await
-import com.google.firebase.firestore.FirebaseFirestore
-
-
 
 @Composable
 fun Messages(
@@ -71,7 +55,7 @@ fun Messages(
 
     Scaffold(
         topBar = {
-            VintedTopBar(title = "Profil", navController, false)
+            VintedTopBar(title = "Messages", navController, false)
         },
         modifier = Modifier.fillMaxSize(),
         containerColor = Color.White,
@@ -82,55 +66,102 @@ fun Messages(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
+                .padding(innerPadding)
         ) {
-            if (isLoading) {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator()
-                }
-            } else if (error != null) {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text("Error : $error", color = MaterialTheme.colorScheme.error)
-                }
-            } else if (conversations.isEmpty()) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center,
-
-                ) {
-                    Text(
-                        "You have no active conversations. Go to the Search Tab to start looking for a product !",
-                        style = MaterialTheme.typography.bodyLarge
-                    )
-                }
-            } else {
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(vertical = 8.dp)
-                ) {
-                    items(conversations, key = { it.id }) { conversation ->
-                        ConversationItem(
-                            conversation = conversation,
-                            onItemClick = { conversationId ->
-                                navController.navigate("${VintedScreen.Conversation.name}/$conversationId")
-                            }
+            when {
+                isLoading -> {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator(
+                            color = Color(0xFF007782)
                         )
+                    }
+                }
+
+                error != null -> {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            Text(
+                                "Erreur de chargement",
+                                style = MaterialTheme.typography.titleMedium,
+                                color = MaterialTheme.colorScheme.error
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(
+                                error!!,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Button(
+                                onClick = {  },
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = Color(0xFF007782)
+                                )
+                            ) {
+                                Text("Réessayer")
+                            }
+                        }
+                    }
+                }
+
+                conversations.isEmpty() -> {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Outlined.Store,
+                                contentDescription = null,
+                                modifier = Modifier.size(64.dp),
+                                tint = Color(0xFF007782).copy(alpha = 0.6f)
+                            )
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Text(
+                                "Aucune conversation",
+                                style = MaterialTheme.typography.titleMedium,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(
+                                "Vous n'avez pas encore de conversations actives.\nAllez dans l'onglet Recherche pour commencer !",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                            )
+                        }
+                    }
+                }
+
+                else -> {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(vertical = 8.dp)
+                    ) {
+                        items(conversations, key = { it.id }) { conversation ->
+                            ConversationItem(
+                                conversation = conversation,
+                                onItemClick = { conversationId ->
+                                    navController.navigate("${VintedScreen.Conversation.name}/$conversationId")
+                                }
+                            )
+                        }
                     }
                 }
             }
         }
-    }
-}
-
-suspend fun getUserName(userId: String): String? {
-    val firestore = FirebaseFirestore.getInstance()
-    val userDoc = firestore.collection("users").document(userId).get().await()
-    return if (userDoc.exists()) {
-        userDoc.getString("username")
-    } else {
-        null
     }
 }
 
@@ -146,47 +177,48 @@ fun ConversationItem(
             .padding(horizontal = 16.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
+        // Image du produit ou icône par défaut
         Box(
             modifier = Modifier
                 .size(60.dp)
                 .clip(CircleShape)
-
                 .background(MaterialTheme.colorScheme.surfaceVariant),
             contentAlignment = Alignment.Center
         ) {
-            if (conversation.productImageUrl != null) {
+            if (!conversation.productImageUrl.isNullOrBlank()) {
                 Image(
                     painter = rememberAsyncImagePainter(model = conversation.productImageUrl),
-                    contentDescription = "Product Image",
-                    modifier = Modifier.fillMaxSize(), // Image should fill the circular Box
+                    contentDescription = "Image du produit",
+                    modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Crop
                 )
             } else {
                 Box(
                     modifier = Modifier
-                        .fillMaxSize() // Fills the 60.dp circular Box
+                        .fillMaxSize()
                         .background(Color(0xFF007782).copy(alpha = 0.1f)),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
                         imageVector = Icons.Outlined.Store,
-                        contentDescription = "No product image", // Better content description
+                        contentDescription = "Pas d'image produit",
                         tint = Color(0xFF007782),
-                        modifier = Modifier.size(30.dp) // Adjust size as needed relative to the 60.dp circle
+                        modifier = Modifier.size(30.dp)
                     )
                 }
             }
         }
 
+        // Informations de la conversation
         Column(
             modifier = Modifier
                 .weight(1f)
                 .padding(start = 16.dp),
             verticalArrangement = Arrangement.Center
         ) {
-
+            // Nom de l'autre utilisateur
             Text(
-                text = conversation.otherUserName ?: "Unknown User",
+                text = conversation.otherUserName ?: "Utilisateur inconnu",
                 style = MaterialTheme.typography.titleMedium.copy(
                     fontWeight = FontWeight.Bold
                 ),
@@ -196,17 +228,63 @@ fun ConversationItem(
 
             Spacer(modifier = Modifier.height(4.dp))
 
+            // Dernier message
             Text(
-                text = conversation.lastMessageText ?: "No messages yet",
+                text = conversation.lastMessageText ?: "Aucun message",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
-
         }
 
-        Spacer(modifier = Modifier.width(8.dp))
+        // Timestamp du dernier message (optionnel)
+        if (conversation.lastMessageTimestamp != null) {
+            Column(
+                horizontalAlignment = Alignment.End
+            ) {
+                Text(
+                    text = formatTimestamp(conversation.lastMessageTimestamp),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+    }
+}
 
+/**
+ * Formate un timestamp en chaîne lisible
+ */
+private fun formatTimestamp(timestamp: Any?): String {
+    return try {
+        when (timestamp) {
+            is com.google.firebase.Timestamp -> {
+                val date = timestamp.toDate()
+                val now = Date()
+                val diff = now.time - date.time
+
+                when {
+                    diff < 60000 -> "À l'instant" // Moins d'1 minute
+                    diff < 3600000 -> "${diff / 60000}min" // Moins d'1 heure
+                    diff < 86400000 -> "${diff / 3600000}h" // Moins d'1 jour
+                    else -> SimpleDateFormat("dd/MM", Locale.getDefault()).format(date)
+                }
+            }
+            is Date -> {
+                val now = Date()
+                val diff = now.time - timestamp.time
+
+                when {
+                    diff < 60000 -> "À l'instant"
+                    diff < 3600000 -> "${diff / 60000}min"
+                    diff < 86400000 -> "${diff / 3600000}h"
+                    else -> SimpleDateFormat("dd/MM", Locale.getDefault()).format(timestamp)
+                }
+            }
+            else -> ""
+        }
+    } catch (e: Exception) {
+        ""
     }
 }

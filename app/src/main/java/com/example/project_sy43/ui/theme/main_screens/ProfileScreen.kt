@@ -200,7 +200,7 @@ fun Profile(
             Button(
                 onClick = {
                     personViewModel.logout()
-                    navController.navigate(VintedScreen.Accueil.name) {
+                    navController.navigate(VintedScreen.MonCompte.name) {
                         popUpTo(VintedScreen.MonCompte.name) { inclusive = true }
                     }
                 },

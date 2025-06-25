@@ -56,11 +56,13 @@ import com.example.project_sy43.ui.theme.children_screen.BabyScreen
 import com.example.project_sy43.ui.theme.children_screen.BabyShoesScreen
 import com.example.project_sy43.viewmodel.ConversationViewModel
 import com.example.project_sy43.ui.theme.main_screens.CategorySelectionScreen
+import com.example.project_sy43.ui.theme.main_screens.PurchaseScreen
 import com.example.project_sy43.ui.theme.main_screens.PurchaseScreenWithNegotiatedPrice
 import com.example.project_sy43.ui.theme.second_screens.ChildrenClothesScreen
 import com.example.project_sy43.ui.theme.second_screens.ManClothesScreen
 import com.example.project_sy43.ui.theme.second_screens.WomanClothesScreen
 import com.example.project_sy43.viewmodel.SharedViewModel
+import com.google.firebase.firestore.FirebaseFirestore
 
 @Composable
 fun VintedNavGraph(
@@ -303,35 +305,6 @@ fun VintedNavGraph(
             )
         }
 
-//        composable(
-//            // Original route: "${VintedScreen.Conversation.name}/{conversationId}"
-//            // New route:
-//            route = "${VintedScreen.Conversation.name}/{conversationId}/{otherUserName}", // Add otherUserName
-//            arguments = listOf(
-//                navArgument("conversationId") { type = NavType.StringType },
-//                navArgument("otherUserName") {
-//                    type = NavType.StringType
-//                    nullable =
-//                        true // Make it nullable if it can sometimes be missing, otherwise remove this line
-//                    defaultValue =
-//                        null // Or a sensible default string if not nullable, e.g., "User"
-//                }
-//            )
-//        ) { backStackEntry ->
-//            val conversationId = backStackEntry.arguments?.getString("conversationId")
-//            val otherUserName = backStackEntry.arguments?.getString("otherUserName") // Retrieve it
-//
-//            if (conversationId != null) {
-//                ConversationScreen(
-//                    navController = navController,
-//                    conversationId = conversationId,
-//                    otherUserName = otherUserName // Pass it to the Composable
-//                )
-//            } else {
-//                navController.popBackStack() // Or handle error
-//            }
-//        }
-
         composable(
             route = "${VintedScreen.Conversation.name}/{conversationId}" ,
             arguments = listOf(navArgument("conversationId") { type = NavType.StringType })
@@ -473,7 +446,7 @@ fun VintedNavGraph(
         }
 
         composable(
-            route = "${VintedScreen.PurchaseScreen.name}/{productId}/{negotiatedPrice}",
+            route = "${VintedScreen.ResumeBeforePurchaseScreen.name}/{productId}/{negotiatedPrice}",
             arguments = listOf(
                 navArgument("productId") { type = NavType.StringType },
                 navArgument("negotiatedPrice") { type = NavType.FloatType }
@@ -491,5 +464,15 @@ fun VintedNavGraph(
             )
         }
 
+        composable(
+            route = "${VintedScreen.PurchaseScreen.name}/{productId}/{itemName}"
+        ) {
+            PurchaseScreen(
+                db = FirebaseFirestore.getInstance(),
+                navController = navController,
+                itemId = it.arguments?.getString("productId") ?: "",
+                itemName = it.arguments?.getString("itemName") ?: ""
+                )
+        }
     }
 }

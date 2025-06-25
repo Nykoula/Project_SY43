@@ -47,5 +47,6 @@ enum class VintedScreen {
     ManClothesScreen,
     ChildrenClothesScreen,
     CategorySelectionScreen,
+    ResumeBeforePurchaseScreen,
     PurchaseScreen
 }

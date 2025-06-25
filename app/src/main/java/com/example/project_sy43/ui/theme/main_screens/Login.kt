@@ -47,6 +47,7 @@ import com.example.project_sy43.navigation.VintedScreen
 import com.google.firebase.auth.FirebaseAuth
 import androidx.navigation.NavController
 import com.example.project_sy43.viewmodel.PersonViewModel
+import android. util. Log
 
 @Composable
 fun LoginScreen(
@@ -145,6 +146,8 @@ fun LoginScreen(
                 // Normaliser l'email
                 val normalizedEmail = email.trim().lowercase()
 
+                Log.d("LoginScreen", "Email: $normalizedEmail, Password: $password")
+
                 authentification.signInWithEmailAndPassword(normalizedEmail, password)
                     .addOnCompleteListener { task ->
                         if (task.isSuccessful) {
@@ -155,7 +158,12 @@ fun LoginScreen(
                             }
                         } else {
                             errorMessage = "Email ou mot de passe invalide."
+                            Log.e("LoginScreen", "Login failed", task.exception)
                         }
+                    }
+                    .addOnFailureListener { exception ->
+                        Log.e("LoginScreen", "Login failed with exception", exception)
+                        errorMessage = "Erreur lors de la connexion : ${exception.localizedMessage}"
                     }
             }, colors = ButtonDefaults.buttonColors(
                 containerColor = Color(0xFF007782),

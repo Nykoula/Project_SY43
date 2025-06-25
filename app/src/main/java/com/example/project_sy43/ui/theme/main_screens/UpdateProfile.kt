@@ -212,6 +212,7 @@ fun UpdateProfile(
                             Button(onClick = { cameraLauncher.launch(null) }) {
                                 Text("Caméra")
                             }
+
                         }
                     }
                 }
