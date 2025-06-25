@@ -6,6 +6,8 @@ import android.content.pm.PackageManager
 import android.location.Geocoder
 import android.location.Location
 import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -20,9 +22,11 @@ import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.maps.android.compose.*
-import kotlinx.coroutines.*
 import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.util.*
+
 
 @SuppressLint("MissingPermission")
 @Composable
@@ -34,19 +38,38 @@ fun PurchaseScreen(
 ) {
     val context = LocalContext.current
     val fusedLocationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
-
     var buyerName by remember { mutableStateOf("") }
     var address by remember { mutableStateOf("") }
-
     var deliveryLocation by remember { mutableStateOf(LatLng(48.8566, 2.3522)) } // Paris
     var userLocation by remember { mutableStateOf<LatLng?>(null) }
-
     val cameraPositionState = rememberCameraPositionState()
 
-    LaunchedEffect(Unit) {
-        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION)
-            == PackageManager.PERMISSION_GRANTED
-        ) {
+    // Permission state
+    var hasLocationPermission by remember {
+        mutableStateOf(
+            ActivityCompat.checkSelfPermission(
+                context,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+        )
+    }
+
+    // Launcher for permission request
+    val permissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        hasLocationPermission = isGranted
+    }
+
+    // Request permission
+    SideEffect {
+        if (!hasLocationPermission) {
+            permissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+        }
+    }
+
+    LaunchedEffect(hasLocationPermission) {
+        if (hasLocationPermission) {
             try {
                 val location: Location? = fusedLocationClient.lastLocation.await()
                 location?.let {
@@ -81,7 +104,6 @@ fun PurchaseScreen(
         Text("Article : $itemName", style = MaterialTheme.typography.titleLarge)
         Text("ID article : $itemId", style = MaterialTheme.typography.bodyMedium)
         Spacer(Modifier.height(16.dp))
-
         OutlinedTextField(
             value = buyerName,
             onValueChange = { buyerName = it },
@@ -96,7 +118,6 @@ fun PurchaseScreen(
             modifier = Modifier.fillMaxWidth()
         )
         Spacer(Modifier.height(16.dp))
-
         Button(
             onClick = {
                 if (itemId.isNotBlank()) {
@@ -108,7 +129,7 @@ fun PurchaseScreen(
                             }
                         }
                         .addOnFailureListener { e ->
-                            android.util.Log.e("PurchaseScreen", "Erreur mise à jour disponibilité", e)
+                            Log.e("PurchaseScreen", "Erreur mise à jour disponibilité", e)
                         }
                 } else {
                     navController.navigate(VintedScreen.MonCompte.name) {
@@ -119,17 +140,14 @@ fun PurchaseScreen(
         ) {
             Text("Acheter")
         }
-
-
         Spacer(Modifier.height(16.dp))
         Text("Carte :", style = MaterialTheme.typography.titleMedium)
-
         GoogleMap(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(300.dp),
             cameraPositionState = cameraPositionState,
-            properties = MapProperties(isMyLocationEnabled = userLocation != null)
+            properties = MapProperties(isMyLocationEnabled = hasLocationPermission)
         ) {
             Marker(
                 state = MarkerState(position = deliveryLocation),
