@@ -116,14 +116,15 @@ fun ConversationScreen(
                             onAcceptOffer = { messageId, price ->
                                 viewModel.acceptOffer(messageId, price)
                             },
-                            canAcceptOffer = viewModel.isCurrentUserBuyer() && !isCurrentUser,
+                            canAcceptOffer = viewModel.isCurrentUserSeller() && !isCurrentUser,
                             isOfferAccepted = viewModel.isOfferAccepted(message.id),
+                            showBuyButton = viewModel.isOfferAccepted(message.id) && viewModel.isCurrentUserBuyer(),
                             onBuy = {
                                 val productId = viewModel.conversationDetails.value?.productId
                                 val acceptedPrice = message.proposedPrice
 
                                 if (!productId.isNullOrBlank() && acceptedPrice != null) {
-                                   navController.navigate("ResumeBeforePurchaseScreen/$productId/$acceptedPrice")
+                                    navController.navigate("ResumeBeforePurchaseScreen/$productId/$acceptedPrice")
                                 }
                             }
                         )
@@ -205,7 +206,8 @@ fun MessageBubble(
     onAcceptOffer: (String, Double) -> Unit = { _, _ -> },
     canAcceptOffer: Boolean = false,
     isOfferAccepted: Boolean = false,
-    onBuy: () -> Unit = {} // <-- Ajouté
+    showBuyButton: Boolean = false, // <-- Ajouté
+    onBuy: () -> Unit = {}
 ) {
     val bubbleColor =
         if (isCurrentUserSender) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant
@@ -244,7 +246,8 @@ fun MessageBubble(
                         onAcceptOffer = onAcceptOffer,
                         canAcceptOffer = canAcceptOffer,
                         isOfferAccepted = isOfferAccepted,
-                        onBuy = onBuy // <-- Transmis ici
+                        showBuyButton = showBuyButton, // <-- Transmis ici
+                        onBuy = onBuy
                     )
                 } else {
                     Text(
@@ -276,6 +279,7 @@ fun MessageBubble(
 }
 
 
+
 @Composable
 fun OfferMessageContent(
     message: Message,
@@ -283,7 +287,8 @@ fun OfferMessageContent(
     onAcceptOffer: (String, Double) -> Unit,
     canAcceptOffer: Boolean,
     isOfferAccepted: Boolean,
-    onBuy: () -> Unit // <-- Ajouté
+    showBuyButton: Boolean, // <-- Ajouté
+    onBuy: () -> Unit
 ) {
     Column {
         // Prix proposé
@@ -313,16 +318,18 @@ fun OfferMessageContent(
                 modifier = Modifier.padding(top = 8.dp)
             )
 
-            Button(
-                onClick = onBuy, // <-- Utilisation de la lambda onBuy
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 4.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.secondary
-                )
-            ) {
-                Text("Acheter")
+            if (showBuyButton) {
+                Button(
+                    onClick = onBuy,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 4.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.secondary
+                    )
+                ) {
+                    Text("Acheter")
+                }
             }
         } else if (canAcceptOffer) {
             Button(

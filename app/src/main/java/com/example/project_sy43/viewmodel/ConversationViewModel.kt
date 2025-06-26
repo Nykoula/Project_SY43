@@ -361,6 +361,14 @@ class ConversationViewModel : ViewModel() {
         return _conversationDetails.value?.buyerId == currentUserId
     }
 
+    fun isCurrentUserSeller(): Boolean {
+        val currentUserId = auth.currentUser?.uid ?: return false
+        val participants = _conversationDetails.value?.participants ?: return false
+        val buyerId = _conversationDetails.value?.buyerId ?: return false
+        return currentUserId != buyerId && participants.contains(currentUserId)
+    }
+
+
     // NOUVELLE FONCTION : Vérifier si une offre est acceptée
     fun isOfferAccepted(messageId: String): Boolean {
         return _acceptedOffers.value.contains(messageId)
