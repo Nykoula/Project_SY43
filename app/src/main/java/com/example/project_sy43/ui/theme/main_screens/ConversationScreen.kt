@@ -1,6 +1,7 @@
 package com.example.project_sy43.ui.theme.main_screens
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -96,7 +97,6 @@ fun ConversationScreen(
                     CircularProgressIndicator()
                 }
             } else {
-                // Messages List with date separators
                 LazyColumn(
                     modifier = Modifier.weight(1f),
                     contentPadding = PaddingValues(16.dp),
@@ -117,7 +117,15 @@ fun ConversationScreen(
                                 viewModel.acceptOffer(messageId, price)
                             },
                             canAcceptOffer = viewModel.isCurrentUserBuyer() && !isCurrentUser,
-                            isOfferAccepted = viewModel.isOfferAccepted(message.id)
+                            isOfferAccepted = viewModel.isOfferAccepted(message.id),
+                            onBuy = {
+                                val productId = viewModel.conversationDetails.value?.productId
+                                val acceptedPrice = message.proposedPrice
+
+                                if (!productId.isNullOrBlank() && acceptedPrice != null) {
+                                   navController.navigate("ResumeBeforePurchaseScreen/$productId/$acceptedPrice")
+                                }
+                            }
                         )
                     }
                 }
@@ -196,7 +204,8 @@ fun MessageBubble(
     isCurrentUserSender: Boolean,
     onAcceptOffer: (String, Double) -> Unit = { _, _ -> },
     canAcceptOffer: Boolean = false,
-    isOfferAccepted: Boolean = false
+    isOfferAccepted: Boolean = false,
+    onBuy: () -> Unit = {} // <-- Ajouté
 ) {
     val bubbleColor =
         if (isCurrentUserSender) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant
@@ -234,7 +243,8 @@ fun MessageBubble(
                         textColor = textColor,
                         onAcceptOffer = onAcceptOffer,
                         canAcceptOffer = canAcceptOffer,
-                        isOfferAccepted = isOfferAccepted
+                        isOfferAccepted = isOfferAccepted,
+                        onBuy = onBuy // <-- Transmis ici
                     )
                 } else {
                     Text(
@@ -265,13 +275,15 @@ fun MessageBubble(
     }
 }
 
+
 @Composable
 fun OfferMessageContent(
     message: Message,
     textColor: androidx.compose.ui.graphics.Color,
     onAcceptOffer: (String, Double) -> Unit,
     canAcceptOffer: Boolean,
-    isOfferAccepted: Boolean
+    isOfferAccepted: Boolean,
+    onBuy: () -> Unit // <-- Ajouté
 ) {
     Column {
         // Prix proposé
@@ -302,7 +314,7 @@ fun OfferMessageContent(
             )
 
             Button(
-                onClick = { /* Navigation vers page d'achat */ },
+                onClick = onBuy, // <-- Utilisation de la lambda onBuy
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 4.dp),
