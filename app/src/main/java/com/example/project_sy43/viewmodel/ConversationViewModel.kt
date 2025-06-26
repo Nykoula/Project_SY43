@@ -52,6 +52,10 @@ class ConversationViewModel : ViewModel() {
     private val _currentOfferOptionalText = MutableStateFlow("")
     val currentOfferOptionalText: StateFlow<String> = _currentOfferOptionalText.asStateFlow()
 
+    // NOUVEAU : Contrôle de l'affichage de la section d'offre
+    private val _showOfferSection = MutableStateFlow(false)
+    val showOfferSection: StateFlow<Boolean> = _showOfferSection.asStateFlow()
+
     // AMÉLIORATION : StateFlow pour le nom de l'autre participant
     private val _otherParticipantDisplayName = MutableStateFlow<String?>("Chargement...")
     val otherParticipantDisplayName: StateFlow<String?> = _otherParticipantDisplayName.asStateFlow()
@@ -59,6 +63,10 @@ class ConversationViewModel : ViewModel() {
     // AMÉLIORATION : StateFlow pour l'URL de l'image du produit
     private val _productImageUrl = MutableStateFlow<String?>(null)
     val productImageUrl: StateFlow<String?> = _productImageUrl.asStateFlow()
+
+    // NOUVEAU : StateFlow pour les offres acceptées
+    private val _acceptedOffers = MutableStateFlow<Set<String>>(emptySet())
+    val acceptedOffers: StateFlow<Set<String>> = _acceptedOffers.asStateFlow()
 
     // --- Initialization ---
     fun initialize(conversationId: String) {
@@ -86,6 +94,7 @@ class ConversationViewModel : ViewModel() {
         if (conversationId.isNotBlank()) {
             fetchConversationDetails()
             fetchMessagesForCurrentConversation()
+            loadAcceptedOffers() // Nouvelle ligne ajoutée
         } else {
             _error.value = "Conversation ID is missing."
             Log.e("ConvVM", "Conversation ID is blank in initialize.")
@@ -104,7 +113,6 @@ class ConversationViewModel : ViewModel() {
                     _conversationDetails.value = details
                     Log.d("ConvVM", "Details fetched: $details")
 
-                    // AMÉLIORATION : Mettre à jour le nom de l'autre participant et l'image du produit
                     updateOtherParticipantInfo(details)
                 }
                 .onFailure { e ->
@@ -115,9 +123,6 @@ class ConversationViewModel : ViewModel() {
         }
     }
 
-    /**
-     * NOUVELLE FONCTION : Met à jour les informations de l'autre participant et du produit
-     */
     private fun updateOtherParticipantInfo(details: Conversation?) {
         val currentUid = auth.currentUser?.uid
 
@@ -131,7 +136,6 @@ class ConversationViewModel : ViewModel() {
         if (otherParticipantId != null) {
             viewModelScope.launch {
                 try {
-                    // Récupérer le nom de l'utilisateur depuis le repository
                     conversationRepository.getUserName(otherParticipantId)
                         .onSuccess { userName ->
                             _otherParticipantDisplayName.value = userName
@@ -142,7 +146,6 @@ class ConversationViewModel : ViewModel() {
                             Log.e("ConvVM", "Error fetching user name for $otherParticipantId", e)
                         }
 
-                    // Récupérer l'image du produit si disponible
                     if (!details.productId.isNullOrBlank()) {
                         val productImagesResult = conversationRepository.fetchProductImagesInBatch(listOf(details.productId))
                         productImagesResult.onSuccess { imagesMap ->
@@ -205,6 +208,15 @@ class ConversationViewModel : ViewModel() {
 
     fun onOfferOptionalTextChanged(newText: String) {
         _currentOfferOptionalText.value = newText
+    }
+
+    fun toggleOfferSection() {
+        _showOfferSection.value = !_showOfferSection.value
+        if (!_showOfferSection.value) {
+            // Nettoyer les champs quand on ferme la section
+            _currentOfferPrice.value = ""
+            _currentOfferOptionalText.value = ""
+        }
     }
 
     fun sendTextMessage() {
@@ -287,13 +299,15 @@ class ConversationViewModel : ViewModel() {
                 conversationId = convId,
                 proposedPrice = proposedPrice,
                 optionalText = optionalText.ifBlank { null },
-                senderId = userId
+                senderId = userId,
+                productImageUrl = _productImageUrl.value // Inclure l'image du produit
             )
 
             result.fold(
                 onSuccess = {
                     _currentOfferPrice.value = ""
                     _currentOfferOptionalText.value = ""
+                    _showOfferSection.value = false
                     Log.d("ConvVM", "Offer message sent successfully to $convId.")
                 },
                 onFailure = { e ->
@@ -305,9 +319,68 @@ class ConversationViewModel : ViewModel() {
         }
     }
 
-    /**
-     * NOUVELLE FONCTION : Formate l'affichage d'un message pour la liste
-     */
+    fun acceptOffer(messageId: String, proposedPrice: Double) {
+        val convId = currentConversationId ?: return
+        val userId = auth.currentUser?.uid ?: return
+
+        viewModelScope.launch {
+            _isSendingMessage.value = true
+
+            val result = conversationRepository.acceptOffer(
+                conversationId = convId,
+                messageId = messageId,
+                acceptingUserId = userId
+            )
+
+            result.fold(
+                onSuccess = {
+                    // Ajouter l'offre aux offres acceptées
+                    _acceptedOffers.value = _acceptedOffers.value + messageId
+
+                    // Envoyer un message de confirmation
+                    conversationRepository.sendTextMessage(
+                        conversationId = convId,
+                        text = "Votre proposition a été acceptée",
+                        senderId = userId
+                    )
+
+                    Log.d("ConvVM", "Offer accepted successfully")
+                },
+                onFailure = { e ->
+                    _error.value = "Failed to accept offer: ${e.message}"
+                    Log.e("ConvVM", "Error accepting offer", e)
+                }
+            )
+            _isSendingMessage.value = false
+        }
+    }
+
+    // NOUVELLE FONCTION : Vérifier si l'utilisateur actuel est l'acheteur
+    fun isCurrentUserBuyer(): Boolean {
+        val currentUserId = auth.currentUser?.uid
+        return _conversationDetails.value?.buyerId == currentUserId
+    }
+
+    // NOUVELLE FONCTION : Vérifier si une offre est acceptée
+    fun isOfferAccepted(messageId: String): Boolean {
+        return _acceptedOffers.value.contains(messageId)
+    }
+
+    private fun loadAcceptedOffers() {
+        val convId = currentConversationId ?: return
+
+        viewModelScope.launch {
+            conversationRepository.getAcceptedOffers(convId)
+                .onSuccess { acceptedOfferIds ->
+                    _acceptedOffers.value = acceptedOfferIds.toSet()
+                    Log.d("ConvVM", "Loaded ${acceptedOfferIds.size} accepted offers")
+                }
+                .onFailure { e ->
+                    Log.e("ConvVM", "Error loading accepted offers", e)
+                }
+        }
+    }
+
     fun formatMessageForDisplay(message: Message): String {
         val currentUserId = auth.currentUser?.uid
         val isFromCurrentUser = message.senderId == currentUserId
@@ -330,16 +403,10 @@ class ConversationViewModel : ViewModel() {
         }
     }
 
-    /**
-     * NOUVELLE FONCTION : Détermine si un message a été envoyé par l'utilisateur actuel
-     */
     fun isMessageFromCurrentUser(message: Message): Boolean {
         return message.senderId == auth.currentUser?.uid
     }
 
-    /**
-     * NOUVELLE FONCTION : Récupère le nom de l'expéditeur d'un message
-     */
     fun getMessageSenderName(message: Message): String {
         val currentUserId = auth.currentUser?.uid
         return if (message.senderId == currentUserId) {
@@ -349,16 +416,10 @@ class ConversationViewModel : ViewModel() {
         }
     }
 
-    /**
-     * NOUVELLE FONCTION : Vide les erreurs
-     */
     fun clearError() {
         _error.value = null
     }
 
-    /**
-     * NOUVELLE FONCTION : Rafraîchit la conversation
-     */
     fun refreshConversation() {
         val convId = currentConversationId ?: return
         fetchConversationDetails()
@@ -372,4 +433,7 @@ class ConversationViewModel : ViewModel() {
         messagesListenerJob = null
         Log.d("ConvVM", "Messages listener job cancelled.")
     }
+
+
+
 }

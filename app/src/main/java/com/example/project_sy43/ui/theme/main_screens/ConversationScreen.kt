@@ -1,54 +1,36 @@
 package com.example.project_sy43.ui.theme.main_screens
 
-//import DateFormatter
 import android.annotation.SuppressLint
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.Send
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.project_sy43.model.Message
-import com.example.project_sy43.repository.ConversationRepository
 import com.example.project_sy43.viewmodel.ConversationViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.Timestamp
-import com.google.firebase.firestore.FirebaseFirestore
-import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
-import java.util.Locale
-import androidx.lifecycle.createSavedStateHandle
-import androidx.lifecycle.viewmodel.CreationExtras
-import androidx.lifecycle.viewmodel.initializer
-import androidx.lifecycle.viewmodel.viewModelFactory
-import java.util.Date
 import kotlin.text.format
 import androidx.compose.runtime.getValue
-import com.example.project_sy43.model.Product
-import com. example. project_sy43.model. Conversation
 import com.example.project_sy43.navigation.VintedScreen
-
-import com. example. project_sy43.ui. theme. components. MessageInputSection
+import com.example.project_sy43.ui.theme.components.MessageInputSection
 import com.example.project_sy43.ui.theme.components.VintedBottomBar
 import com.example.project_sy43.ui.theme.components.VintedTopBar
-
+import java.text.SimpleDateFormat
+import java.util.*
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
@@ -63,15 +45,15 @@ fun ConversationScreen(
     val currentUserId = auth.currentUser?.uid
     val messages by viewModel.messages.collectAsState()
     val currentMessageText by viewModel.currentMessageText.collectAsState()
-    // val conversationDetails by viewModel.conversationDetails.collectAsState() // If needed directly
     val otherParticipantName by viewModel.otherParticipantDisplayName.collectAsState()
     val isLoadingMessages by viewModel.isLoadingMessages.collectAsState()
-    val isLoadingDetails by viewModel.isLoadingDetails.collectAsState() // For initial details load
+    val isLoadingDetails by viewModel.isLoadingDetails.collectAsState()
     val isSendingMessage by viewModel.isSendingMessage.collectAsState()
     val error by viewModel.error.collectAsState()
 
     val currentOfferPrice by viewModel.currentOfferPrice.collectAsState()
     val currentOfferOptionalText by viewModel.currentOfferOptionalText.collectAsState()
+    val showOfferSection by viewModel.showOfferSection.collectAsState()
 
     LaunchedEffect(key1 = conversationId) {
         if (conversationId.isNotBlank()) {
@@ -90,7 +72,7 @@ fun ConversationScreen(
         bottomBar = {
             VintedBottomBar(
                 navController = navController,
-                currentScreen = VintedScreen.Conversation // Ajoute Conversation dans ton enum si besoin
+                currentScreen = VintedScreen.Conversation
             )
         }
     ) { paddingValues ->
@@ -114,15 +96,29 @@ fun ConversationScreen(
                     CircularProgressIndicator()
                 }
             } else {
-                // 3. Messages List
+                // Messages List with date separators
                 LazyColumn(
                     modifier = Modifier.weight(1f),
                     contentPadding = PaddingValues(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
-                    items(messages) { message ->
+                    itemsIndexed(messages) { index, message ->
                         val isCurrentUser = message.senderId == currentUserId
-                        MessageBubble(message = message, isCurrentUserSender = isCurrentUser)
+                        val showDateSeparator = shouldShowDateSeparator(messages, index)
+
+                        if (showDateSeparator) {
+                            DateSeparator(message.timestamp)
+                        }
+
+                        MessageBubble(
+                            message = message,
+                            isCurrentUserSender = isCurrentUser,
+                            onAcceptOffer = { messageId, price ->
+                                viewModel.acceptOffer(messageId, price)
+                            },
+                            canAcceptOffer = viewModel.isCurrentUserBuyer() && !isCurrentUser,
+                            isOfferAccepted = viewModel.isOfferAccepted(message.id)
+                        )
                     }
                 }
             }
@@ -132,87 +128,212 @@ fun ConversationScreen(
                 onMessageChange = { viewModel.onCurrentMessageTextChanged(it) },
                 onSendMessage = { viewModel.sendTextMessage() },
                 isSending = isSendingMessage,
-                currentOfferPrice = "",
-                onOfferPriceChange = {},
-                currentOfferOptionalText = "",
-                onOfferOptionalTextChange = {},
-                onSendOffer = {}
+                currentOfferPrice = currentOfferPrice,
+                onOfferPriceChange = { viewModel.onOfferPriceChanged(it) },
+                currentOfferOptionalText = currentOfferOptionalText,
+                onOfferOptionalTextChange = { viewModel.onOfferOptionalTextChanged(it) },
+                onSendOffer = { viewModel.sendOfferMessage() },
+                showOfferSection = showOfferSection,
+                onToggleOfferSection = { viewModel.toggleOfferSection() }
             )
         }
     }
 }
 
-// --- Placeholder for Message Item Composable ---
 @Composable
-fun MessageItem(message: Message) {
-    // Determine if the message is sent by the current user to align it differently
-    val alignment = if (message.isSentByCurrentUser) Alignment.End else Alignment.Start
-    val bubbleColor = if (message.isSentByCurrentUser) MaterialTheme.colorScheme.primaryContainer
-    else MaterialTheme.colorScheme.secondaryContainer
+fun DateSeparator(timestamp: Timestamp?) {
+    timestamp?.let {
+        val date = it.toDate()
+        val dateFormat = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
+        val dateString = dateFormat.format(date)
 
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 8.dp, vertical = 4.dp),
-        horizontalAlignment = alignment
-    ) {
-        Card(
-            shape = MaterialTheme.shapes.medium,
-            colors = CardDefaults.cardColors(containerColor = bubbleColor)
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 16.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Column(modifier = Modifier.padding(8.dp)) {
-                // Text(text = message.senderName ?: "Unknown", style = MaterialTheme.typography.labelSmall) // If you have senderName
-                if (message.type == "offer" && message.proposedPrice != null) {
-                    Text("Offer: $${"%.2f".format(message.proposedPrice)}", style = MaterialTheme.typography.bodyMedium)
-                    message.text?.takeIf { it.isNotBlank() }?.let {
-                        Text(it, style = MaterialTheme.typography.bodySmall)
-                    }
-                } else {
-                    Text(message.text ?: "", style = MaterialTheme.typography.bodyMedium)
-                }
-                // Text(text = message.timestamp?.toDate()?.toString() ?: "sending...", style = MaterialTheme.typography.labelSmall) // Format timestamp
-            }
+            Divider(
+                modifier = Modifier.weight(1f),
+                color = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)
+            )
+            Text(
+                text = dateString,
+                modifier = Modifier.padding(horizontal = 16.dp),
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                fontWeight = FontWeight.Medium
+            )
+            Divider(
+                modifier = Modifier.weight(1f),
+                color = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)
+            )
         }
     }
 }
+
+fun shouldShowDateSeparator(messages: List<Message>, currentIndex: Int): Boolean {
+    if (currentIndex == 0) return true
+
+    val currentMessage = messages[currentIndex]
+    val previousMessage = messages[currentIndex - 1]
+
+    val currentDate = currentMessage.timestamp?.toDate()
+    val previousDate = previousMessage.timestamp?.toDate()
+
+    if (currentDate == null || previousDate == null) return false
+
+    val currentCalendar = Calendar.getInstance().apply { time = currentDate }
+    val previousCalendar = Calendar.getInstance().apply { time = previousDate }
+
+    return currentCalendar.get(Calendar.DAY_OF_YEAR) != previousCalendar.get(Calendar.DAY_OF_YEAR) ||
+            currentCalendar.get(Calendar.YEAR) != previousCalendar.get(Calendar.YEAR)
+}
+
 @Composable
 fun MessageBubble(
-    message: Message ,
-    isCurrentUserSender: Boolean
+    message: Message,
+    isCurrentUserSender: Boolean,
+    onAcceptOffer: (String, Double) -> Unit = { _, _ -> },
+    canAcceptOffer: Boolean = false,
+    isOfferAccepted: Boolean = false
 ) {
     val bubbleColor =
         if (isCurrentUserSender) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant
     val textColor =
         if (isCurrentUserSender) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant
 
-    // Alignement horizontal : à droite si message de l'utilisateur, à gauche sinon
     val horizontalArrangement = if (isCurrentUserSender) Arrangement.End else Arrangement.Start
 
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 8.dp , vertical = 4.dp) ,
+            .padding(horizontal = 8.dp, vertical = 2.dp),
         horizontalArrangement = horizontalArrangement
     ) {
-        Box(
-            modifier = Modifier
-                .widthIn(max = 280.dp) // Limite la largeur max de la bulle
-                .background(
-                    color = bubbleColor ,
-                    shape = RoundedCornerShape(
-                        topStart = 16.dp ,
-                        topEnd = 16.dp ,
-                        bottomStart = if (isCurrentUserSender) 16.dp else 0.dp ,
-                        bottomEnd = if (isCurrentUserSender) 0.dp else 16.dp
+        Column(
+            horizontalAlignment = if (isCurrentUserSender) Alignment.End else Alignment.Start
+        ) {
+            Box(
+                modifier = Modifier
+                    .widthIn(max = 280.dp)
+                    .background(
+                        color = bubbleColor,
+                        shape = RoundedCornerShape(
+                            topStart = 16.dp,
+                            topEnd = 16.dp,
+                            bottomStart = if (isCurrentUserSender) 16.dp else 4.dp,
+                            bottomEnd = if (isCurrentUserSender) 4.dp else 16.dp
+                        )
+                    )
+                    .padding(horizontal = 12.dp, vertical = 8.dp)
+            ) {
+                if (message.type == "offer" && message.proposedPrice != null) {
+                    OfferMessageContent(
+                        message = message,
+                        textColor = textColor,
+                        onAcceptOffer = onAcceptOffer,
+                        canAcceptOffer = canAcceptOffer,
+                        isOfferAccepted = isOfferAccepted
+                    )
+                } else {
+                    Text(
+                        text = message.text ?: "",
+                        color = textColor,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
+            }
+
+            // Time display
+            message.timestamp?.let { timestamp ->
+                val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
+                val timeString = timeFormat.format(timestamp.toDate())
+
+                Text(
+                    text = timeString,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                    modifier = Modifier.padding(
+                        top = 2.dp,
+                        start = if (isCurrentUserSender) 0.dp else 12.dp,
+                        end = if (isCurrentUserSender) 12.dp else 0.dp
                     )
                 )
-                .padding(horizontal = 12.dp , vertical = 8.dp)
-        ) {
+            }
+        }
+    }
+}
+
+@Composable
+fun OfferMessageContent(
+    message: Message,
+    textColor: androidx.compose.ui.graphics.Color,
+    onAcceptOffer: (String, Double) -> Unit,
+    canAcceptOffer: Boolean,
+    isOfferAccepted: Boolean
+) {
+    Column {
+        // Prix proposé
+        Text(
+            text = "Offre: ${String.format("%.2f", message.proposedPrice)}€",
+            color = textColor,
+            style = MaterialTheme.typography.bodyMedium,
+            fontWeight = FontWeight.Bold
+        )
+
+        // Message optionnel
+        message.text?.takeIf { it.isNotBlank() }?.let { optionalText ->
             Text(
-                text = message.text ?: "" ,
-                color = textColor ,
-                style = MaterialTheme.typography.bodyMedium
+                text = optionalText,
+                color = textColor,
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.padding(top = 4.dp)
             )
+        }
+
+        // Bouton d'acceptation ou statut
+        if (isOfferAccepted) {
+            Text(
+                text = "✓ Offre acceptée",
+                color = textColor.copy(alpha = 0.8f),
+                style = MaterialTheme.typography.labelSmall,
+                modifier = Modifier.padding(top = 8.dp)
+            )
+
+            Button(
+                onClick = { /* Navigation vers page d'achat */ },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 4.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.secondary
+                )
+            ) {
+                Text("Acheter")
+            }
+        } else if (canAcceptOffer) {
+            Button(
+                onClick = {
+                    message.proposedPrice?.let { price ->
+                        onAcceptOffer(message.id, price)
+                    }
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.secondary
+                )
+            ) {
+                Icon(
+                    Icons.Default.Check,
+                    contentDescription = null,
+                    modifier = Modifier.size(16.dp)
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Text("Accepter")
+            }
         }
     }
 }

@@ -1,39 +1,3 @@
-//package com.example.project_sy43.model
-//
-//import com.google.firebase.Timestamp
-//import com.google.firebase.firestore.PropertyName
-//import com.google.firebase.firestore.ServerTimestamp
-//
-//data class Message (
-//    var id: String = "", // Document ID
-//
-//    @get:PropertyName("senderID") @set:PropertyName("senderID")
-//        var senderId: String = "",
-//
-//    @PropertyName("senderName")
-//    var senderName: String? = null,
-//
-//    @get:PropertyName("text") @set:PropertyName("text")
-//        var text: String? = null,
-//
-//    @ServerTimestamp @get:PropertyName("timestamp") @set:PropertyName("timestamp")
-//        var timestamp: Timestamp? = null,
-//
-//    @PropertyName("imageUrl")
-//    var imageUrl: String? = null,
-//
-//    @get:PropertyName("type") @set:PropertyName("type")
-//        var type: String = "text", // "text" or "proposition"
-//
-//    @get:PropertyName("proposedPrice") @set:PropertyName("proposedPrice")
-//        var proposedPrice: Double? = null,
-//
-//    var isSentByCurrentUser: Boolean = false
-//) {
-//    constructor() : this("", "", null, null, null, null, "", null, false) // Constructeur sans argument pour Firestore
-//}
-
-// model/Message.kt
 package com.example.project_sy43.model
 
 import com.google.firebase.Timestamp
@@ -57,6 +21,12 @@ data class Message(
     @get:PropertyName("proposedPrice") @set:PropertyName("proposedPrice")
     var proposedPrice: Double? = null, // Only for "offer" type messages
 
+    @get:PropertyName("isAccepted") @set:PropertyName("isAccepted")
+    var isAccepted: Boolean = false, // Pour les offres acceptées
+
+    @get:PropertyName("productImageUrl") @set:PropertyName("productImageUrl")
+    var productImageUrl: String? = null, // URL de l'image du produit pour les offres
+
     // UI-specific, not in Firestore typically, populated by ViewModel/Repository
     @Transient var senderName: String? = null, // For displaying sender's name
     @Transient var isSentByCurrentUser: Boolean = false
@@ -68,6 +38,8 @@ data class Message(
         timestamp = null,
         type = "text",
         text = null,
-        proposedPrice = null
+        proposedPrice = null,
+        isAccepted = false,
+        productImageUrl = null
     )
 }

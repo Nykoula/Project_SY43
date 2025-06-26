@@ -390,4 +390,105 @@ class ConversationRepository(
         val docRef = firestore.collection("conversations").add(conversation).await()
         return docRef.id
     }
+
+    suspend fun acceptOffer(
+        conversationId: String,
+        messageId: String,
+        acceptingUserId: String
+    ): Result<Unit> {
+        return try {
+            val firestore = FirebaseFirestore.getInstance()
+
+            // Marquer l'offre comme acceptée dans la collection des messages
+            firestore.collection("conversations")
+                .document(conversationId)
+                .collection("messages")
+                .document(messageId)
+                .update("isAccepted", true)
+                .await()
+
+            // Ajouter l'offre acceptée dans une sous-collection pour un suivi facile
+            firestore.collection("conversations")
+                .document(conversationId)
+                .collection("acceptedOffers")
+                .document(messageId)
+                .set(mapOf(
+                    "messageId" to messageId,
+                    "acceptedBy" to acceptingUserId,
+                    "acceptedAt" to FieldValue.serverTimestamp()
+                ))
+                .await()
+
+            Log.d("ConversationRepository", "Offer $messageId accepted successfully")
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Log.e("ConversationRepository", "Error accepting offer $messageId", e)
+            Result.failure(e)
+        }
+    }
+
+    suspend fun getAcceptedOffers(conversationId: String): Result<List<String>> {
+        return try {
+            val firestore = FirebaseFirestore.getInstance()
+
+            val snapshot = firestore.collection("conversations")
+                .document(conversationId)
+                .collection("acceptedOffers")
+                .get()
+                .await()
+
+            val acceptedOfferIds = snapshot.documents.mapNotNull { it.getString("messageId") }
+
+            Log.d("ConversationRepository", "Retrieved ${acceptedOfferIds.size} accepted offers")
+            Result.success(acceptedOfferIds)
+        } catch (e: Exception) {
+            Log.e("ConversationRepository", "Error getting accepted offers", e)
+            Result.failure(e)
+        }
+    }
+
+    // Modifiez également la méthode sendOfferMessage pour inclure l'image du produit :
+    suspend fun sendOfferMessage(
+        conversationId: String,
+        proposedPrice: Double,
+        optionalText: String?,
+        senderId: String,
+        productImageUrl: String? = null
+    ): Result<Unit> {
+        return try {
+            val firestore = FirebaseFirestore.getInstance()
+
+            val messageData = mutableMapOf<String, Any>(
+                "senderID" to senderId,
+                "timestamp" to FieldValue.serverTimestamp(),
+                "type" to "offer",
+                "proposedPrice" to proposedPrice,
+                "isAccepted" to false
+            )
+
+            // Ajouter le texte optionnel s'il existe
+            optionalText?.let { messageData["text"] = it }
+
+            // Ajouter l'URL de l'image du produit s'elle existe
+            productImageUrl?.let { messageData["productImageUrl"] = it }
+
+            // Créer le message d'offre
+            firestore.collection("conversations")
+                .document(conversationId)
+                .collection("messages")
+                .add(messageData)
+                .await()
+
+            // Mettre à jour les informations de dernière conversation
+            updateLastMessage(conversationId,  "Offre: ${String.format("%.2f", proposedPrice)}€", senderId)
+
+            Log.d("ConversationRepository", "Offer message sent successfully")
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Log.e("ConversationRepository", "Error sending offer message", e)
+            Result.failure(e)
+        }
+    }
+
+
 }
