@@ -334,26 +334,32 @@ class ConversationRepository(
      * Fetches product image URLs for a list of product IDs.
      */
     suspend fun fetchProductImagesInBatch(productIds: List<String>): Result<Map<String, String?>> {
-        if (productIds.isEmpty()) return Result.success(emptyMap())
-        val productImagesMap = mutableMapOf<String, String?>()
+        return try {
+            val db = FirebaseFirestore.getInstance()
+            val imagesMap = mutableMapOf<String, String?>()
 
-        try {
-            productIds.chunked(30).forEach { chunk ->
-                val productsSnapshot = firestore.collection("products")
-                    .whereIn(FieldPath.documentId(), chunk)
+            // Firestore ne supporte pas les requêtes "in" avec plus de 10 éléments, donc batch si nécessaire
+            val batches = productIds.chunked(10)
+
+            for (batch in batches) {
+                val querySnapshot = db.collection("Post")
+                    .whereIn(FieldPath.documentId(), batch)
                     .get()
                     .await()
-                for (document in productsSnapshot.documents) {
-                    val imageUrl = document.getString("imageUrl")
-                    productImagesMap[document.id] = imageUrl
+
+                for (doc in querySnapshot.documents) {
+                    val photos = doc.get("photos") as? List<String> ?: emptyList()
+                    val firstPhoto = photos.firstOrNull()
+                    imagesMap[doc.id] = firstPhoto
                 }
             }
-            return Result.success(productImagesMap)
+            Result.success(imagesMap)
         } catch (e: Exception) {
-            Log.e("ConvRepo", "Error fetching product images in batch", e)
-            return Result.failure(e)
+            Result.failure(e)
         }
+        Log.d("ConversationRepository", "Fetching images for product IDs: $productIds")
     }
+
 
     /**
      * NOUVELLE FONCTION : Récupère le nom d'un utilisateur spécifique
