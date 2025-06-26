@@ -490,5 +490,17 @@ class ConversationRepository(
         }
     }
 
+    suspend fun deleteConversation(conversationId: String): Result<Unit> {
+        return try {
+            firestore.collection("conversations").document(conversationId).delete().await()
+            Log.d("ConvRepo", "Conversation $conversationId deleted successfully")
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Log.e("ConvRepo", "Error deleting conversation $conversationId", e)
+            Result.failure(e)
+        }
+    }
+
+
 
 }

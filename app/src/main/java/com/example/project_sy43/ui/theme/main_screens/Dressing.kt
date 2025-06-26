@@ -162,10 +162,11 @@ fun Dressing(
                 SoldClothingList(
                     items = soldItems,
                     onItemClick = {
-                        //selectedItem = it
-                        navController.navigate("${VintedScreen.ArticleDetail.name}/${it.id}?menuDeroulant=true")
-
-
+                        if (it.isAvailable) {
+                            navController.navigate("${VintedScreen.ArticleDetail.name}/${it.id}?menuDeroulant=true")
+                        } else {
+                            navController.navigate("${VintedScreen.ArticleDetail.name}/${it.id}")
+                        }
                     }
                 )
             }

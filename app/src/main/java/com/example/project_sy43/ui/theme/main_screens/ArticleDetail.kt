@@ -224,7 +224,7 @@ fun ClothingDetailView(
                         }
                     }
                 }
-                if (menuDeroulant == false) {
+                if (menuDeroulant == false && clothing?.available == true) {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
