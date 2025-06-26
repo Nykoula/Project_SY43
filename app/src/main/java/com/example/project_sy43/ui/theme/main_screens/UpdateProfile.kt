@@ -1,4 +1,4 @@
-// version finale avec upload Firebase Storage, photo optionnelle
+
 package com.example.project_sy43.ui.theme.main_screens
 
 import android.app.Activity
@@ -47,8 +47,13 @@ import com.google.firebase.storage.FirebaseStorage
 import java.io.ByteArrayOutputStream
 import java.text.SimpleDateFormat
 import java.util.*
+import com.google.accompanist.permissions.*
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.rememberPermissionState
 
-@OptIn(ExperimentalMaterial3Api::class)
+
+
+@OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun UpdateProfile(
     personViewModel: PersonViewModel = viewModel(),
@@ -84,10 +89,18 @@ fun UpdateProfile(
             onResult = { uri -> localPhotoUri = uri }
         )
 
-        val cameraLauncher = rememberLauncherForActivityResult(
-            contract = ActivityResultContracts.TakePicturePreview(),
-            onResult = { bitmap -> cameraBitmap = bitmap }
-        )
+        val cameraPermissionState = rememberPermissionState(permission = android.Manifest.permission.CAMERA)
+        val readStoragePermissionState = rememberPermissionState(permission = android.Manifest.permission.READ_EXTERNAL_STORAGE)
+
+        LaunchedEffect(Unit) {
+            if (!cameraPermissionState.status.isGranted) {
+                cameraPermissionState.launchPermissionRequest()
+            }
+            if (!readStoragePermissionState.status.isGranted) {
+                readStoragePermissionState.launchPermissionRequest()
+            }
+        }
+
 
         LaunchedEffect(userId) {
             userId?.let { uid ->
@@ -134,6 +147,17 @@ fun UpdateProfile(
                     .addOnFailureListener { onComplete(null) }
             }
         }
+
+        val cameraLauncher = rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.TakePicturePreview(),
+            onResult = { bitmap ->
+                if (bitmap != null) {
+                    cameraBitmap = bitmap
+                    localPhotoUri = null
+                }
+            }
+        )
+
 
         fun saveProfile() {
             if (firstName.isBlank() || lastName.isBlank() || email.isBlank() || address.isBlank() || phoneNumber.isBlank()) {
