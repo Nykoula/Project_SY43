@@ -28,6 +28,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextAlign
 import coil.compose.rememberImagePainter
 import com.example.project_sy43.viewmodel.ProductViewModel
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
 data class Post(
@@ -49,20 +50,27 @@ fun MonCompte(
     var displayCount by remember { mutableStateOf(10) }
 
     LaunchedEffect(Unit) {
+        val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
         val db = FirebaseFirestore.getInstance()
+
         db.collection("Post")
-            .whereEqualTo("available", true) // Filtrer les documents où "available" est true
+            .whereEqualTo("available", true)
             .get()
             .addOnSuccessListener { result ->
-                val fetchedPosts = result.map { document ->
-                    Post(
-                        title = document.getString("title") ?: "",
-                        taille = document.getString("size") ?: "",
-                        state = document.getString("state") ?: "",
-                        price = document.getDouble("price") ?: 0.0,
-                        photos = document.get("photos") as? List<String> ?: emptyList(),
-                        id = document.id
-                    )
+                val fetchedPosts = result.mapNotNull { document ->
+                    val userId = document.getString("userId")
+                    if (userId != null && userId != currentUserId) {
+                        Post(
+                            title = document.getString("title") ?: "",
+                            taille = document.getString("size") ?: "",
+                            state = document.getString("state") ?: "",
+                            price = document.getDouble("price") ?: 0.0,
+                            photos = document.get("photos") as? List<String> ?: emptyList(),
+                            id = document.id
+                        )
+                    } else {
+                        null
+                    }
                 }
                 posts = fetchedPosts
             }
