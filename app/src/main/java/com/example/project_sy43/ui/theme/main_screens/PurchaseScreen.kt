@@ -17,6 +17,8 @@ import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import androidx.navigation.NavHostController
 import com.example.project_sy43.navigation.VintedScreen
+import com.example.project_sy43.ui.theme.components.VintedBottomBar
+import com.example.project_sy43.ui.theme.components.VintedTopBar
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
@@ -39,6 +41,7 @@ fun PurchaseScreen(
     val context = LocalContext.current
     val fusedLocationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
     var buyerName by remember { mutableStateOf("") }
+    var cardNumber by remember { mutableStateOf("") }
     var address by remember { mutableStateOf("") }
     var deliveryLocation by remember { mutableStateOf(LatLng(48.8566, 2.3522)) } // Paris
     var userLocation by remember { mutableStateOf<LatLng?>(null) }
@@ -82,6 +85,7 @@ fun PurchaseScreen(
         } else {
             Log.w("Map", "Permission localisation refusée")
         }
+
     }
 
     // Géocodage de l’adresse saisie
@@ -99,8 +103,27 @@ fun PurchaseScreen(
             }
         }
     }
-
-    Column(Modifier.padding(16.dp)) {
+    Scaffold(
+        topBar = {
+            VintedTopBar(
+                title = "Achat",
+                navController = navController,
+                canGoBack = true
+            )
+        },
+        bottomBar = {
+            VintedBottomBar(
+                navController = navController,
+                currentScreen = VintedScreen.MonCompte
+            )
+        }
+    ) { innerPadding ->
+    Column(
+        modifier = Modifier
+        .padding(innerPadding)
+        .padding(16.dp)
+        .fillMaxSize())
+    {
         Text("Article : $itemName", style = MaterialTheme.typography.titleLarge)
         Text("ID article : $itemId", style = MaterialTheme.typography.bodyMedium)
         Spacer(Modifier.height(16.dp))
@@ -108,6 +131,13 @@ fun PurchaseScreen(
             value = buyerName,
             onValueChange = { buyerName = it },
             label = { Text("Votre nom") },
+            modifier = Modifier.fillMaxWidth()
+        )
+        Spacer(Modifier.height(8.dp))
+        OutlinedTextField(
+            value = cardNumber,
+            onValueChange = { cardNumber = it },
+            label = { Text("Votre numéro de carte") },
             modifier = Modifier.fillMaxWidth()
         )
         Spacer(Modifier.height(8.dp))
@@ -161,4 +191,5 @@ fun PurchaseScreen(
             }
         }
     }
+        }
 }

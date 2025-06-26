@@ -38,6 +38,7 @@ import com.example.project_sy43.R
 import com.example.project_sy43.model.Conversation
 import com.example.project_sy43.navigation.VintedScreen
 import com.example.project_sy43.ui.theme.components.VintedTopBar
+import com.google.firebase.auth.FirebaseAuth
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -102,7 +103,7 @@ fun Messages(
                             )
                             Spacer(modifier = Modifier.height(16.dp))
                             Button(
-                                onClick = {  },
+                                onClick = { messagesViewModel.refreshConversations() },
                                 colors = ButtonDefaults.buttonColors(
                                     containerColor = Color(0xFF007782)
                                 )
@@ -170,6 +171,8 @@ fun ConversationItem(
     conversation: Conversation,
     onItemClick: (String) -> Unit
 ) {
+    val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -228,12 +231,19 @@ fun ConversationItem(
 
             Spacer(modifier = Modifier.height(4.dp))
 
-            // Dernier message
+            // AMÉLIORATION : Affichage du dernier message avec le préfixe "Moi :" ou "Nom :"
+            val lastMessageDisplay = formatLastMessage(
+                conversation.lastMessageText,
+                conversation.lastMessageSenderId,
+                conversation.otherUserName,
+                currentUserId
+            )
+
             Text(
-                text = conversation.lastMessageText ?: "Aucun message",
+                text = lastMessageDisplay,
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                maxLines = 1,
+                maxLines = 2, // Augmenté à 2 lignes pour permettre l'affichage complet
                 overflow = TextOverflow.Ellipsis
             )
         }
@@ -250,6 +260,31 @@ fun ConversationItem(
                 )
             }
         }
+    }
+}
+
+/**
+ * NOUVELLE FONCTION : Formate le dernier message avec le préfixe approprié
+ */
+private fun formatLastMessage(
+    lastMessageText: String?,
+    lastMessageSenderId: String?,
+    otherUserName: String?,
+    currentUserId: String?
+): String {
+    if (lastMessageText.isNullOrBlank()) {
+        return "Aucun message"
+    }
+
+    if (lastMessageSenderId.isNullOrBlank() || currentUserId.isNullOrBlank()) {
+        return lastMessageText
+    }
+
+    return if (lastMessageSenderId == currentUserId) {
+        "Moi : $lastMessageText"
+    } else {
+        val senderName = otherUserName?.split(" ")?.firstOrNull() ?: "Utilisateur"
+        "$senderName : $lastMessageText"
     }
 }
 

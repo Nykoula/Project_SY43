@@ -340,7 +340,7 @@ fun PostItemsGrid(viewModels: List<SellViewModel>, navController: NavController)
 @Composable
 fun PostItem(item: SellViewModel, navController: NavController) {
     Log.d("PostItem", "Rendering post item: ${item.productTitle.value}")
-    val photoUrls = item.productPhotoUri.value.map { it.toString() }
+    val photoUrls = item.productPhotoUrls.value.map { it.toString() }
 
     Card(
         modifier = Modifier

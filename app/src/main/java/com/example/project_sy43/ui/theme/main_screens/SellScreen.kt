@@ -91,9 +91,9 @@ import android.os.Build
 import android.provider.MediaStore
 import java.io.ByteArrayOutputStream
 
+
 @Composable
 fun SellScreen(navController: NavController, sellViewModel: SellViewModel = viewModel(), itemId: String? = null) {
-
 
     val loadKey = remember(itemId) { itemId }
 
@@ -102,21 +102,8 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
             sellViewModel.loadItem(loadKey)
             sellViewModel.productId.value = loadKey
             Log.d("SellScreen", "Item loaded: $loadKey")
-            Log.d("SellScreen", "Item loaded: ${sellViewModel.productTitle.value}")
-            Log.d("SellScreen", "Item loaded: ${sellViewModel.productDescription.value}")
-            Log.d("SellScreen", "Item loaded: ${sellViewModel.productPrice.value}")
-            Log.d("SellScreen", "Item loaded: ${sellViewModel.isAvailable.value}")
-            Log.d("SellScreen", "Item loaded: ${sellViewModel.selectedCategory.value}")
-            Log.d("SellScreen", "Item loaded: ${sellViewModel.selectedType.value}")
-            Log.d("SellScreen", "Item loaded: ${sellViewModel.selectedColors.value}")
-            Log.d("SellScreen", "Item loaded: ${sellViewModel.selectedMaterial.value}")
-            Log.d("SellScreen", "Item loaded: ${sellViewModel.selectedSize.value}")
-            Log.d("SellScreen", "Item loaded: ${sellViewModel.selectedState.value}")
-            Log.d("SellScreen", "Item loaded: ${sellViewModel.selectedColis.value}")
-            Log.d("SellScreen", "Item loaded photos: ${sellViewModel.productPhotoUri.value}")
         }
     }
-
 
     val context = LocalContext.current
     val scrollState = rememberScrollState()
@@ -124,8 +111,7 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
     var showResetDialog by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("") }
 
-    // Pour stocker le résultat de l'utilisateur
-    val userId = FirebaseAuth.getInstance().currentUser?.uid //stocker l'id utilisateur
+    val userId = FirebaseAuth.getInstance().currentUser?.uid
     var title by sellViewModel.productTitle
     var description by sellViewModel.productDescription
     var type by sellViewModel.selectedType
@@ -137,22 +123,16 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
     var colis by sellViewModel.selectedColis
     var isAvailable by sellViewModel.isAvailable
 
-    // État pour chaque menu déroulant
+    // États pour les menus déroulants
     var expandedCategory by remember { mutableStateOf(false) }
     var expandedState by remember { mutableStateOf(false) }
     var expandedColis by remember { mutableStateOf(false) }
     var showPhotoOptions by remember { mutableStateOf(false) }
 
-    // Liste pour stocker toutes les photos sélectionnées
-    // MODIFICATION: Utiliser directement les photos du ViewModel
-    val photoList = remember(sellViewModel.productPhotoUri.value) {
-        sellViewModel.productPhotoUri.value.toMutableList()
-    }
-
     // État pour gérer l'URI de la photo en cours
     var currentPhotoUri by remember { mutableStateOf<Uri?>(null) }
 
-    // IMPORTANT: Déclarer launcherCamera AVANT permissionLauncher
+    // Launcher pour l'appareil photo
     val launcherCamera = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicture()
     ) { success ->
@@ -168,12 +148,11 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
         currentPhotoUri = null
     }
 
-    // Launcher pour demander les permissions (APRÈS launcherCamera)
+    // Launcher pour les permissions
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { isGranted ->
         if (isGranted) {
-            // Permission accordée, prendre la photo
             currentPhotoUri?.let { uri ->
                 launcherCamera.launch(uri)
             }
@@ -182,7 +161,7 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
         }
     }
 
-    // Launcher pour sélectionner une photo depuis la galerie
+    // Launcher pour la galerie
     val launcherGallery = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
@@ -193,8 +172,11 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
     }
 
     fun validateFields(): Boolean {
+        val hasPhotos = sellViewModel.productPhotoUris.value.isNotEmpty() ||
+                sellViewModel.productPhotoUrls.value.isNotEmpty()
+
         return when {
-            sellViewModel.productPhotoUri.value.isEmpty() -> {
+            !hasPhotos -> {
                 errorMessage = "At least one photo is required"
                 false
             }
@@ -210,7 +192,7 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
                 errorMessage = "Price is required"
                 false
             }
-            sellViewModel.selectedCategory.value.isEmpty()-> {
+            sellViewModel.selectedCategory.value.isEmpty() -> {
                 errorMessage = "Category is required"
                 false
             }
@@ -238,15 +220,12 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
         }
     }
 
-    // Fonction pour prendre une photo
     fun takePhoto() {
-        // Vérifier les permissions d'abord
         when {
             ContextCompat.checkSelfPermission(
                 context,
                 Manifest.permission.CAMERA
             ) == PackageManager.PERMISSION_GRANTED -> {
-                // Permission déjà accordée
                 try {
                     val uri = generateUniqueUri(context)
                     currentPhotoUri = uri
@@ -257,13 +236,15 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
                 }
             }
             else -> {
-                // Demander la permission
                 val uri = generateUniqueUri(context)
                 currentPhotoUri = uri
                 permissionLauncher.launch(Manifest.permission.CAMERA)
             }
         }
     }
+
+    // Calculer le nombre total de photos
+    val totalPhotos = sellViewModel.productPhotoUris.value.size + sellViewModel.productPhotoUrls.value.size
 
     Scaffold(
         topBar = {
@@ -288,9 +269,7 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Button(
-                onClick = {
-                    showResetDialog = true
-                },
+                onClick = { showResetDialog = true },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color.White,
                     contentColor = Color(0xFFFF1C1C)
@@ -303,47 +282,43 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
                 Text(text = "Reset")
             }
 
-            // Section pour ajouter des photos
+            // Section photos
             Column {
-                // Bouton principal pour ajouter des photos
                 Button(
-                    onClick = { showPhotoOptions = true } ,
+                    onClick = { showPhotoOptions = true },
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.White ,
+                        containerColor = Color.White,
                         contentColor = Color(0xFF007782)
-                    ) ,
-                    shape = RoundedCornerShape(16.dp) ,
+                    ),
+                    shape = RoundedCornerShape(16.dp),
                     modifier = Modifier
-                        .border(2.dp , Color(0xFF007782) , RoundedCornerShape(16.dp))
+                        .border(2.dp, Color(0xFF007782), RoundedCornerShape(16.dp))
                 ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
-                            imageVector = Icons.Filled.Add ,
-                            contentDescription = "add pictures" ,
-                            tint = Color(0xFF007782) ,
+                            imageVector = Icons.Filled.Add,
+                            contentDescription = "add pictures",
+                            tint = Color(0xFF007782),
                             modifier = Modifier.size(24.dp)
                         )
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text(text = "Add pictures (${sellViewModel.productPhotoUri.value.size})")
+                        Text(text = "Add pictures ($totalPhotos)")
                     }
                 }
 
-                // Menu pour choisir entre appareil photo et galerie
                 DropdownMenu(
-                    expanded = showPhotoOptions ,
+                    expanded = showPhotoOptions,
                     onDismissRequest = { showPhotoOptions = false }
                 ) {
                     DropdownMenuItem(
-                        text = { Text("Take Photo") } ,
+                        text = { Text("Take Photo") },
                         onClick = {
                             showPhotoOptions = false
                             takePhoto()
                         }
                     )
                     DropdownMenuItem(
-                        text = { Text("Choose from Gallery") } ,
+                        text = { Text("Choose from Gallery") },
                         onClick = {
                             showPhotoOptions = false
                             launcherGallery.launch("image/*")
@@ -352,15 +327,28 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
                 }
 
                 // Affichage des photos sélectionnées (miniatures)
-                if (photoList.isNotEmpty()) {
+                if (totalPhotos > 0) {
                     Spacer(modifier = Modifier.height(8.dp))
                     LazyRow(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp) ,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        items(photoList) { uri ->
-                            PhotoThumbnail(
-                                uri = uri ,
+                        // Afficher les URLs existantes (pour l'édition)
+                        items(sellViewModel.productPhotoUrls.value) { url ->
+                            PhotoThumbnailFromUrl(
+                                url = url,
+                                onRemove = {
+                                    val currentUrls = sellViewModel.productPhotoUrls.value.toMutableList()
+                                    currentUrls.remove(url)
+                                    sellViewModel.setProductPhotoUrls(currentUrls)
+                                }
+                            )
+                        }
+
+                        // Afficher les URIs locales (nouvelles photos)
+                        items(sellViewModel.productPhotoUris.value) { uri ->
+                            PhotoThumbnailFromUri(
+                                uri = uri,
                                 onRemove = {
                                     sellViewModel.removeProductPhotoUri(uri)
                                 }
@@ -723,53 +711,64 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
             Button(
                 onClick = {
                     if (validateFields()) {
-                        sellViewModel.isAvailable.value = true
-                        if (photoList.isNotEmpty()) {
-                            uploadPhotosToFirebase(context, photoList) { photoUrls ->
+                        // Si on a des nouvelles photos (URIs), les uploader d'abord
+                        if (sellViewModel.productPhotoUris.value.isNotEmpty()) {
+                            uploadPhotosToFirebase(context, sellViewModel.productPhotoUris.value) { newUrls ->
+                                // Combiner les anciennes URLs avec les nouvelles
+                                val allUrls = sellViewModel.productPhotoUrls.value + newUrls
+
                                 saveArticleToFirestore(
-                                    userId.toString() ,
-                                    sellViewModel.productTitle.value ,
-                                    sellViewModel.productDescription.value ,
-                                    sellViewModel.productPrice.value ,
-                                    sellViewModel.selectedCategory.value ,
-                                    sellViewModel.selectedType.value ,
-                                    sellViewModel.selectedState.value ,
-                                    sellViewModel.selectedColors.value.toSet() ,
-                                    sellViewModel.selectedMaterial.value.toSet() ,
-                                    sellViewModel.selectedSize.value ,
-                                    sellViewModel.selectedColis.value ,
-                                    sellViewModel.isAvailable.value ,
-                                    sellViewModel.productPhotoUri.value ,
-                                    productId = sellViewModel.productId.value.takeIf { it.isNotEmpty() } // Passe l'ID si non vide
+                                    userId.toString(),
+                                    sellViewModel.productTitle.value,
+                                    sellViewModel.productDescription.value,
+                                    sellViewModel.productPrice.value,
+                                    sellViewModel.selectedCategory.value,
+                                    sellViewModel.selectedType.value,
+                                    sellViewModel.selectedState.value,
+                                    sellViewModel.selectedColors.value,
+                                    sellViewModel.selectedMaterial.value,
+                                    sellViewModel.selectedSize.value,
+                                    sellViewModel.selectedColis.value,
+                                    sellViewModel.isAvailable.value,
+                                    allUrls,
+                                    productId = sellViewModel.productId.value.takeIf { it.isNotEmpty() }
                                 )
+
                                 sellViewModel.reset()
+                                Toast.makeText(
+                                    context,
+                                    if (itemId == null) "Product added" else "Product updated",
+                                    Toast.LENGTH_LONG
+                                ).show()
+                                navController.navigate(VintedScreen.MonCompte.name)
                             }
                         } else {
+                            // Pas de nouvelles photos, utiliser seulement les URLs existantes
                             saveArticleToFirestore(
-                                userId.toString() ,
-                                sellViewModel.productTitle.value ,
-                                sellViewModel.productDescription.value ,
-                                sellViewModel.productPrice.value ,
-                                sellViewModel.selectedCategory.value ,
-                                sellViewModel.selectedType.value ,
-                                sellViewModel.selectedState.value ,
-                                sellViewModel.selectedColors.value.toSet() ,
-                                sellViewModel.selectedMaterial.value.toSet() ,
-                                sellViewModel.selectedSize.value ,
-                                sellViewModel.selectedColis.value ,
-                                sellViewModel.isAvailable.value ,
-                                emptyList() ,
+                                userId.toString(),
+                                sellViewModel.productTitle.value,
+                                sellViewModel.productDescription.value,
+                                sellViewModel.productPrice.value,
+                                sellViewModel.selectedCategory.value,
+                                sellViewModel.selectedType.value,
+                                sellViewModel.selectedState.value,
+                                sellViewModel.selectedColors.value,
+                                sellViewModel.selectedMaterial.value,
+                                sellViewModel.selectedSize.value,
+                                sellViewModel.selectedColis.value,
+                                sellViewModel.isAvailable.value,
+                                sellViewModel.productPhotoUrls.value,
                                 productId = sellViewModel.productId.value.takeIf { it.isNotEmpty() }
                             )
+
                             sellViewModel.reset()
+                            Toast.makeText(
+                                context,
+                                if (itemId == null) "Product added" else "Product updated",
+                                Toast.LENGTH_LONG
+                            ).show()
+                            navController.navigate(VintedScreen.MonCompte.name)
                         }
-                        if(itemId == null) {
-                            Toast.makeText(context , "Product added" , Toast.LENGTH_LONG).show()
-                        }
-                        else {
-                            Toast.makeText(context , "Product updated" , Toast.LENGTH_LONG).show()
-                        }
-                        navController.navigate(VintedScreen.MonCompte.name)
                     } else {
                         showDialog = true
                     }
@@ -782,12 +781,7 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
                 modifier = Modifier
                     .border(2.dp, Color(0xFF007782), RoundedCornerShape(16.dp))
             ) {
-                if (itemId == null) {
-                    Text(text = "Add")
-                }
-                else {
-                    Text(text = "Update")
-                    }
+                Text(text = if (itemId == null) "Add" else "Update")
             }
         }
     }
@@ -798,9 +792,7 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
             title = { Text(text = "Error") },
             text = { Text(text = errorMessage) },
             confirmButton = {
-                Button(
-                    onClick = { showDialog = false }
-                ) {
+                Button(onClick = { showDialog = false }) {
                     Text("OK")
                 }
             }
@@ -813,9 +805,7 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
             title = { Text("Confirm Reset") },
             text = { Text("Are you sure you want to reset all fields?") },
             dismissButton = {
-                Button(
-                    onClick = { showResetDialog = false }
-                ) {
+                Button(onClick = { showResetDialog = false }) {
                     Text("No")
                 }
             },
@@ -828,19 +818,18 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
                 ) {
                     Text("Yes")
                 }
-            },
+            }
         )
     }
 }
 
+// Composable pour afficher une miniature à partir d'une URI locale
 @Composable
-fun PhotoThumbnail(
+fun PhotoThumbnailFromUri(
     uri: Uri,
     onRemove: () -> Unit
 ) {
-    Box(
-        modifier = Modifier.size(80.dp)
-    ) {
+    Box(modifier = Modifier.size(80.dp)) {
         AsyncImage(
             model = uri,
             contentDescription = "Selected photo",
@@ -851,17 +840,44 @@ fun PhotoThumbnail(
             contentScale = ContentScale.Crop
         )
 
-        // Bouton pour supprimer la photo
         Icon(
             imageVector = Icons.Default.Close,
             contentDescription = "Remove photo",
             tint = Color.White,
             modifier = Modifier
                 .align(Alignment.TopEnd)
-                .background(
-                    Color.Red.copy(alpha = 0.7f),
-                    CircleShape
-                )
+                .background(Color.Red.copy(alpha = 0.7f), CircleShape)
+                .padding(4.dp)
+                .size(16.dp)
+                .clickable { onRemove() }
+        )
+    }
+}
+
+// Composable pour afficher une miniature à partir d'une URL Firebase
+@Composable
+fun PhotoThumbnailFromUrl(
+    url: String,
+    onRemove: () -> Unit
+) {
+    Box(modifier = Modifier.size(80.dp)) {
+        AsyncImage(
+            model = url,
+            contentDescription = "Existing photo",
+            modifier = Modifier
+                .fillMaxSize()
+                .clip(RoundedCornerShape(8.dp))
+                .border(1.dp, Color.Gray, RoundedCornerShape(8.dp)),
+            contentScale = ContentScale.Crop
+        )
+
+        Icon(
+            imageVector = Icons.Default.Close,
+            contentDescription = "Remove photo",
+            tint = Color.White,
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .background(Color.Red.copy(alpha = 0.7f), CircleShape)
                 .padding(4.dp)
                 .size(16.dp)
                 .clickable { onRemove() }
@@ -938,6 +954,7 @@ fun InputFields(
         }
     }
 }
+
 fun generateUniqueUri(context: Context): Uri {
     val outputDirectory = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
     if (outputDirectory != null && !outputDirectory.exists()) {
@@ -971,7 +988,6 @@ fun uploadPhotosToFirebase(
     }
 
     uriList.forEach { uri ->
-        // Charger le bitmap depuis l'URI
         val bitmap: Bitmap? = try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                 val source = ImageDecoder.createSource(context.contentResolver, uri)
@@ -980,12 +996,11 @@ fun uploadPhotosToFirebase(
                 MediaStore.Images.Media.getBitmap(context.contentResolver, uri)
             }
         } catch (e: Exception) {
-            Log.e("PhotoCompression", "Erreur lors du chargement du bitmap: ${e.message}")
+            Log.e("PhotoCompression", "Erreur chargement bitmap: ${e.message}")
             null
         }
 
         if (bitmap == null) {
-            Log.e("PhotoCompression", "Bitmap null, upload ignoré pour $uri")
             uploadCount++
             if (uploadCount == uriList.size) {
                 onUploadSuccess(uploadedUrls)
@@ -998,15 +1013,11 @@ fun uploadPhotosToFirebase(
         val data = baos.toByteArray()
 
         val photoRef = storageRef.child("Post/${System.currentTimeMillis()}_${uri.lastPathSegment}")
-        Log.d("FirebaseUpload", "Uploading compressed image for URI: $uri")
 
-        val uploadTask = photoRef.putBytes(data)
-        uploadTask
+        photoRef.putBytes(data)
             .addOnSuccessListener {
                 photoRef.downloadUrl.addOnSuccessListener { downloadUri ->
-                    val url = downloadUri.toString()
-                    Log.d("FirebaseUpload", "Uploaded URL: $url")
-                    uploadedUrls.add(url)
+                    uploadedUrls.add(downloadUri.toString())
                     uploadCount++
                     if (uploadCount == uriList.size) {
                         onUploadSuccess(uploadedUrls)
@@ -1024,26 +1035,26 @@ fun uploadPhotosToFirebase(
 }
 
 fun saveArticleToFirestore(
-    userId: String ,
-    title: String ,
-    description: String ,
-    price: String ,
-    category: String ,
-    type: String ,
-    state: String ,
-    couleurs: Set<String> ,
-    matieres: Set<String> ,
-    size: String ,
-    colis: String ,
-    isAvailable: Boolean ,
-    photoUrls: List<Uri> ,
-    productId: String? = null // Ajout du paramètre productId
+    userId: String,
+    title: String,
+    description: String,
+    price: String,
+    category: String,
+    type: String,
+    state: String,
+    couleurs: Set<String>,
+    matieres: Set<String>,
+    size: String,
+    colis: String,
+    isAvailable: Boolean,
+    photoUrls: List<String>, // Toujours des URLs ici
+    productId: String? = null
 ) {
-    Log.d("Firestore", "Photo URLs: $photoUrls")
+    Log.d("Firestore", "Saving with Photo URLs: $photoUrls")
 
     val formattedTitle = formatTitle(title)
     val calendar = Calendar.getInstance(Locale.FRANCE)
-    val dateFormat = SimpleDateFormat("yyyy-MM-dd-HH-mm-ss")
+    val dateFormat = SimpleDateFormat("yyyy-MM-dd-HH-mm-ss", Locale.FRANCE)
     val currentDate = dateFormat.format(calendar.time)
 
     val db = Firebase.firestore
@@ -1060,12 +1071,11 @@ fun saveArticleToFirestore(
         "material" to matieres.toList(),
         "colis" to colis,
         "available" to isAvailable,
-        "photos" to photoUrls,
+        "photos" to photoUrls, // URLs Firebase
         "dateCreation" to currentDate,
     )
 
     if (productId != null) {
-        // Mise à jour du document existant
         db.collection("Post")
             .document(productId)
             .set(article)
@@ -1076,7 +1086,6 @@ fun saveArticleToFirestore(
                 Log.e("Firestore", "Erreur lors de la mise à jour : ${exception.message}")
             }
     } else {
-        // Création d'un nouveau document
         db.collection("Post")
             .add(article)
             .addOnSuccessListener { documentReference ->
@@ -1088,13 +1097,8 @@ fun saveArticleToFirestore(
     }
 }
 
-
-
 fun formatTitle(title: String): String {
-    // Supprimer uniquement les espaces superflus
     val cleanedTitle = title.trim()
-
-    // Mettre la première lettre en majuscule et le reste en minuscules
     return if (cleanedTitle.isNotEmpty()) {
         cleanedTitle.lowercase().replaceFirstChar { it.uppercase() }
     } else {

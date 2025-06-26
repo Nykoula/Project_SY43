@@ -30,8 +30,15 @@ class SellViewModel : ViewModel(){
     var selectedSize = mutableStateOf("")
     var selectedColis = mutableStateOf("")
     var dateCreation = mutableStateOf("")
-    var productPhotoUri = mutableStateOf<List<Uri>>(emptyList())
+
+    // URI locales pour l'affichage des images sélectionnées
+    var productPhotoUris = mutableStateOf<List<Uri>>(emptyList())
         private set
+
+    // URLs Firebase pour la base de données
+    var productPhotoUrls = mutableStateOf<List<String>>(emptyList())
+        private set
+
     var searchResults = mutableStateListOf<SellViewModel>()
     var isAvailable = mutableStateOf(true)
 
@@ -96,23 +103,39 @@ class SellViewModel : ViewModel(){
         dateCreation.value = date
     }
 
+    // Ajouter une URI locale (pour l'affichage)
     fun addProductPhotoUri(uri: Uri) {
-        val currentList = productPhotoUri.value.toMutableList()
+        val currentList = productPhotoUris.value.toMutableList()
         if (!currentList.contains(uri)) {
             currentList.add(uri)
-            productPhotoUri.value = currentList
+            productPhotoUris.value = currentList
         }
     }
 
-    //remplace toutes les photos de la liste en une seule fois
-    fun setProductPhotoUris(uris: List<Uri>) {
-        productPhotoUri.value = uris
+    // Supprimer une URI locale
+    fun removeProductPhotoUri(uri: Uri) {
+        val currentList = productPhotoUris.value.toMutableList()
+        currentList.remove(uri)
+        productPhotoUris.value = currentList
     }
 
-    fun removeProductPhotoUri(uri: Uri) {
-        val currentList = productPhotoUri.value.toMutableList()
-        currentList.remove(uri)
-        productPhotoUri.value = currentList
+    // Remplacer toutes les URIs locales
+    fun setProductPhotoUris(uris: List<Uri>) {
+        productPhotoUris.value = uris
+    }
+
+    // Ajouter une URL Firebase (pour la DB)
+    fun addProductPhotoUrl(url: String) {
+        val currentList = productPhotoUrls.value.toMutableList()
+        if (!currentList.contains(url)) {
+            currentList.add(url)
+            productPhotoUrls.value = currentList
+        }
+    }
+
+    // Remplacer toutes les URLs Firebase
+    fun setProductPhotoUrls(urls: List<String>) {
+        productPhotoUrls.value = urls
     }
 
     fun loadItem(itemId: String) {
@@ -135,20 +158,14 @@ class SellViewModel : ViewModel(){
                 isAvailable.value = item.available
                 dateCreation.value = item.dateCreation
 
-                // CORRECTION IMPORTANTE: Convertir les URLs en Uri
-                val photoUris = item.photos.mapNotNull { photoUrl ->
-                    try {
-                        Uri.parse(photoUrl)
-                    } catch (e: Exception) {
-                        Log.e("SellViewModel", "Erreur conversion URL vers Uri: $photoUrl", e)
-                        null
-                    }
-                }
-                productPhotoUri.value = photoUris
+                // Charger les URLs Firebase (pour l'édition)
+                productPhotoUrls.value = item.photos ?: emptyList()
 
-                Log.d("SellViewModel", "Photos loaded: ${photoUris.size} photos")
-                photoUris.forEachIndexed { index, uri ->
-                    Log.d("SellViewModel", "Photo $index: $uri")
+                // Pour l'édition, on garde les URIs vides car on affichera les URLs
+                productPhotoUris.value = emptyList()
+
+                productPhotoUrls.value.forEachIndexed { index, url ->
+                    Log.d("SellViewModel", "Photo $index: $url")
                 }
             } else {
                 Log.e("SellViewModel", "Item not found for ID: $itemId")
@@ -170,6 +187,7 @@ class SellViewModel : ViewModel(){
         selectedColis.value = ""
         isAvailable.value = true
         dateCreation.value = ""
-        productPhotoUri.value = emptyList()
+        productPhotoUris.value = emptyList()
+        productPhotoUrls.value = emptyList()
     }
 }

@@ -223,69 +223,8 @@ class ConversationRepository(
     }
 
     /**
-     * Gets or creates a conversation between buyer and seller for a product.
-     */
-    suspend fun getOrCreateConversation(
-        buyerId: String,
-        sellerId: String,
-        productId: String
-    ): Result<String> {
-        if (buyerId.isBlank() || sellerId.isBlank() || productId.isBlank()) {
-            return Result.failure(IllegalArgumentException("Buyer ID, Seller ID, and Product ID cannot be blank."))
-        }
-        if (buyerId == sellerId) {
-            return Result.failure(IllegalArgumentException("Buyer ID and Seller ID cannot be the same."))
-        }
-
-        return try {
-            // Search for existing conversation
-            val querySnapshot = firestore.collection("conversations")
-                .whereEqualTo("productId", productId)
-                .whereEqualTo("buyerId", buyerId)
-                .whereEqualTo("sellerId", sellerId)
-                .limit(1)
-                .get()
-                .await()
-
-            if (!querySnapshot.isEmpty) {
-                val existingConversationId = querySnapshot.documents[0].id
-                Log.d("ConvRepo", "Found existing conversation: $existingConversationId")
-                return Result.success(existingConversationId)
-            }
-
-            // Create new conversation
-            Log.d("ConvRepo", "Creating new conversation for product $productId between $buyerId and $sellerId.")
-            val newConversationRef = firestore.collection("conversations").document()
-            val newConversationId = newConversationRef.id
-
-            val participantsList = listOf(buyerId, sellerId)
-
-            val conversationData = hashMapOf(
-                "buyerId" to buyerId,
-                "sellerId" to sellerId,
-                "productId" to productId,
-                "participants" to participantsList,
-                "lastMessageText" to null,
-                "lastMessageTimestamp" to FieldValue.serverTimestamp(),
-                "lastMessageSenderId" to "",
-                "currentNegotiatedPrice" to 0.0,
-                "otherUserName" to null,
-                "productImageUrl" to null
-            )
-
-            newConversationRef.set(conversationData).await()
-            Log.d("ConvRepo", "Successfully created new conversation: $newConversationId")
-            Result.success(newConversationId)
-
-        } catch (e: Exception) {
-            Log.e("ConvRepo", "Error getting or creating conversation", e)
-            Result.failure(e)
-        }
-    }
-
-    /**
      * Fetches all conversations where the current user is a participant.
-     * CORRECTION MAJEURE : Utilise 'participants' au lieu de 'participant'
+     * AMÉLIORATION : Collection "Person" au lieu de "users"
      */
     suspend fun getConversationsForCurrentUser(): Result<List<Conversation>> {
         val currentUserId = auth.currentUser?.uid
@@ -295,7 +234,6 @@ class ConversationRepository(
         }
 
         return try {
-            // CORRECTION : whereArrayContains avec 'participants' (pluriel)
             val querySnapshot = firestore.collection("conversations")
                 .whereArrayContains("participants", currentUserId)
                 .get()
@@ -313,20 +251,20 @@ class ConversationRepository(
                     val otherUserId = participants?.find { it != currentUserId }
 
                     if (otherUserId != null) {
-                        // Récupérer le nom de l'autre utilisateur
+                        // CORRECTION : Utiliser la collection "Person" au lieu de "users"
                         try {
-                            val userDoc = firestore.collection("users").document(otherUserId).get().await()
+                            val userDoc = firestore.collection("Person").document(otherUserId).get().await()
                             val firstName = userDoc.getString("firstName")
                             val lastName = userDoc.getString("lastName")
                             conversation?.otherUserName = when {
                                 !firstName.isNullOrBlank() && !lastName.isNullOrBlank() -> "$firstName $lastName"
                                 !firstName.isNullOrBlank() -> firstName
                                 !lastName.isNullOrBlank() -> lastName
-                                else -> "Unknown User"
+                                else -> "Utilisateur inconnu"
                             }
                         } catch (e: Exception) {
                             Log.e("ConvRepo", "Error fetching user name for $otherUserId", e)
-                            conversation?.otherUserName = "Unknown User"
+                            conversation?.otherUserName = "Utilisateur inconnu"
                         }
                     }
 
@@ -362,14 +300,14 @@ class ConversationRepository(
     }
 
     /**
-     * Fetches display names for a list of user IDs.
+     * AMÉLIORATION : Utilise la collection "Person" au lieu de "users"
      */
     suspend fun fetchUserNamesInBatch(userIds: List<String>): Result<Map<String, String?>> {
         if (userIds.isEmpty()) return Result.success(emptyMap())
         val usersMap = mutableMapOf<String, String?>()
         try {
             userIds.chunked(30).forEach { chunk ->
-                val usersSnapshot = firestore.collection("users")
+                val usersSnapshot = firestore.collection("Person") // CHANGEMENT ICI
                     .whereIn(FieldPath.documentId(), chunk)
                     .get()
                     .await()
@@ -380,7 +318,7 @@ class ConversationRepository(
                         !firstName.isNullOrBlank() && !lastName.isNullOrBlank() -> "$firstName $lastName"
                         !firstName.isNullOrBlank() -> firstName
                         !lastName.isNullOrBlank() -> lastName
-                        else -> "Unknown User"
+                        else -> "Utilisateur inconnu"
                     }
                     usersMap[document.id] = fullName
                 }
@@ -414,6 +352,31 @@ class ConversationRepository(
         } catch (e: Exception) {
             Log.e("ConvRepo", "Error fetching product images in batch", e)
             return Result.failure(e)
+        }
+    }
+
+    /**
+     * NOUVELLE FONCTION : Récupère le nom d'un utilisateur spécifique
+     */
+    suspend fun getUserName(userId: String): Result<String> {
+        return try {
+            val userDoc = firestore.collection("Person").document(userId).get().await()
+            if (userDoc.exists()) {
+                val firstName = userDoc.getString("firstName")
+                val lastName = userDoc.getString("lastName")
+                val fullName = when {
+                    !firstName.isNullOrBlank() && !lastName.isNullOrBlank() -> "$firstName $lastName"
+                    !firstName.isNullOrBlank() -> firstName
+                    !lastName.isNullOrBlank() -> lastName
+                    else -> "Utilisateur inconnu"
+                }
+                Result.success(fullName)
+            } else {
+                Result.success("Utilisateur inconnu")
+            }
+        } catch (e: Exception) {
+            Log.e("ConvRepo", "Error fetching user name for $userId", e)
+            Result.failure(e)
         }
     }
 

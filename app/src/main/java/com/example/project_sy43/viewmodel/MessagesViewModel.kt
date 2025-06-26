@@ -1,21 +1,13 @@
 package com.example.project_sy43.viewmodel
 
 
-import androidx.compose.animation.core.copy
-
 // In com.example.project_sy43.ui.theme.screens or a viewmodel package
 //package com.example.project_sy43.ui.messages // Or your viewmodel package
 
 import android.util.Log
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.Query
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.firestore.ktx.toObject
-import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -23,20 +15,13 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
 
-import com.example.project_sy43.viewmodel.MessagesViewModel
-import com.example.project_sy43.viewmodel.ProductViewModel
 import com.google.firebase.auth.FirebaseAuth
 
 
-import androidx.lifecycle.viewModelScope
 import com.example.project_sy43.model.Conversation
-import com.example.project_sy43.model.Message // Si vous avez besoin de trier par timestamp ou autre
 import com.example.project_sy43.repository.ConversationRepository
 
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
 
 
 class MessagesViewModel(
@@ -65,29 +50,40 @@ class MessagesViewModel(
     private val usersNameCache = mutableMapOf<String, String?>()
     private val productImagesCache = mutableMapOf<String, String?>()
 
-    suspend fun createOrGetConversationWithUser(otherUserId: String, productId: String): String {
+    suspend fun createConversation(otherUserId: String , productId: String): String {
         val currentUserId = auth.currentUser?.uid ?: throw IllegalStateException("User not logged in")
+        val db = FirebaseFirestore.getInstance()
 
-        // Chercher conversation existante
-        val existingConversationsResult = conversationRepository.getConversationsForCurrentUser()
-        val existingConversation = existingConversationsResult.getOrNull()?.find { conv ->
-            conv.participants.contains(otherUserId) &&
-                    conv.participants.contains(currentUserId) &&
-                    conv.productId == productId
-        }
-        if (existingConversation != null) {
-            return existingConversation.id
+        // Récupération synchrone du document produit
+        val document = try {
+            db.collection("Post")
+                .document(productId)
+                .get()
+                .await()
+        } catch (e: Exception) {
+            Log.e("MessagesViewModel", "Erreur lors de la récupération du post : $e")
+            null
         }
 
-        // Sinon, créer une nouvelle conversation
+        val photos = document?.get("photos") as? List<String> ?: emptyList()
+        val firstPhoto = photos.firstOrNull()
+        val currentPrice = document?.get("price") as? Double ?: 0.0
+
+        Log.d("MessagesViewModelCreation", "Photos trouvées: $photos")
+        Log.d("MessagesViewModelCreation", "Première photo: $firstPhoto")
+        Log.d("MessagesViewModelCreation", "Prix actuel: $currentPrice")
+
         val newConversation = Conversation(
             id = "", // Firestore générera l'ID
             participants = listOf(currentUserId, otherUserId),
+            buyerId = currentUserId,
+            sellerId = otherUserId,
             productId = productId,
+            currentNegotiatedPrice = currentPrice,
             lastMessageText = null,
             lastMessageTimestamp = null,
             otherUserName = null,
-            productImageUrl = null
+            productImageUrl = firstPhoto
         )
         val createdId = conversationRepository.createConversation(newConversation)
         return createdId

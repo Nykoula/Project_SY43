@@ -56,7 +56,6 @@ import com.example.project_sy43.viewmodel.PersonViewModel
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlin.collections.isNotEmpty
 import kotlin.text.isNotEmpty
-import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.launch
 import androidx.compose.runtime.rememberCoroutineScope
 import com.example.project_sy43.viewmodel.MessagesViewModel
@@ -232,14 +231,15 @@ fun ClothingDetailView(
                             .padding(horizontal = 16.dp , vertical = 8.dp) ,
                         horizontalArrangement = Arrangement.SpaceEvenly
                     ) {
+
                         Button(
-                            onClick = {
-                                navController.navigate("${VintedScreen.ResumeBeforePurchaseScreen.name}/${clothing?.id}/${clothing?.price}")
-                            } ,
-                            modifier = Modifier.weight(1f)
-                        ) {
-                            Text("Acheter")
-                        }
+                        onClick = {
+                            navController.navigate("${VintedScreen.ResumeBeforePurchaseScreen.name}/${clothing?.id}/${clothing?.price}")
+                        } ,
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text("Acheter")
+                    }
 
                         Spacer(modifier = Modifier.width(16.dp))
 
@@ -250,34 +250,33 @@ fun ClothingDetailView(
                                         isCreatingConversation = true
                                         coroutineScope.launch {
                                             try {
-                                                val conversationId = messagesViewModel.createOrGetConversationWithUser(
+                                                // Vérifie ou crée la conversation
+                                                val conversationId = messagesViewModel.createConversation(
                                                     otherUserId = product.userId,
                                                     productId = product.id
                                                 )
-                                                messagesViewModel.refreshConversations() // Force le rechargement
+
+                                                // Recharge les conversations (utile si nouvellement créée)
+                                                messagesViewModel.refreshConversations()
+
+                                                // Navigation vers la conversation
                                                 navController.navigate("${VintedScreen.Conversation.name}/$conversationId")
                                             } catch (e: Exception) {
-                                                // Gérer l'erreur (ex: Toast, Snackbar, Log)
-                                                // Exemple simple :
-                                                Log.e(
-                                                    "ClothingDetailView" ,
-                                                    "Erreur création conversation" ,
-                                                    e
-                                                )
+                                                Log.e("ClothingDetailView", "Erreur conversation", e)
                                             } finally {
                                                 isCreatingConversation = false
                                             }
                                         }
                                     }
                                 }
-                            } ,
-                            modifier = Modifier.weight(1f) ,
+                            },
+                            modifier = Modifier.weight(1f),
                             enabled = !isCreatingConversation
                         ) {
                             if (isCreatingConversation) {
                                 CircularProgressIndicator(
-                                    modifier = Modifier.size(20.dp) ,
-                                    strokeWidth = 2.dp ,
+                                    modifier = Modifier.size(20.dp),
+                                    strokeWidth = 2.dp,
                                     color = MaterialTheme.colorScheme.onPrimary
                                 )
                             } else {
