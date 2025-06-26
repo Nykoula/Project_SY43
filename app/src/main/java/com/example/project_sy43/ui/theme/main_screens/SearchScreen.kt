@@ -272,24 +272,24 @@ fun performSearch(
                     val title = document.getString("title") ?: ""
                     val formattedTitle = formatTitle(title)
                     val isAvailable = document.getBoolean("available") != false
+
                     if (formattedTitle.contains(formattedSearchQuery) && isAvailable) {
-                        SellViewModel().apply {
-                            productTitle.value = title
-                            productPrice.value = document.getDouble("price")?.toString() ?: "0.0"
-                            productDescription.value = document.getString("description") ?: ""
-                            selectedState.value = document.getString("state") ?: ""
-                            productId.value = document.id
+                        val vm = SellViewModel()
 
-                            val dateCreationValue = document.getString("dateCreation") ?: ""
-                            dateCreation.value = dateCreationValue
-                            Log.d("SearchFunction", "Date from DB: $dateCreationValue")
+                        vm.setProductTitle(title)
+                        vm.setProductPrice(document.getDouble("price")?.toString() ?: "0.0")
+                        vm.setProductDescription(document.getString("description") ?: "")
+                        vm.setProductState(document.getString("state") ?: "")
+                        vm.productId.value = document.id
+                        vm.setdateCreation(document.getString("dateCreation") ?: "")
 
-                            val photos = document.get("photos") as? List<String> ?: emptyList()
-                            setProductPhotoUris(photos.map { Uri.parse(it) })
-                        }
-                    } else {
-                        null
-                    }
+                        val photoUrls = document.get("photos") as? List<String> ?: emptyList()
+                        vm.setProductPhotoUrls(photoUrls)
+
+                        Log.d("performSearch", "Post ${document.id} loaded with ${photoUrls.size} photos")
+
+                        vm
+                    } else null
                 } catch (e: Exception) {
                     Log.e("SearchFunction", "Error mapping document to SellViewModel", e)
                     null
