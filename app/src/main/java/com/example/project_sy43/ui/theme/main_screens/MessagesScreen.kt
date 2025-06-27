@@ -39,6 +39,8 @@ import com.example.project_sy43.R
 import com.example.project_sy43.model.Conversation
 import com.example.project_sy43.navigation.VintedScreen
 import com.example.project_sy43.ui.theme.components.VintedTopBar
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.google.firebase.auth.FirebaseAuth
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -148,22 +150,30 @@ fun Messages(
                 }
 
                 else -> {
-                    LazyColumn(
-                        modifier = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(vertical = 8.dp)
+                    val swipeRefreshState = rememberSwipeRefreshState(isRefreshing = isLoading)
+
+                    SwipeRefresh(
+                        state = swipeRefreshState,
+                        onRefresh = { messagesViewModel.refreshConversations() },
+                        modifier = Modifier.fillMaxSize()
                     ) {
-                        items(conversations, key = { it.id }) { conversation ->
-                            ConversationItem(
-                                conversation = conversation,
-                                onItemClick = { conversationId ->
-                                    navController.navigate("${VintedScreen.Conversation.name}/$conversationId")
-                                },
-                                onImageClick = { productId ->
-                                    productId?.let {
-                                        navController.navigate("${VintedScreen.ArticleDetail.name}/$it")
+                        LazyColumn(
+                            modifier = Modifier.fillMaxSize(),
+                            contentPadding = PaddingValues(vertical = 8.dp)
+                        ) {
+                            items(conversations, key = { it.id }) { conversation ->
+                                ConversationItem(
+                                    conversation = conversation,
+                                    onItemClick = { conversationId ->
+                                        navController.navigate("${VintedScreen.Conversation.name}/$conversationId")
+                                    },
+                                    onImageClick = { productId ->
+                                        productId?.let {
+                                            navController.navigate("${VintedScreen.ArticleDetail.name}/$it")
+                                        }
                                     }
-                                }
-                            )
+                                )
+                            }
                         }
                     }
                 }

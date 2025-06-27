@@ -99,6 +99,7 @@ dependencies {
     implementation ("androidx.compose.material3:material3:latest-stable-version")
 
     implementation ("androidx.appcompat:appcompat:1.6.1")
+    implementation ("com.google.accompanist:accompanist-swiperefresh:0.30.1")
 
 
     //For the message input row
