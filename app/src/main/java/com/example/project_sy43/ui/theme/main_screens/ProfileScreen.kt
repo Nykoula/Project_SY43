@@ -31,6 +31,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import androidx.compose.foundation.Image
 import android.provider.Settings
+import androidx.compose.ui.layout.ContentScale
 
 
 @Composable
@@ -115,7 +116,8 @@ fun Profile(
                                 Image(
                                     painter = rememberAsyncImagePainter(userPhotoUrl),
                                     contentDescription = "Photo de profil",
-                                    modifier = Modifier.fillMaxSize()
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentScale = ContentScale.Crop
                                 )
                             } else {
                                 Icon(
