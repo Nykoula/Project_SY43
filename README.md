@@ -45,4 +45,6 @@ __**Photo de profil :**__
 __**Détails sur l'article :**__
 - Le bouton "négocier" ne recréer pas une autre conversation si une existe déjà avec cette utilisateur sur ce produit
 
+__**Scénario Test :**__
+- Ajout d'un scénario test classique : inscription + connexion
 
