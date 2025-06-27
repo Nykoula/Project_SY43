@@ -46,18 +46,23 @@ class MessagesViewModel(
     private val usersNameCache = mutableMapOf<String, String?>()
     private val productImagesCache = mutableMapOf<String, String?>()
 
-    suspend fun createConversation(otherUserId: String , productId: String): String {
-        val currentUserId = auth.currentUser?.uid ?: throw IllegalStateException("User not logged in")
-        val db = FirebaseFirestore.getInstance()
 
-        // Récupération synchrone du document produit
+    suspend fun createConversation(otherUserId: String, productId: String): String {
+        val currentUserId = auth.currentUser?.uid ?: throw IllegalStateException("User not logged in")
+
+        // ✅ Étape 1 : chercher une conversation existante
+        val existingId = conversationRepository.findExistingConversation(otherUserId, productId)
+        if (existingId != null) {
+            Log.d("MessagesViewModel", "Conversation déjà existante: $existingId")
+            return existingId
+        }
+
+        // Étape 2 : Récupérer les infos produit comme avant
+        val db = FirebaseFirestore.getInstance()
         val document = try {
-            db.collection("Post")
-                .document(productId)
-                .get()
-                .await()
+            db.collection("Post").document(productId).get().await()
         } catch (e: Exception) {
-            Log.e("MessagesViewModel", "Erreur lors de la récupération du post : $e")
+            Log.e("MessagesViewModel", "Erreur récupération post : $e")
             null
         }
 
@@ -65,10 +70,7 @@ class MessagesViewModel(
         val firstPhoto = photos.firstOrNull()
         val currentPrice = document?.get("price") as? Double ?: 0.0
 
-        Log.d("MessagesViewModelCreation", "Photos trouvées: $photos")
-        Log.d("MessagesViewModelCreation", "Première photo: $firstPhoto")
-        Log.d("MessagesViewModelCreation", "Prix actuel: $currentPrice")
-
+        // Étape 3 : Créer une nouvelle conversation
         val newConversation = Conversation(
             id = "",
             participants = listOf(currentUserId, otherUserId),
@@ -84,6 +86,7 @@ class MessagesViewModel(
         val createdId = conversationRepository.createConversation(newConversation)
         return createdId
     }
+
 
 
 

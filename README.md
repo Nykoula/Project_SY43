@@ -23,6 +23,7 @@ __**Messagerie :**__
 - Les conversations se créent automatiquement lorsqu'un message est envoyé
 - Les conversations sont ordonnées par date
 - On voit un aperçu du dernier message et de qui il a été envoyé
+- On peut cliquer sur l'image pour voir de nouveau les détails de l'article
 
 __**Achats :**__
 - Une page a été rajouté pour finaliser l'achat en mettant sa carte, son nom et son adresse (les données ne sont
@@ -39,4 +40,7 @@ __**Dressing :**__
 
 __**Photo de profil :**__ 
 - Le soucis éphémère qui faisait que l'appli crashait quand on voulait en mettre une est résolue
+
+__**Détails sur l'article :**__
+- Le bouton "négocier" ne recréer pas une autre conversation si une existe déjà avec cette utilisateur sur ce produit
 

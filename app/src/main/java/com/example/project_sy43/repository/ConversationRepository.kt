@@ -21,6 +21,29 @@ class ConversationRepository(
 
     private fun getCurrentUserId(): String? = auth.currentUser?.uid
 
+    suspend fun findExistingConversation(otherUserId: String, productId: String): String? {
+        val currentUserId = getCurrentUserId() ?: return null
+        return try {
+            val querySnapshot = firestore.collection("conversations")
+                .whereEqualTo("productId", productId)
+                .whereArrayContains("participants", currentUserId)
+                .get()
+                .await()
+
+            for (document in querySnapshot.documents) {
+                val participants = document.get("participants") as? List<*>
+                if (participants != null && participants.contains(otherUserId)) {
+                    return document.id // Conversation déjà existante
+                }
+            }
+            null
+        } catch (e: Exception) {
+            Log.e("ConvRepo", "Erreur lors de la recherche de conversation existante", e)
+            null
+        }
+    }
+
+
     /**
      * Fetches the main conversation document details.
      */
