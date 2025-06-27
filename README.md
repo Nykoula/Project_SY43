@@ -37,4 +37,6 @@ __**Navigation :**__
 __**Dressing :**__
 - Il n'est plus possible de modifier ou de supprimer ses articles vendus
 
+__**Photo de profil :**__ 
+- Le soucis éphémère qui faisait que l'appli crashait quand on voulait en mettre une est résolue
 

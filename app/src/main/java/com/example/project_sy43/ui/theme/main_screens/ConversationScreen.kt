@@ -116,7 +116,7 @@ fun ConversationScreen(
                             onAcceptOffer = { messageId, price ->
                                 viewModel.acceptOffer(messageId, price)
                             },
-                            canAcceptOffer = viewModel.isCurrentUserSeller() && !isCurrentUser,
+                            canAcceptOffer = !isCurrentUser && !viewModel.isOfferAccepted(message.id),
                             isOfferAccepted = viewModel.isOfferAccepted(message.id),
                             showBuyButton = viewModel.isOfferAccepted(message.id) && viewModel.isCurrentUserBuyer(),
                             onBuy = {
