@@ -48,3 +48,9 @@ __**Détails sur l'article :**__
 __**Scénario Test :**__
 - Ajout d'un scénario test classique : inscription + connexion
 
+
+## Pour se connecter
+
+Si vous souhaitez utiliser déjà un compte existant, vous pouvez mettre :
+utilisateur : f.t@gmail.com
+password : 123456
