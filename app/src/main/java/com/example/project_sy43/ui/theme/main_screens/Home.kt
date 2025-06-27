@@ -36,13 +36,12 @@ import androidx.navigation.NavController
 import coil.compose.rememberImagePainter
 import com.example.project_sy43.navigation.VintedScreen
 import com.example.project_sy43.ui.theme.components.VintedBottomBar
-import com.example.project_sy43.viewmodel.ProductViewModel
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
-
+// Data class representing a post with relevant fields
 data class Post(
     val title: String = "" ,
     val taille: String = "" ,
@@ -56,14 +55,17 @@ data class Post(
 fun MonCompte(
     navController: NavController
 ) {
+    // State holding the list of posts to display
     var posts by remember { mutableStateOf<List<Post>>(emptyList()) }
+    // State controlling how many posts to display in the second section
     var displayCount by remember { mutableStateOf(10) }
+    // State indicating if a refresh is in progress
     var isRefreshing by remember { mutableStateOf(false) }
 
     val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
     val db = FirebaseFirestore.getInstance()
 
-    // Fonction pour charger les posts
+    // Function to load posts from Firestore excluding current user's posts
     fun loadPosts() {
         isRefreshing = true
         db.collection("Post")
@@ -94,7 +96,7 @@ fun MonCompte(
             }
     }
 
-    // Chargement initial
+    // Initial load of posts when composable is first launched
     LaunchedEffect(Unit) {
         loadPosts()
     }

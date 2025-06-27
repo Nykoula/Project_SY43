@@ -74,7 +74,6 @@ fun PurchaseScreenWithNegotiatedPrice(
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            // Donne un poids à ClothingDetailView pour qu'il prenne l'espace restant
             Box(
                 modifier = Modifier
                     .weight(1f)

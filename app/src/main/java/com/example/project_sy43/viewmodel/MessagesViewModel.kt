@@ -1,10 +1,5 @@
 package com.example.project_sy43.viewmodel
 
-
-// In com.example.project_sy43.ui.theme.screens or a viewmodel package
-//package com.example.project_sy43.ui.messages // Or your viewmodel package
-
-
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -19,42 +14,47 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
-
 class MessagesViewModel(
     private val conversationRepository: ConversationRepository ,
     private val auth: FirebaseAuth
 ) : ViewModel() {
 
+    // Secondary constructor initializing repository and auth with default Firebase instances
     constructor() : this(
         ConversationRepository(FirebaseFirestore.getInstance() , FirebaseAuth.getInstance()) ,
         FirebaseAuth.getInstance()
     )
 
+    // StateFlow holding the list of conversations
     private val _conversations = MutableStateFlow<List<Conversation>>(emptyList())
     val conversations: StateFlow<List<Conversation>> = _conversations.asStateFlow()
 
+    // StateFlow indicating if conversations are loading
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
+    // StateFlow holding error messages for the UI
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error.asStateFlow()
 
+    // Cache for user names to avoid repeated fetches
     private val usersNameCache = mutableMapOf<String , String?>()
+    // Cache for product images URLs to avoid repeated fetches
     private val productImagesCache = mutableMapOf<String , String?>()
 
-
+    // Create a new conversation or return existing one for given user and product
     suspend fun createConversation(otherUserId: String , productId: String): String {
         val currentUserId =
             auth.currentUser?.uid ?: throw IllegalStateException("User not logged in")
 
-        // ✅ Étape 1 : chercher une conversation existante
+        // Step 1: Check if a conversation already exists
         val existingId = conversationRepository.findExistingConversation(otherUserId , productId)
         if (existingId != null) {
             Log.d("MessagesViewModel" , "Conversation déjà existante: $existingId")
             return existingId
         }
 
-        // Étape 2 : Récupérer les infos produit comme avant
+        // Step 2: Retrieve product info from Firestore
         val db = FirebaseFirestore.getInstance()
         val document = try {
             db.collection("Post").document(productId).get().await()
@@ -67,7 +67,7 @@ class MessagesViewModel(
         val firstPhoto = photos.firstOrNull()
         val currentPrice = document?.get("price") as? Double ?: 0.0
 
-        // Étape 3 : Créer une nouvelle conversation
+        // Step 3: Create a new conversation object
         val newConversation = Conversation(
             id = "" ,
             participants = listOf(currentUserId , otherUserId) ,
@@ -84,7 +84,7 @@ class MessagesViewModel(
         return createdId
     }
 
-
+    // Initialization block to listen for auth state changes and fetch conversations accordingly
     init {
         auth.addAuthStateListener { firebaseAuth ->
             if (firebaseAuth.currentUser != null) {
@@ -92,6 +92,7 @@ class MessagesViewModel(
                     fetchConversations()
                 }
             } else {
+                // Clear state and caches when user logs out
                 _conversations.value = emptyList()
                 _isLoading.value = false
                 _error.value = null
@@ -102,6 +103,7 @@ class MessagesViewModel(
         if (auth.currentUser != null) fetchConversations()
     }
 
+    // Fetch conversations for the current user
     fun fetchConversations() {
         if (_isLoading.value) return
         Log.d("MessagesViewModel" , "fetchConversations called")
@@ -129,12 +131,14 @@ class MessagesViewModel(
                     )
                     if (rawConversations.isEmpty()) {
                         _conversations.value = emptyList()
-                        _isLoading.value = false // Important de le mettre ici aussi
+                        _isLoading.value = false // Important to set loading false here as well
                         return@fold
                     }
+                    // Enrich conversations with user names and product images
                     val enrichedConversations =
                         enrichConversationsList(rawConversations , currentUserId)
 
+                    // Sort conversations by last message timestamp descending
                     _conversations.value = enrichedConversations.sortedWith(
                         compareByDescending { it.lastMessageTimestamp }
                     )
@@ -153,27 +157,31 @@ class MessagesViewModel(
         }
     }
 
+    // Enrich conversations by fetching other user names and product images in batch
     private suspend fun enrichConversationsList(
         conversations: List<Conversation> ,
         currentUserId: String
     ): List<Conversation> {
         Log.d("MessagesViewModel" , "Starting enrichment for ${conversations.size} conversations.")
-        // Collect all unique IDs needed for enrichment
+        // Extract unique other user IDs excluding current user
         val otherUserIds =
             conversations.mapNotNull { it.participants.firstOrNull { p -> p != currentUserId } }
                 .distinct()
+        // Extract unique product IDs that are not blank
         val productIdsToFetch =
             conversations.mapNotNull { if (it.productId.isNotBlank()) it.productId else null }
                 .distinct()
         Log.d("MessagesViewModelDebug" , "otherUserId ${otherUserIds} ")
         Log.d("MessagesViewModelDebug" , "productIdsToFetch ${productIdsToFetch} ")
 
+        // Asynchronously fetch user names in batch
         val userNamesDeferred = viewModelScope.async {
             if (otherUserIds.isNotEmpty()) conversationRepository.fetchUserNamesInBatch(otherUserIds) else Result.success(
                 emptyMap()
             )
         }
         Log.d("MessagesViewModel" , "User names fetch deferred : ${userNamesDeferred}")
+        // Asynchronously fetch product images in batch
         val productImagesDeferred = viewModelScope.async {
             if (productIdsToFetch.isNotEmpty()) conversationRepository.fetchProductImagesInBatch(
                 productIdsToFetch
@@ -181,9 +189,11 @@ class MessagesViewModel(
         }
         Log.d("MessagesViewModel" , "Product images fetch deferred : ${productImagesDeferred}")
 
+        // Await results of both fetches
         val userNamesResult = userNamesDeferred.await()
         val productImagesResult = productImagesDeferred.await()
 
+        // Extract maps or empty maps on failure
         val userNamesMap = userNamesResult.getOrElse {
             Log.e("MessagesViewModel" , "Failed to fetch user names in batch" , it)
             emptyMap()
@@ -193,9 +203,11 @@ class MessagesViewModel(
             emptyMap()
         }
 
+        // Update caches with fetched data
         userNamesMap.forEach { (id , name) -> usersNameCache[id] = name }
         productImagesMap.forEach { (id , url) -> productImagesCache[id] = url }
 
+        // Map each conversation to enriched version with user name and product image
         val enrichedList = conversations.map { conv ->
             val otherUserId = conv.participants.firstOrNull { it != currentUserId }
             val userName = otherUserId?.let { usersNameCache[it] }
@@ -204,8 +216,8 @@ class MessagesViewModel(
 
             conv.copy(
                 otherUserName = userName
-                    ?: conv.otherUserName , // Garde l'ancien si le nouveau est null (ou "Unknown User")
-                productImageUrl = imageUrl ?: conv.productImageUrl // Garde l'ancien
+                    ?: conv.otherUserName , // Keep old value if new is null
+                productImageUrl = imageUrl ?: conv.productImageUrl // Keep old value if new is null
             )
         }
         Log.d(
@@ -215,6 +227,7 @@ class MessagesViewModel(
         return enrichedList
     }
 
+    // Clear caches and refresh conversations
     fun refreshConversations() {
         usersNameCache.clear()
         productImagesCache.clear()

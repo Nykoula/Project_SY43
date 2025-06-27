@@ -99,8 +99,10 @@ fun SellScreen(
     itemId: String? = null
 ) {
 
+    // Remember the itemId to trigger loading when it changes
     val loadKey = remember(itemId) { itemId }
 
+    // Load the item details if itemId is provided and different from current productId
     LaunchedEffect(loadKey) {
         if (loadKey != null && sellViewModel.productId.value != loadKey) {
             sellViewModel.loadItem(loadKey)
@@ -125,16 +127,16 @@ fun SellScreen(
     var state by sellViewModel.selectedState
     var colis by sellViewModel.selectedColis
 
-    // États pour les menus déroulants
+    // States for dropdown menus
     var expandedCategory by remember { mutableStateOf(false) }
     var expandedState by remember { mutableStateOf(false) }
     var expandedColis by remember { mutableStateOf(false) }
     var showPhotoOptions by remember { mutableStateOf(false) }
 
-    // État pour gérer l'URI de la photo en cours
+    // State to hold the current photo URI for camera capture
     var currentPhotoUri by remember { mutableStateOf<Uri?>(null) }
 
-    // Launcher pour l'appareil photo
+    // Launcher for taking a picture with the camera
     val launcherCamera = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicture()
     ) { success ->
@@ -150,7 +152,7 @@ fun SellScreen(
         currentPhotoUri = null
     }
 
-    // Launcher pour les permissions
+    // Launcher for requesting camera permission
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { isGranted ->
@@ -164,7 +166,7 @@ fun SellScreen(
         }
     }
 
-    // Launcher pour la galerie
+    // Launcher for selecting an image from the gallery
     val launcherGallery = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
@@ -174,6 +176,7 @@ fun SellScreen(
         }
     }
 
+    // Validate all required fields before submission
     fun validateFields(): Boolean {
         val hasPhotos = sellViewModel.productPhotoUris.value.isNotEmpty() ||
                 sellViewModel.productPhotoUrls.value.isNotEmpty()
@@ -233,6 +236,7 @@ fun SellScreen(
         }
     }
 
+    // Handle taking a photo with permission checks
     fun takePhoto() {
         when {
             ContextCompat.checkSelfPermission(
@@ -261,7 +265,7 @@ fun SellScreen(
         }
     }
 
-    // Calculer le nombre total de photos
+    // Calculate total number of photos (local URIs + Firebase URLs)
     val totalPhotos =
         sellViewModel.productPhotoUris.value.size + sellViewModel.productPhotoUrls.value.size
 
@@ -287,6 +291,7 @@ fun SellScreen(
                 .padding(16.dp) ,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            // Button to reset all fields
             Button(
                 onClick = { showResetDialog = true } ,
                 colors = ButtonDefaults.buttonColors(
@@ -301,7 +306,7 @@ fun SellScreen(
                 Text(text = "Reset")
             }
 
-            // Section photos
+            // Photo section with add pictures button and dropdown menu
             Column {
                 Button(
                     onClick = { showPhotoOptions = true } ,
@@ -345,14 +350,14 @@ fun SellScreen(
                     )
                 }
 
-                // Affichage des photos sélectionnées (miniatures)
+                // Display thumbnails of selected photos (both URLs and local URIs)
                 if (totalPhotos > 0) {
                     Spacer(modifier = Modifier.height(8.dp))
                     LazyRow(
                         horizontalArrangement = Arrangement.spacedBy(8.dp) ,
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        // Afficher les URLs existantes (pour l'édition)
+                        // Show existing Firebase URLs (for editing)
                         items(sellViewModel.productPhotoUrls.value) { url ->
                             PhotoThumbnailFromUrl(
                                 url = url ,
@@ -365,7 +370,7 @@ fun SellScreen(
                             )
                         }
 
-                        // Afficher les URIs locales (nouvelles photos)
+                        // Show local URIs (new photos)
                         items(sellViewModel.productPhotoUris.value) { uri ->
                             PhotoThumbnailFromUri(
                                 uri = uri ,
@@ -380,6 +385,7 @@ fun SellScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            // Input fields for title, description, and price
             InputFields(
                 "Title" , "ex: T-shirt Nike Black" ,
                 value = title , onValueChange = { title = it })
@@ -398,12 +404,12 @@ fun SellScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            // Category dropdown button and menu
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp)
             ) {
-                // Bouton catégorie
                 Button(
                     onClick = { expandedCategory = !expandedCategory } ,
                     colors = ButtonDefaults.buttonColors(
@@ -412,7 +418,6 @@ fun SellScreen(
                     )
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        //Text(text = if (category.isNotEmpty()) category else "Category")
                         Text(text = if (sellViewModel.selectedCategory.value.isNotEmpty()) sellViewModel.selectedCategory.value else "Category")
                         Spacer(modifier = Modifier.weight(1f))
                         Icon(
@@ -453,7 +458,7 @@ fun SellScreen(
                 }
             }
 
-            // Ligne pour le type du vêtement
+            // Row for clothing type with navigation
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -477,7 +482,7 @@ fun SellScreen(
             Divider(thickness = 1.dp , color = Color.Gray)
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Ligne pour la couleur
+            // Row for color selection with navigation
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -501,7 +506,7 @@ fun SellScreen(
             Divider(thickness = 1.dp , color = Color.Gray)
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Ligne pour le choix des matières
+            // Row for material selection with navigation
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -536,7 +541,7 @@ fun SellScreen(
             Divider(thickness = 1.dp , color = Color.Gray)
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Ligne pour la taille
+            // Row for size selection with navigation
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -554,7 +559,7 @@ fun SellScreen(
                 )
             }
 
-            // Bouton état
+            // Button and dropdown for state selection
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -641,7 +646,7 @@ fun SellScreen(
                 }
             }
 
-            // Liste déroulante pour le format du colis
+            // Dropdown for colis format selection
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -668,7 +673,6 @@ fun SellScreen(
                     }
                 }
 
-                // Liste des choix du menu déroulant
                 DropdownMenu(
                     expanded = expandedColis ,
                     onDismissRequest = { expandedColis = false } ,
@@ -728,17 +732,17 @@ fun SellScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Bouton pour publier l'article
+            // Button to add or update the product
             Button(
                 onClick = {
                     if (validateFields()) {
-                        // Si on a des nouvelles photos (URIs), les uploader d'abord
+                        // If there are new photos (local URIs), upload them first
                         if (sellViewModel.productPhotoUris.value.isNotEmpty()) {
                             uploadPhotosToFirebase(
                                 context ,
                                 sellViewModel.productPhotoUris.value
                             ) { newUrls ->
-                                // Combiner les anciennes URLs avec les nouvelles
+                                // Combine old URLs with new uploaded URLs
                                 val allUrls = sellViewModel.productPhotoUrls.value + newUrls
 
                                 saveArticleToFirestore(
@@ -767,7 +771,7 @@ fun SellScreen(
                                 navController.navigate(VintedScreen.MonCompte.name)
                             }
                         } else {
-                            // Pas de nouvelles photos, utiliser seulement les URLs existantes
+                            // No new photos, use existing URLs only
                             saveArticleToFirestore(
                                 userId.toString() ,
                                 sellViewModel.productTitle.value ,
@@ -810,6 +814,7 @@ fun SellScreen(
         }
     }
 
+    // Dialog to show validation errors
     if (showDialog) {
         AlertDialog(
             onDismissRequest = { showDialog = false } ,
@@ -823,6 +828,7 @@ fun SellScreen(
         )
     }
 
+    // Dialog to confirm reset action
     if (showResetDialog) {
         AlertDialog(
             onDismissRequest = { showResetDialog = false } ,
@@ -847,7 +853,7 @@ fun SellScreen(
     }
 }
 
-// Composable pour afficher une miniature à partir d'une URI locale
+// Composable to display a photo thumbnail from a local URI with remove option
 @Composable
 fun PhotoThumbnailFromUri(
     uri: Uri ,
@@ -878,7 +884,7 @@ fun PhotoThumbnailFromUri(
     }
 }
 
-// Composable pour afficher une miniature à partir d'une URL Firebase
+// Composable to display a photo thumbnail from a Firebase URL with remove option
 @Composable
 fun PhotoThumbnailFromUrl(
     url: String ,
@@ -909,6 +915,7 @@ fun PhotoThumbnailFromUrl(
     }
 }
 
+// Composable for input fields with label, placeholder, and validation for length limits
 @Composable
 fun InputFields(
     label: String ,
@@ -979,6 +986,7 @@ fun InputFields(
     }
 }
 
+// Generate a unique URI for saving a photo file using FileProvider
 fun generateUniqueUri(context: Context): Uri {
     val outputDirectory = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
     if (outputDirectory != null && !outputDirectory.exists()) {
@@ -996,6 +1004,7 @@ fun generateUniqueUri(context: Context): Uri {
     )
 }
 
+// Upload a list of photo URIs to Firebase Storage and return their download URLs
 fun uploadPhotosToFirebase(
     context: Context ,
     uriList: List<Uri> ,
@@ -1058,6 +1067,7 @@ fun uploadPhotosToFirebase(
     }
 }
 
+// Save or update an article in Firestore with the provided details and photo URLs
 fun saveArticleToFirestore(
     userId: String ,
     title: String ,
@@ -1071,7 +1081,7 @@ fun saveArticleToFirestore(
     size: String ,
     colis: String ,
     isAvailable: Boolean ,
-    photoUrls: List<String> , // Toujours des URLs ici
+    photoUrls: List<String> , // Always URLs here
     productId: String? = null
 ) {
     Log.d("Firestore" , "Saving with Photo URLs: $photoUrls")
@@ -1095,7 +1105,7 @@ fun saveArticleToFirestore(
         "material" to matieres.toList() ,
         "colis" to colis ,
         "available" to isAvailable ,
-        "photos" to photoUrls , // URLs Firebase
+        "photos" to photoUrls , // Firebase URLs
         "dateCreation" to currentDate ,
     )
 
@@ -1121,6 +1131,7 @@ fun saveArticleToFirestore(
     }
 }
 
+// Format the title string to have first letter uppercase and rest lowercase
 fun formatTitle(title: String): String {
     val cleanedTitle = title.trim()
     return if (cleanedTitle.isNotEmpty()) {

@@ -194,6 +194,7 @@ fun PurchaseScreen(
             }
             Spacer(Modifier.height(16.dp))
             Text("Carte :" , style = MaterialTheme.typography.titleMedium)
+            // Met l'endroit par défaut sur notre localisation
             GoogleMap(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -205,6 +206,7 @@ fun PurchaseScreen(
                     state = MarkerState(position = deliveryLocation) ,
                     title = "Adresse de livraison"
                 )
+                // Actualisation en temps réel de la position de l’utilisateur
                 userLocation?.let {
                     Marker(
                         state = MarkerState(position = it) ,

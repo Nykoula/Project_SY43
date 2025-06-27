@@ -65,15 +65,27 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
 
+/**
+ * Composable function to display the user's profile screen.
+ * It fetches user data from Firestore and displays profile information,
+ * menu options, and a logout button.
+ *
+ * @param personViewModel ViewModel to manage person data and logout functionality.
+ * @param navController Navigation controller to handle screen navigation.
+ */
 @Composable
 fun Profile(
     personViewModel: PersonViewModel = viewModel() ,
     navController: NavController
 ) {
+    // Get Firestore instance
     val db = FirebaseFirestore.getInstance()
+    // Get current Firebase authenticated user
     val currentUser = FirebaseAuth.getInstance().currentUser
+    // Get user ID if available
     val userId = currentUser?.uid
 
+    // Mutable states to hold user profile data
     var userEmail by remember { mutableStateOf(currentUser?.email ?: "Email non disponible") }
     var userFirstName by remember { mutableStateOf("") }
     var userLastName by remember { mutableStateOf("") }
@@ -83,13 +95,16 @@ fun Profile(
     var userDate by remember { mutableStateOf("") }
     var userPhotoUrl by remember { mutableStateOf("") }
 
+    // Get current context for launching intents
     val context = LocalContext.current
 
+    // Side effect to fetch user data from Firestore when userId changes
     LaunchedEffect(userId) {
         userId?.let { uid ->
             db.collection("Person").document(uid).get()
                 .addOnSuccessListener { document ->
                     if (document != null && document.exists()) {
+                        // Populate user data from Firestore document
                         userFirstName = document.getString("firstName") ?: "Prénom non renseigné"
                         userLastName = document.getString("lastName") ?: "Nom non renseigné"
                         userAge = document.getLong("age")?.toInt() ?: 0
@@ -103,6 +118,7 @@ fun Profile(
                     }
                 }
                 .addOnFailureListener {
+                    // Fallback to ViewModel data or default values if Firestore fetch fails
                     userFirstName = personViewModel.person?.firstName ?: "Prénom non disponible"
                     userLastName = personViewModel.person?.lastName ?: "Nom non disponible"
                     userAge = 0
@@ -113,12 +129,14 @@ fun Profile(
         }
     }
 
+    // Scaffold layout with top bar, bottom bar and content
     Scaffold(
         modifier = Modifier.fillMaxSize() ,
         containerColor = Color.White ,
         topBar = { VintedTopBar(title = "Profil" , navController , false) } ,
         bottomBar = { VintedBottomBar(navController , VintedScreen.Profile) }
     ) { innerPadding ->
+        // Main content column with vertical scroll and padding
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -127,16 +145,19 @@ fun Profile(
                 .padding(16.dp) ,
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+            // Card displaying user profile information
             Card(
                 modifier = Modifier.fillMaxWidth() ,
                 elevation = CardDefaults.cardElevation(defaultElevation = 4.dp) ,
                 colors = CardDefaults.cardColors(containerColor = Color.White)
             ) {
                 Column(modifier = Modifier.padding(20.dp)) {
+                    // Row with user photo/avatar and name
                     Row(
                         modifier = Modifier.fillMaxWidth() ,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
+                        // Box for profile photo or default avatar icon
                         Box(
                             modifier = Modifier
                                 .size(60.dp)
@@ -145,6 +166,7 @@ fun Profile(
                             contentAlignment = Alignment.Center
                         ) {
                             if (userPhotoUrl.isNotEmpty()) {
+                                // Load and display user photo from URL
                                 Image(
                                     painter = rememberAsyncImagePainter(userPhotoUrl) ,
                                     contentDescription = "Photo de profil" ,
@@ -152,6 +174,7 @@ fun Profile(
                                     contentScale = ContentScale.Crop
                                 )
                             } else {
+                                // Display default avatar icon if no photo URL
                                 Icon(
                                     imageVector = Icons.Outlined.AccountCircle ,
                                     contentDescription = "Avatar" ,
@@ -163,6 +186,7 @@ fun Profile(
 
                         Spacer(modifier = Modifier.padding(12.dp))
 
+                        // Column with user full name and membership label
                         Column {
                             Text(
                                 text = "$userFirstName $userLastName" ,
@@ -182,6 +206,7 @@ fun Profile(
                     Divider(color = Color.LightGray)
                     Spacer(modifier = Modifier.height(16.dp))
 
+                    // Display user profile details using ProfileInfoRow composable
                     ProfileInfoRow(Icons.Outlined.Person , "Prénom" , userFirstName)
                     Spacer(modifier = Modifier.height(12.dp))
                     ProfileInfoRow(Icons.Outlined.Person , "Nom" , userLastName)
@@ -195,6 +220,7 @@ fun Profile(
                     ProfileInfoRow(Icons.Outlined.Phone , "Téléphone" , userPhone)
                     Spacer(modifier = Modifier.height(12.dp))
 
+                    // Button to navigate to profile update screen
                     TextButton(
                         onClick = { navController.navigate(VintedScreen.UpdateProfile.name) } ,
                         colors = ButtonDefaults.textButtonColors(contentColor = Color(0xFF007782))
@@ -214,12 +240,14 @@ fun Profile(
                 }
             }
 
+            // Card displaying profile menu items
             Card(
                 modifier = Modifier.fillMaxWidth() ,
                 elevation = CardDefaults.cardElevation(defaultElevation = 4.dp) ,
                 colors = CardDefaults.cardColors(containerColor = Color.White)
             ) {
                 Column(modifier = Modifier.padding(8.dp)) {
+                    // Menu item to navigate to user's dressing (items for sale)
                     ProfileMenuItem(
                         Icons.Outlined.AccountCircle ,
                         "Mon dressing" ,
@@ -231,6 +259,7 @@ fun Profile(
                         color = Color.LightGray ,
                         modifier = Modifier.padding(horizontal = 16.dp)
                     )
+                    // Menu item to navigate to account modification screen
                     ProfileMenuItem(
                         Icons.Outlined.Settings ,
                         "Modifications du compte" ,
@@ -242,6 +271,7 @@ fun Profile(
                         color = Color.LightGray ,
                         modifier = Modifier.padding(horizontal = 16.dp)
                     )
+                    // Menu item to open app settings in system settings
                     ProfileMenuItem(
                         Icons.Outlined.Settings ,
                         "Paramètres" ,
@@ -257,9 +287,12 @@ fun Profile(
                 }
             }
 
+            // Logout button with red styling
             Button(
                 onClick = {
+                    // Call logout function in ViewModel
                     personViewModel.logout()
+                    // Navigate to MonCompte screen and clear back stack
                     navController.navigate(VintedScreen.MonCompte.name) {
                         popUpTo(VintedScreen.MonCompte.name) { inclusive = true }
                     }
@@ -283,6 +316,13 @@ fun Profile(
     }
 }
 
+/**
+ * Composable to display a row with an icon, label and value for profile information.
+ *
+ * @param icon Icon to display.
+ * @param label Label text describing the information.
+ * @param value The actual value to display.
+ */
 @Composable
 fun ProfileInfoRow(
     icon: androidx.compose.ui.graphics.vector.ImageVector ,
@@ -293,6 +333,7 @@ fun ProfileInfoRow(
         modifier = Modifier.fillMaxWidth() ,
         verticalAlignment = Alignment.CenterVertically
     ) {
+        // Icon representing the type of information
         Icon(
             icon ,
             contentDescription = label ,
@@ -300,6 +341,7 @@ fun ProfileInfoRow(
             modifier = Modifier.size(20.dp)
         )
         Spacer(modifier = Modifier.padding(8.dp))
+        // Column with label and value texts
         Column {
             Text(label , style = MaterialTheme.typography.bodySmall , color = Color.Gray)
             Text(value , style = MaterialTheme.typography.bodyLarge , color = Color.Black)
@@ -307,6 +349,14 @@ fun ProfileInfoRow(
     }
 }
 
+/**
+ * Composable to display a clickable menu item with icon, title, subtitle and arrow.
+ *
+ * @param icon Icon to display.
+ * @param title Title text of the menu item.
+ * @param subtitle Subtitle or description of the menu item.
+ * @param onClick Lambda to execute when the item is clicked.
+ */
 @Composable
 fun ProfileMenuItem(
     icon: androidx.compose.ui.graphics.vector.ImageVector ,
@@ -321,6 +371,7 @@ fun ProfileMenuItem(
             .padding(16.dp) ,
         verticalAlignment = Alignment.CenterVertically
     ) {
+        // Icon for the menu item
         Icon(
             icon ,
             contentDescription = title ,
@@ -328,6 +379,7 @@ fun ProfileMenuItem(
             modifier = Modifier.size(24.dp)
         )
         Spacer(modifier = Modifier.padding(12.dp))
+        // Column with title and subtitle
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 title ,
@@ -337,6 +389,7 @@ fun ProfileMenuItem(
             )
             Text(subtitle , style = MaterialTheme.typography.bodyMedium , color = Color.Gray)
         }
+        // Arrow icon indicating navigation
         Icon(
             Icons.Outlined.KeyboardArrowRight ,
             contentDescription = "Arrow" ,

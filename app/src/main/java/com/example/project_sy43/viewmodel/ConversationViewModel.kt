@@ -18,58 +18,67 @@ import kotlinx.coroutines.launch
 
 class ConversationViewModel : ViewModel() {
 
-    // Dependencies
+    // Dependencies for repository and authentication
     private lateinit var conversationRepository: ConversationRepository
     private lateinit var auth: FirebaseAuth
     private var currentConversationId: String? = null
     private var messagesListenerJob: Job? = null
 
-    // --- StateFlows for UI State ---
+    // StateFlow holding the current conversation details
     private val _conversationDetails = MutableStateFlow<Conversation?>(null)
     val conversationDetails: StateFlow<Conversation?> = _conversationDetails.asStateFlow()
 
+    // StateFlow holding the list of messages in the conversation
     private val _messages = MutableStateFlow<List<Message>>(emptyList())
     val messages: StateFlow<List<Message>> = _messages.asStateFlow()
 
+    // StateFlow indicating if conversation details are loading
     private val _isLoadingDetails = MutableStateFlow(false)
     val isLoadingDetails: StateFlow<Boolean> = _isLoadingDetails.asStateFlow()
 
+    // StateFlow indicating if messages are loading
     private val _isLoadingMessages = MutableStateFlow(false)
     val isLoadingMessages: StateFlow<Boolean> = _isLoadingMessages.asStateFlow()
 
+    // StateFlow indicating if a message is being sent
     private val _isSendingMessage = MutableStateFlow(false)
     val isSendingMessage: StateFlow<Boolean> = _isSendingMessage.asStateFlow()
 
+    // StateFlow holding error messages for the UI
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error.asStateFlow()
 
+    // StateFlow holding the current text input for a message
     private val _currentMessageText = MutableStateFlow("")
     val currentMessageText: StateFlow<String> = _currentMessageText.asStateFlow()
 
+    // StateFlow holding the current offer price input
     private val _currentOfferPrice = MutableStateFlow("")
     val currentOfferPrice: StateFlow<String> = _currentOfferPrice.asStateFlow()
 
+    // StateFlow holding the optional text for an offer
     private val _currentOfferOptionalText = MutableStateFlow("")
     val currentOfferOptionalText: StateFlow<String> = _currentOfferOptionalText.asStateFlow()
 
-    // NOUVEAU : Contrôle de l'affichage de la section d'offre
+    // StateFlow controlling the visibility of the offer section in the UI
     private val _showOfferSection = MutableStateFlow(false)
     val showOfferSection: StateFlow<Boolean> = _showOfferSection.asStateFlow()
 
-    // AMÉLIORATION : StateFlow pour le nom de l'autre participant
+    // StateFlow holding the display name of the other participant in the conversation
     private val _otherParticipantDisplayName = MutableStateFlow<String?>("Chargement...")
     val otherParticipantDisplayName: StateFlow<String?> = _otherParticipantDisplayName.asStateFlow()
 
-    // AMÉLIORATION : StateFlow pour l'URL de l'image du produit
+    // StateFlow holding the URL of the product image related to the conversation
     private val _productImageUrl = MutableStateFlow<String?>(null)
     val productImageUrl: StateFlow<String?> = _productImageUrl.asStateFlow()
 
-    // NOUVEAU : StateFlow pour les offres acceptées
+    // StateFlow holding the set of accepted offer message IDs
     private val _acceptedOffers = MutableStateFlow<Set<String>>(emptySet())
     val acceptedOffers: StateFlow<Set<String>> = _acceptedOffers.asStateFlow()
 
-    // --- Initialization ---
+    // Initialize the ViewModel with a conversation ID
     fun initialize(conversationId: String) {
+        // If already initialized with the same conversation and details are loaded, just fetch messages if needed
         if (this.currentConversationId == conversationId && _conversationDetails.value != null) {
             Log.d("ConvVM" , "ViewModel already initialized for conversation: $conversationId")
             if (messagesListenerJob == null || messagesListenerJob?.isActive == false) {
@@ -82,26 +91,28 @@ class ConversationViewModel : ViewModel() {
         _error.value = null
         Log.d("ConvVM" , "Initializing for conversation: $conversationId")
 
-        // Initialize dependencies if not already done
+        // Initialize FirebaseAuth if not already done
         if (!this::auth.isInitialized) {
             auth = FirebaseAuth.getInstance()
         }
+        // Initialize ConversationRepository if not already done
         if (!this::conversationRepository.isInitialized) {
             val firestore = FirebaseFirestore.getInstance()
             conversationRepository = ConversationRepository(firestore , auth)
         }
 
+        // If conversation ID is valid, fetch details, messages, and accepted offers
         if (conversationId.isNotBlank()) {
             fetchConversationDetails()
             fetchMessagesForCurrentConversation()
-            loadAcceptedOffers() // Nouvelle ligne ajoutée
+            loadAcceptedOffers()
         } else {
             _error.value = "Conversation ID is missing."
             Log.e("ConvVM" , "Conversation ID is blank in initialize.")
         }
     }
 
-    // --- Data Fetching Functions ---
+    // Fetch conversation details from repository
     private fun fetchConversationDetails() {
         val convId = currentConversationId ?: return
         viewModelScope.launch {
@@ -123,6 +134,7 @@ class ConversationViewModel : ViewModel() {
         }
     }
 
+    // Update the display name and product image URL of the other participant in the conversation
     private fun updateOtherParticipantInfo(details: Conversation?) {
         val currentUid = auth.currentUser?.uid
 
@@ -131,11 +143,13 @@ class ConversationViewModel : ViewModel() {
             return
         }
 
+        // Find the other participant's user ID
         val otherParticipantId = details.participants.find { it != currentUid }
 
         if (otherParticipantId != null) {
             viewModelScope.launch {
                 try {
+                    // Fetch the other participant's user name
                     conversationRepository.getUserName(otherParticipantId)
                         .onSuccess { userName ->
                             _otherParticipantDisplayName.value = userName
@@ -146,6 +160,7 @@ class ConversationViewModel : ViewModel() {
                             Log.e("ConvVM" , "Error fetching user name for $otherParticipantId" , e)
                         }
 
+                    // If product ID is available, fetch product images
                     if (!details.productId.isNullOrBlank()) {
                         val productImagesResult =
                             conversationRepository.fetchProductImagesInBatch(listOf(details.productId))
@@ -168,6 +183,7 @@ class ConversationViewModel : ViewModel() {
         }
     }
 
+    // Set up a listener to fetch messages for the current conversation
     private fun fetchMessagesForCurrentConversation() {
         val convId = currentConversationId ?: return
         messagesListenerJob?.cancel()
@@ -204,28 +220,31 @@ class ConversationViewModel : ViewModel() {
         }
     }
 
-    // --- UI Event Handlers / Actions ---
+    // Update the current message text input
     fun onCurrentMessageTextChanged(newText: String) {
         _currentMessageText.value = newText
     }
 
+    // Update the current offer price input
     fun onOfferPriceChanged(newPrice: String) {
         _currentOfferPrice.value = newPrice
     }
 
+    // Update the current optional text input for an offer
     fun onOfferOptionalTextChanged(newText: String) {
         _currentOfferOptionalText.value = newText
     }
 
+    // Toggle the visibility of the offer section and clear inputs when hiding
     fun toggleOfferSection() {
         _showOfferSection.value = !_showOfferSection.value
         if (!_showOfferSection.value) {
-            // Nettoyer les champs quand on ferme la section
             _currentOfferPrice.value = ""
             _currentOfferOptionalText.value = ""
         }
     }
 
+    // Send a text message in the current conversation
     fun sendTextMessage() {
         val convId = currentConversationId ?: run {
             _error.value = "Cannot send message: Conversation ID not set."
@@ -272,6 +291,7 @@ class ConversationViewModel : ViewModel() {
         }
     }
 
+    // Send an offer message with price and optional text
     fun sendOfferMessage() {
         val convId = currentConversationId ?: run {
             _error.value = "Cannot send offer: Conversation ID not set."
@@ -313,7 +333,7 @@ class ConversationViewModel : ViewModel() {
                 proposedPrice = proposedPrice ,
                 optionalText = optionalText.ifBlank { null } ,
                 senderId = userId ,
-                productImageUrl = _productImageUrl.value // Inclure l'image du produit
+                productImageUrl = _productImageUrl.value // Include product image URL
             )
 
             result.fold(
@@ -332,6 +352,7 @@ class ConversationViewModel : ViewModel() {
         }
     }
 
+    // Accept an offer message by its ID and proposed price
     fun acceptOffer(messageId: String , proposedPrice: Double) {
         val convId = currentConversationId ?: return
         val userId = auth.currentUser?.uid ?: return
@@ -347,10 +368,10 @@ class ConversationViewModel : ViewModel() {
 
             result.fold(
                 onSuccess = {
-                    // Ajouter l'offre aux offres acceptées
+                    // Add the accepted offer ID to the set
                     _acceptedOffers.value = _acceptedOffers.value + messageId
 
-                    // Envoyer un message de confirmation
+                    // Send a confirmation text message
                     conversationRepository.sendTextMessage(
                         conversationId = convId ,
                         text = "Votre proposition a été acceptée" ,
@@ -368,16 +389,18 @@ class ConversationViewModel : ViewModel() {
         }
     }
 
+    // Check if the current user is the buyer in the conversation
     fun isCurrentUserBuyer(): Boolean {
         val currentUserId = auth.currentUser?.uid
         return _conversationDetails.value?.buyerId == currentUserId
     }
 
-
+    // Check if an offer message has been accepted
     fun isOfferAccepted(messageId: String): Boolean {
         return _acceptedOffers.value.contains(messageId)
     }
 
+    // Load accepted offers from the repository for the current conversation
     private fun loadAcceptedOffers() {
         val convId = currentConversationId ?: return
 
@@ -393,7 +416,7 @@ class ConversationViewModel : ViewModel() {
         }
     }
 
-
+    // Clean up resources when ViewModel is cleared
     override fun onCleared() {
         super.onCleared()
         Log.d("ConvVM" , "ViewModel cleared for conversation: $currentConversationId")
@@ -401,6 +424,5 @@ class ConversationViewModel : ViewModel() {
         messagesListenerJob = null
         Log.d("ConvVM" , "Messages listener job cancelled.")
     }
-
 
 }

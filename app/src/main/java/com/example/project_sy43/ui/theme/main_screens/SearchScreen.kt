@@ -114,7 +114,7 @@ fun Search(
                         modifier = Modifier.clickable {
                             Log.d("SearchScreen" , "Search initiated with query: $searchQuery")
                             keyboardController?.hide()
-                            if (searchQuery.isNotEmpty()) {
+                            if (searchQuery.isNotEmpty()) { // Fais la requête et appelle la fonction de recherche
                                 isLoading = true
                                 performSearch(
                                     db ,
@@ -273,6 +273,7 @@ fun parseCustomDateFormat(dateString: String): Date? {
     }
 }
 
+// Fonction pour rechercher et mettre les filtres
 fun performSearch(
     db: FirebaseFirestore ,
     searchQuery: String ,

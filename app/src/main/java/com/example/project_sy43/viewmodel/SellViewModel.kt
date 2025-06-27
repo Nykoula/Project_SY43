@@ -11,8 +11,10 @@ import kotlinx.coroutines.launch
 
 class SellViewModel : ViewModel() {
 
+    // Repository instance to access product data
     private val repository = ProductRepository()
 
+    // Mutable states holding product and user related data
     var idUser = mutableStateOf("")
     var buyer = mutableStateOf("")
     var productId = mutableStateOf("")
@@ -28,30 +30,35 @@ class SellViewModel : ViewModel() {
     var selectedColis = mutableStateOf("")
     var dateCreation = mutableStateOf("")
 
-    // URI locales pour l'affichage des images sélectionnées
+    // Local URIs for displaying selected images
     var productPhotoUris = mutableStateOf<List<Uri>>(emptyList())
         private set
 
-    // URLs Firebase pour la base de données
+    // Firebase URLs for storing in the database
     var productPhotoUrls = mutableStateOf<List<String>>(emptyList())
         private set
 
+    // Mutable list holding search results of SellViewModel instances
     var searchResults = mutableStateListOf<SellViewModel>()
     var isAvailable = mutableStateOf(true)
 
+    // Set the buyer value
     fun setBuyer(buyer: String) {
         this.buyer.value = buyer
     }
 
+    // Get the buyer value
     fun getBuyer(): String {
         return buyer.value
     }
 
+    // Set the search results list
     fun setSearchResults(results: List<SellViewModel>) {
         searchResults.clear()
         searchResults.addAll(results)
     }
 
+    // Setters for product details
     fun setProductTitle(title: String) {
         productTitle.value = title
     }
@@ -92,7 +99,7 @@ class SellViewModel : ViewModel() {
         dateCreation.value = date
     }
 
-    // Ajouter une URI locale (pour l'affichage)
+    // Add a local URI for product photo if not already present
     fun addProductPhotoUri(uri: Uri) {
         val currentList = productPhotoUris.value.toMutableList()
         if (!currentList.contains(uri)) {
@@ -101,18 +108,19 @@ class SellViewModel : ViewModel() {
         }
     }
 
-    // Supprimer une URI locale
+    // Remove a local URI for product photo
     fun removeProductPhotoUri(uri: Uri) {
         val currentList = productPhotoUris.value.toMutableList()
         currentList.remove(uri)
         productPhotoUris.value = currentList
     }
 
-    // Remplacer toutes les URLs Firebase
+    // Replace all Firebase URLs for product photos
     fun setProductPhotoUrls(urls: List<String>) {
         productPhotoUrls.value = urls
     }
 
+    // Load product item details by ID and update states accordingly
     fun loadItem(itemId: String) {
         viewModelScope.launch {
             Log.d("SellViewModel" , "loadItem called with itemId=$itemId")
@@ -133,10 +141,10 @@ class SellViewModel : ViewModel() {
                 isAvailable.value = item.available
                 dateCreation.value = item.dateCreation
 
-                // Charger les URLs Firebase (pour l'édition)
+                // Load Firebase URLs for editing
                 productPhotoUrls.value = item.photos ?: emptyList()
 
-                // Pour l'édition, on garde les URIs vides car on affichera les URLs
+                // For editing, keep local URIs empty as URLs will be displayed
                 productPhotoUris.value = emptyList()
 
                 productPhotoUrls.value.forEachIndexed { index , url ->
@@ -148,6 +156,7 @@ class SellViewModel : ViewModel() {
         }
     }
 
+    // Reset all product-related states to default values
     fun reset() {
         productId.value = ""
         productTitle.value = ""

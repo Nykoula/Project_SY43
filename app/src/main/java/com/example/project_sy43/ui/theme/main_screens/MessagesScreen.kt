@@ -154,7 +154,7 @@ fun Messages(
                         }
                     }
                 }
-
+                // Pour le rafraichissement de la page
                 else -> {
                     val swipeRefreshState = rememberSwipeRefreshState(isRefreshing = isLoading)
 
@@ -203,7 +203,7 @@ fun ConversationItem(
             .padding(horizontal = 16.dp , vertical = 12.dp) ,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // Image du produit ou icône par défaut
+        // Product image or default icon
         Box(
             modifier = Modifier
                 .size(60.dp)
@@ -238,14 +238,14 @@ fun ConversationItem(
             }
         }
 
-        // Informations de la conversation
+        // Conversation information
         Column(
             modifier = Modifier
                 .weight(1f)
                 .padding(start = 16.dp) ,
             verticalArrangement = Arrangement.Center
         ) {
-            // Nom de l'autre utilisateur
+            // Other user's name
             Text(
                 text = conversation.otherUserName ?: "Utilisateur inconnu" ,
                 style = MaterialTheme.typography.titleMedium.copy(
@@ -318,9 +318,9 @@ private fun formatTimestamp(timestamp: Any?): String {
                 val diff = now.time - date.time
 
                 when {
-                    diff < 60000 -> "À l'instant" // Moins d'1 minute
-                    diff < 3600000 -> "${diff / 60000}min" // Moins d'1 heure
-                    diff < 86400000 -> "${diff / 3600000}h" // Moins d'1 jour
+                    diff < 60000 -> "À l'instant" // Less than 1 minute
+                    diff < 3600000 -> "${diff / 60000}min" // Less than 1 hour
+                    diff < 86400000 -> "${diff / 3600000}h" // Less than 1 day
                     else -> SimpleDateFormat("dd/MM" , Locale.getDefault()).format(date)
                 }
             }

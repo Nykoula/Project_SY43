@@ -1,6 +1,7 @@
 package com.example.project_sy43.ui.theme.main_screens
 
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -45,6 +46,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -55,6 +57,7 @@ import com.example.project_sy43.navigation.VintedScreen
 import com.example.project_sy43.ui.theme.components.VintedTopBar
 import com.example.project_sy43.viewmodel.MessagesViewModel
 import com.example.project_sy43.viewmodel.PersonViewModel
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.launch
 
@@ -72,6 +75,25 @@ fun ClothingDetailView(
     val coroutineScope = rememberCoroutineScope()
     var isCreatingConversation by remember { mutableStateOf(false) }
 
+    // Vérifier l'état de connexion de l'utilisateur
+    val auth = FirebaseAuth.getInstance()
+    val currentUser = remember { auth.currentUser }
+    val context = LocalContext.current
+
+    LaunchedEffect(currentUser) {
+        if (currentUser == null) {
+            // Rediriger vers la page de connexion si l'utilisateur n'est pas connecté
+            navController.navigate(VintedScreen.Login.name) {
+                popUpTo(VintedScreen.Accueil.name)
+                Toast.makeText(
+                    context ,
+                    "You have to be connected to use this feature" ,
+                    Toast.LENGTH_LONG
+                ).show()
+                launchSingleTop = true
+            }
+        }
+    }
 
     LaunchedEffect(itemId) {
         itemId?.let { id ->
