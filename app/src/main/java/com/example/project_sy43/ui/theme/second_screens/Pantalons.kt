@@ -29,32 +29,32 @@ object Pantalons {
     val manTitle: String = "Pantalons et jeans"
     val childrenTitle: String = "Pantalons"
     val womanType = listOf(
-        "Pantalons courts & chinos",
-        "Pantalons à jambes larges",
-        "Skinny",
-        "Pantalons ajustés",
-        "Pantalons/jeans droits",
-        "Pantalons en cuir",
-        "Jeans boyfriend",
-        "Jeans courts",
-        "Jeans évasés",
-        "Jeans taille haute",
-        "Jeans troués",
-        "Leggings",
-        "Sarouels",
+        "Pantalons courts & chinos" ,
+        "Pantalons à jambes larges" ,
+        "Skinny" ,
+        "Pantalons ajustés" ,
+        "Pantalons/jeans droits" ,
+        "Pantalons en cuir" ,
+        "Jeans boyfriend" ,
+        "Jeans courts" ,
+        "Jeans évasés" ,
+        "Jeans taille haute" ,
+        "Jeans troués" ,
+        "Leggings" ,
+        "Sarouels" ,
         "Autres pantalons/jeans"
     )
     val manType = listOf(
-        "Chinos",
-        "Jogging",
-        "Skinny",
-        "Slim",
-        "Pantacourts",
-        "Pantalons de costume",
-        "Pantalons à jambes larges",
-        "Jeans",
-        "Jeans troués",
-        "Jeans coupe droite",
+        "Chinos" ,
+        "Jogging" ,
+        "Skinny" ,
+        "Slim" ,
+        "Pantacourts" ,
+        "Pantalons de costume" ,
+        "Pantalons à jambes larges" ,
+        "Jeans" ,
+        "Jeans troués" ,
+        "Jeans coupe droite" ,
         "Autres pantalons/jeans"
 
     )
@@ -64,7 +64,7 @@ object Pantalons {
 }
 
 @Composable
-fun PantalonScreen(navController: NavController, sellViewModel: SellViewModel) {
+fun PantalonScreen(navController: NavController , sellViewModel: SellViewModel) {
 
     var selectedType by sellViewModel.selectedType
 
@@ -84,7 +84,7 @@ fun PantalonScreen(navController: NavController, sellViewModel: SellViewModel) {
 
     Scaffold(
         topBar = {
-            VintedTopBar(title = typeListTitle, navController, true)
+            VintedTopBar(title = typeListTitle , navController , true)
         }
     ) { innerPadding ->
         LazyColumn(
@@ -96,24 +96,24 @@ fun PantalonScreen(navController: NavController, sellViewModel: SellViewModel) {
                 typeList
             ) { type ->
                 Row(
-                    verticalAlignment = Alignment.CenterVertically,
+                    verticalAlignment = Alignment.CenterVertically ,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                        .padding(horizontal = 16.dp , vertical = 8.dp)
                         .clickable {
                             selectedType = type
                             sellViewModel.setProductType(type)
-                            navController.popBackStack("Sell", inclusive = false)
+                            navController.popBackStack("Sell" , inclusive = false)
                         }
                 ) {
-                    Text(text = type, fontWeight = FontWeight.Bold)
+                    Text(text = type , fontWeight = FontWeight.Bold)
                     Spacer(modifier = Modifier.weight(1f))
                     RadioButton(
-                        selected = selectedType == type,
+                        selected = selectedType == type ,
                         onClick = null // on désactive onClick
                     )
                 }
-                Divider(thickness = 1.dp, color = Color.Gray)
+                Divider(thickness = 1.dp , color = Color.Gray)
             }
         }
     }

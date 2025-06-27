@@ -3,8 +3,12 @@ package com.example.project_sy43.ui.theme.main_screens
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.ImageDecoder
 import android.net.Uri
+import android.os.Build
 import android.os.Environment
+import android.provider.MediaStore
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -81,19 +85,19 @@ import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.firestore
 import com.google.firebase.storage.storage
+import java.io.ByteArrayOutputStream
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
-import android.graphics.Bitmap
-import android.graphics.ImageDecoder
-import android.os.Build
-import android.provider.MediaStore
-import java.io.ByteArrayOutputStream
 
 
 @Composable
-fun SellScreen(navController: NavController, sellViewModel: SellViewModel = viewModel(), itemId: String? = null) {
+fun SellScreen(
+    navController: NavController ,
+    sellViewModel: SellViewModel = viewModel() ,
+    itemId: String? = null
+) {
 
     val loadKey = remember(itemId) { itemId }
 
@@ -101,12 +105,12 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
         if (loadKey != null && sellViewModel.productId.value != loadKey) {
             sellViewModel.loadItem(loadKey)
             sellViewModel.productId.value = loadKey
-            Log.d("SellScreen", "Item loaded: $loadKey")
+            Log.d("SellScreen" , "Item loaded: $loadKey")
         }
     }
 
     val context = LocalContext.current
-    val scrollState = rememberScrollState()
+    rememberScrollState()
     var showDialog by remember { mutableStateOf(false) }
     var showResetDialog by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("") }
@@ -114,14 +118,12 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
     val userId = FirebaseAuth.getInstance().currentUser?.uid
     var title by sellViewModel.productTitle
     var description by sellViewModel.productDescription
-    var type by sellViewModel.selectedType
     var couleurs by sellViewModel.selectedColors
     var matieres by sellViewModel.selectedMaterial
     var size by sellViewModel.selectedSize
     var price by sellViewModel.productPrice
     var state by sellViewModel.selectedState
     var colis by sellViewModel.selectedColis
-    var isAvailable by sellViewModel.isAvailable
 
     // États pour les menus déroulants
     var expandedCategory by remember { mutableStateOf(false) }
@@ -137,13 +139,13 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
         contract = ActivityResultContracts.TakePicture()
     ) { success ->
         if (success && currentPhotoUri != null) {
-            Log.d("Photo", "Photo prise avec succès: $currentPhotoUri")
+            Log.d("Photo" , "Photo prise avec succès: $currentPhotoUri")
             currentPhotoUri?.let { uri ->
                 sellViewModel.addProductPhotoUri(uri)
             }
         } else {
-            Log.d("Photo", "Échec de la capture de l'image.")
-            Toast.makeText(context, "Échec de la capture", Toast.LENGTH_SHORT).show()
+            Log.d("Photo" , "Échec de la capture de l'image.")
+            Toast.makeText(context , "Échec de la capture" , Toast.LENGTH_SHORT).show()
         }
         currentPhotoUri = null
     }
@@ -157,7 +159,8 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
                 launcherCamera.launch(uri)
             }
         } else {
-            Toast.makeText(context, "Permission appareil photo refusée", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context , "Permission appareil photo refusée" , Toast.LENGTH_SHORT)
+                .show()
         }
     }
 
@@ -167,7 +170,7 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
     ) { uri: Uri? ->
         uri?.let {
             sellViewModel.addProductPhotoUri(it)
-            Log.d("Photo", "Photo sélectionnée depuis la galerie: $it")
+            Log.d("Photo" , "Photo sélectionnée depuis la galerie: $it")
         }
     }
 
@@ -180,42 +183,52 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
                 errorMessage = "At least one photo is required"
                 false
             }
+
             title.isEmpty() -> {
                 errorMessage = "Title is required"
                 false
             }
+
             description.isEmpty() -> {
                 errorMessage = "Description is required"
                 false
             }
+
             price.isEmpty() -> {
                 errorMessage = "Price is required"
                 false
             }
+
             sellViewModel.selectedCategory.value.isEmpty() -> {
                 errorMessage = "Category is required"
                 false
             }
+
             state.isEmpty() -> {
                 errorMessage = "State is required"
                 false
             }
+
             couleurs.isEmpty() -> {
                 errorMessage = "Color is required"
                 false
             }
+
             matieres.isEmpty() -> {
                 errorMessage = "Material is required"
                 false
             }
+
             size.isEmpty() -> {
                 errorMessage = "Size is required"
                 false
             }
+
             colis.isEmpty() -> {
                 errorMessage = "Colis is required"
                 false
             }
+
             else -> true
         }
     }
@@ -223,7 +236,7 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
     fun takePhoto() {
         when {
             ContextCompat.checkSelfPermission(
-                context,
+                context ,
                 Manifest.permission.CAMERA
             ) == PackageManager.PERMISSION_GRANTED -> {
                 try {
@@ -231,10 +244,15 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
                     currentPhotoUri = uri
                     launcherCamera.launch(uri)
                 } catch (e: Exception) {
-                    Log.e("Photo", "Erreur lors de la génération de l'URI: ${e.message}")
-                    Toast.makeText(context, "Erreur lors de la préparation de l'appareil photo", Toast.LENGTH_SHORT).show()
+                    Log.e("Photo" , "Erreur lors de la génération de l'URI: ${e.message}")
+                    Toast.makeText(
+                        context ,
+                        "Erreur lors de la préparation de l'appareil photo" ,
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
+
             else -> {
                 val uri = generateUniqueUri(context)
                 currentPhotoUri = uri
@@ -244,20 +262,21 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
     }
 
     // Calculer le nombre total de photos
-    val totalPhotos = sellViewModel.productPhotoUris.value.size + sellViewModel.productPhotoUrls.value.size
+    val totalPhotos =
+        sellViewModel.productPhotoUris.value.size + sellViewModel.productPhotoUrls.value.size
 
     Scaffold(
         topBar = {
             Column {
                 VintedTopBar(
-                    title = if (itemId != null) "Edit your item" else "Sell your item",
-                    navController,
+                    title = if (itemId != null) "Edit your item" else "Sell your item" ,
+                    navController ,
                     true
                 )
             }
-        },
+        } ,
         bottomBar = {
-            VintedBottomBar(navController, VintedScreen.Sell)
+            VintedBottomBar(navController , VintedScreen.Sell)
         }
     ) { innerPadding ->
         Column(
@@ -265,19 +284,19 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
                 .fillMaxWidth()
                 .verticalScroll(rememberScrollState())
                 .padding(innerPadding)
-                .padding(16.dp),
+                .padding(16.dp) ,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Button(
-                onClick = { showResetDialog = true },
+                onClick = { showResetDialog = true } ,
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.White,
+                    containerColor = Color.White ,
                     contentColor = Color(0xFFFF1C1C)
-                ),
-                shape = RoundedCornerShape(16.dp),
+                ) ,
+                shape = RoundedCornerShape(16.dp) ,
                 modifier = Modifier
                     .align(Alignment.End)
-                    .border(2.dp, Color(0xFFFF1C1C), RoundedCornerShape(16.dp))
+                    .border(2.dp , Color(0xFFFF1C1C) , RoundedCornerShape(16.dp))
             ) {
                 Text(text = "Reset")
             }
@@ -285,20 +304,20 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
             // Section photos
             Column {
                 Button(
-                    onClick = { showPhotoOptions = true },
+                    onClick = { showPhotoOptions = true } ,
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.White,
+                        containerColor = Color.White ,
                         contentColor = Color(0xFF007782)
-                    ),
-                    shape = RoundedCornerShape(16.dp),
+                    ) ,
+                    shape = RoundedCornerShape(16.dp) ,
                     modifier = Modifier
-                        .border(2.dp, Color(0xFF007782), RoundedCornerShape(16.dp))
+                        .border(2.dp , Color(0xFF007782) , RoundedCornerShape(16.dp))
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
-                            imageVector = Icons.Filled.Add,
-                            contentDescription = "add pictures",
-                            tint = Color(0xFF007782),
+                            imageVector = Icons.Filled.Add ,
+                            contentDescription = "add pictures" ,
+                            tint = Color(0xFF007782) ,
                             modifier = Modifier.size(24.dp)
                         )
                         Spacer(modifier = Modifier.width(8.dp))
@@ -307,18 +326,18 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
                 }
 
                 DropdownMenu(
-                    expanded = showPhotoOptions,
+                    expanded = showPhotoOptions ,
                     onDismissRequest = { showPhotoOptions = false }
                 ) {
                     DropdownMenuItem(
-                        text = { Text("Take Photo") },
+                        text = { Text("Take Photo") } ,
                         onClick = {
                             showPhotoOptions = false
                             takePhoto()
                         }
                     )
                     DropdownMenuItem(
-                        text = { Text("Choose from Gallery") },
+                        text = { Text("Choose from Gallery") } ,
                         onClick = {
                             showPhotoOptions = false
                             launcherGallery.launch("image/*")
@@ -330,15 +349,16 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
                 if (totalPhotos > 0) {
                     Spacer(modifier = Modifier.height(8.dp))
                     LazyRow(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp) ,
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         // Afficher les URLs existantes (pour l'édition)
                         items(sellViewModel.productPhotoUrls.value) { url ->
                             PhotoThumbnailFromUrl(
-                                url = url,
+                                url = url ,
                                 onRemove = {
-                                    val currentUrls = sellViewModel.productPhotoUrls.value.toMutableList()
+                                    val currentUrls =
+                                        sellViewModel.productPhotoUrls.value.toMutableList()
                                     currentUrls.remove(url)
                                     sellViewModel.setProductPhotoUrls(currentUrls)
                                 }
@@ -348,7 +368,7 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
                         // Afficher les URIs locales (nouvelles photos)
                         items(sellViewModel.productPhotoUris.value) { uri ->
                             PhotoThumbnailFromUri(
-                                uri = uri,
+                                uri = uri ,
                                 onRemove = {
                                     sellViewModel.removeProductPhotoUri(uri)
                                 }
@@ -361,20 +381,20 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
             Spacer(modifier = Modifier.height(16.dp))
 
             InputFields(
-                "Title", "ex: T-shirt Nike Black",
-                value = title, onValueChange = { title = it })
+                "Title" , "ex: T-shirt Nike Black" ,
+                value = title , onValueChange = { title = it })
 
             Spacer(modifier = Modifier.height(16.dp))
 
             InputFields(
-                "Description", "ex: worn a few times, true to size",
-                value = description, onValueChange = { description = it })
+                "Description" , "ex: worn a few times, true to size" ,
+                value = description , onValueChange = { description = it })
 
             Spacer(modifier = Modifier.height(16.dp))
 
             InputFields(
-                "Price", "0,00 €",
-                value = price, onValueChange = { price = it })
+                "Price" , "0,00 €" ,
+                value = price , onValueChange = { price = it })
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -385,9 +405,9 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
             ) {
                 // Bouton catégorie
                 Button(
-                    onClick = { expandedCategory = !expandedCategory },
+                    onClick = { expandedCategory = !expandedCategory } ,
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF007782),
+                        containerColor = Color(0xFF007782) ,
                         contentColor = Color.White
                     )
                 ) {
@@ -396,39 +416,39 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
                         Text(text = if (sellViewModel.selectedCategory.value.isNotEmpty()) sellViewModel.selectedCategory.value else "Category")
                         Spacer(modifier = Modifier.weight(1f))
                         Icon(
-                            imageVector = if (expandedCategory) Icons.Outlined.KeyboardArrowUp else Icons.Outlined.KeyboardArrowDown,
+                            imageVector = if (expandedCategory) Icons.Outlined.KeyboardArrowUp else Icons.Outlined.KeyboardArrowDown ,
                             contentDescription = "Arrow"
                         )
                     }
                 }
 
                 DropdownMenu(
-                    expanded = expandedCategory,
-                    onDismissRequest = { expandedCategory = false },
+                    expanded = expandedCategory ,
+                    onDismissRequest = { expandedCategory = false } ,
                     modifier = Modifier
                         .fillMaxWidth()
                         .background(Color(0xFF007782))
                 ) {
                     listOf(
-                        "Woman" to Icons.Outlined.Woman,
-                        "Man" to Icons.Outlined.Man,
+                        "Woman" to Icons.Outlined.Woman ,
+                        "Man" to Icons.Outlined.Man ,
                         "Children" to Icons.Outlined.ChildCare
-                    ).forEach { (text, icon) ->
+                    ).forEach { (text , icon) ->
                         DropdownMenuItem(
-                            text = { Text(text = text, color = Color.White) },
+                            text = { Text(text = text , color = Color.White) } ,
                             leadingIcon = {
                                 Icon(
-                                    imageVector = icon,
-                                    contentDescription = null,
+                                    imageVector = icon ,
+                                    contentDescription = null ,
                                     tint = Color.White
                                 )
-                            },
+                            } ,
                             onClick = {
                                 sellViewModel.setProductCategory(text)
                                 expandedCategory = false
                             }
                         )
-                        Divider(thickness = 1.dp, color = Color.Gray)
+                        Divider(thickness = 1.dp , color = Color.Gray)
                     }
                 }
             }
@@ -448,13 +468,13 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
                 else sellViewModel.selectedType.value
                 Text(text = typeText)
                 Icon(
-                    imageVector = Icons.Outlined.KeyboardArrowRight,
+                    imageVector = Icons.Outlined.KeyboardArrowRight ,
                     contentDescription = "Arrow"
                 )
             }
 
             Spacer(modifier = Modifier.height(16.dp))
-            Divider(thickness = 1.dp, color = Color.Gray)
+            Divider(thickness = 1.dp , color = Color.Gray)
             Spacer(modifier = Modifier.height(16.dp))
 
             // Ligne pour la couleur
@@ -472,13 +492,13 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
                 else sellViewModel.selectedColors.value.joinToString(", ")
                 Text(text = colorsText)
                 Icon(
-                    imageVector = Icons.Outlined.KeyboardArrowRight,
+                    imageVector = Icons.Outlined.KeyboardArrowRight ,
                     contentDescription = "Arrow"
                 )
             }
 
             Spacer(modifier = Modifier.height(16.dp))
-            Divider(thickness = 1.dp, color = Color.Gray)
+            Divider(thickness = 1.dp , color = Color.Gray)
             Spacer(modifier = Modifier.height(16.dp))
 
             // Ligne pour le choix des matières
@@ -488,32 +508,32 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
                     .padding(16.dp)
                     .clickable {
                         navController.navigate(VintedScreen.Matieres.name)
-                    },
+                    } ,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(text = "Matières")
                 Spacer(modifier = Modifier.weight(1f))
                 Column(
-                    horizontalAlignment = Alignment.End,
+                    horizontalAlignment = Alignment.End ,
                     modifier = Modifier.weight(2f)
                 ) {
                     val materialsText = if (sellViewModel.selectedMaterial.value.isEmpty()) "None"
                     else sellViewModel.selectedMaterial.value.joinToString(", ")
                     Text(
-                        text = materialsText,
-                        maxLines = Int.MAX_VALUE,
+                        text = materialsText ,
+                        maxLines = Int.MAX_VALUE ,
                         overflow = TextOverflow.Visible
                     )
                 }
                 Icon(
-                    imageVector = Icons.Outlined.KeyboardArrowRight,
+                    imageVector = Icons.Outlined.KeyboardArrowRight ,
                     contentDescription = "Arrow"
                 )
             }
 
 
             Spacer(modifier = Modifier.height(16.dp))
-            Divider(thickness = 1.dp, color = Color.Gray)
+            Divider(thickness = 1.dp , color = Color.Gray)
             Spacer(modifier = Modifier.height(16.dp))
 
             // Ligne pour la taille
@@ -529,7 +549,7 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
                 Spacer(modifier = Modifier.weight(1f))
                 Text(text = sellViewModel.selectedSize.value.ifEmpty { "None" })
                 Icon(
-                    imageVector = Icons.Outlined.KeyboardArrowRight,
+                    imageVector = Icons.Outlined.KeyboardArrowRight ,
                     contentDescription = "Arrow"
                 )
             }
@@ -538,47 +558,47 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                    .padding(horizontal = 16.dp , vertical = 8.dp)
             ) {
                 Button(
-                    onClick = { expandedState = !expandedState },
+                    onClick = { expandedState = !expandedState } ,
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF007782),
+                        containerColor = Color(0xFF007782) ,
                         contentColor = Color.White
-                    ),
+                    ) ,
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(8.dp))
                 ) {
                     Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically ,
+                        horizontalArrangement = Arrangement.SpaceBetween ,
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Text(text = if (state.isNotEmpty()) state else "État")
                         Icon(
-                            imageVector = if (expandedState) Icons.Outlined.KeyboardArrowUp else Icons.Outlined.KeyboardArrowDown,
+                            imageVector = if (expandedState) Icons.Outlined.KeyboardArrowUp else Icons.Outlined.KeyboardArrowDown ,
                             contentDescription = "Arrow"
                         )
                     }
                 }
 
                 DropdownMenu(
-                    expanded = expandedState,
-                    onDismissRequest = { expandedState = false },
+                    expanded = expandedState ,
+                    onDismissRequest = { expandedState = false } ,
                     modifier = Modifier
                         .fillMaxWidth()
                         .background(Color(0xFF007782))
                 ) {
                     listOf(
-                        "Neuf avec étiquette" to "Article neuf, jamais porté/utilisé avec étiquettes ou dans son emballage d'origine.",
-                        "Neuf sans étiquette" to "Article neuf, jamais porté/utilisé sans étiquettes ni emballage d'origine.",
-                        "Très bon état" to "Article très peu porté/utilisé avec de légères imperfections.",
-                        "Bon état" to "Article porté/utilisé quelques fois avec signes d'usure.",
+                        "Neuf avec étiquette" to "Article neuf, jamais porté/utilisé avec étiquettes ou dans son emballage d'origine." ,
+                        "Neuf sans étiquette" to "Article neuf, jamais porté/utilisé sans étiquettes ni emballage d'origine." ,
+                        "Très bon état" to "Article très peu porté/utilisé avec de légères imperfections." ,
+                        "Bon état" to "Article porté/utilisé quelques fois avec signes d'usure." ,
                         "Satisfaisant" to "Article porté/utilisé plusieurs fois, avec imperfections visibles."
-                    ).forEach { (titleState, descriptionState) ->
+                    ).forEach { (titleState , descriptionState) ->
                         Row(
-                            verticalAlignment = Alignment.CenterVertically,
+                            verticalAlignment = Alignment.CenterVertically ,
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clickable {
@@ -591,32 +611,32 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
                                 modifier = Modifier.weight(1f)
                             ) {
                                 Text(
-                                    text = titleState,
-                                    color = Color.White,
-                                    style = MaterialTheme.typography.bodyLarge,
+                                    text = titleState ,
+                                    color = Color.White ,
+                                    style = MaterialTheme.typography.bodyLarge ,
                                     fontWeight = FontWeight.Bold
                                 )
                                 Text(
-                                    text = descriptionState,
-                                    color = Color.White,
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    maxLines = Int.MAX_VALUE,
+                                    text = descriptionState ,
+                                    color = Color.White ,
+                                    style = MaterialTheme.typography.bodyMedium ,
+                                    maxLines = Int.MAX_VALUE ,
                                     overflow = TextOverflow.Ellipsis
                                 )
                             }
                             RadioButton(
-                                selected = (state == titleState),
+                                selected = (state == titleState) ,
                                 onClick = {
                                     state = titleState
                                     expandedState = false
-                                },
+                                } ,
                                 colors = RadioButtonDefaults.colors(
-                                    selectedColor = Color.White,
+                                    selectedColor = Color.White ,
                                     unselectedColor = Color.White
                                 )
                             )
                         }
-                        Divider(thickness = 1.dp, color = Color.Gray)
+                        Divider(thickness = 1.dp , color = Color.Gray)
                     }
                 }
             }
@@ -628,21 +648,21 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
                     .padding(16.dp)
             ) {
                 Button(
-                    onClick = { expandedColis = !expandedColis },
+                    onClick = { expandedColis = !expandedColis } ,
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF007782),
+                        containerColor = Color(0xFF007782) ,
                         contentColor = Color.White
                     )
                 ) {
                     Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically ,
+                        horizontalArrangement = Arrangement.SpaceBetween ,
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Text(text = if (colis.isNotEmpty()) colis else "Format du colis")
                         Spacer(modifier = Modifier.weight(1f))
                         Icon(
-                            imageVector = if (expandedColis) Icons.Outlined.KeyboardArrowUp else Icons.Outlined.KeyboardArrowDown,
+                            imageVector = if (expandedColis) Icons.Outlined.KeyboardArrowUp else Icons.Outlined.KeyboardArrowDown ,
                             contentDescription = "Arrow"
                         )
                     }
@@ -650,20 +670,20 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
 
                 // Liste des choix du menu déroulant
                 DropdownMenu(
-                    expanded = expandedColis,
-                    onDismissRequest = { expandedColis = false },
+                    expanded = expandedColis ,
+                    onDismissRequest = { expandedColis = false } ,
                     modifier = Modifier
                         .fillMaxWidth()
                         .background(Color(0xFF007782))
                         .padding(horizontal = 8.dp)
                 ) {
                     listOf(
-                        "Petit" to "Convient pour un article qui tient dans une grande enveloppe.",
-                        "Moyen" to "Convient pour un article qui tient dans une boîte à chaussures.",
+                        "Petit" to "Convient pour un article qui tient dans une grande enveloppe." ,
+                        "Moyen" to "Convient pour un article qui tient dans une boîte à chaussures." ,
                         "Grand" to "Convient pour un article qui tient dans un carton de déménagement."
-                    ).forEach { (titleColis, descriptionColis) ->
+                    ).forEach { (titleColis , descriptionColis) ->
                         Row(
-                            verticalAlignment = Alignment.CenterVertically,
+                            verticalAlignment = Alignment.CenterVertically ,
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clickable {
@@ -676,31 +696,32 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
                                 modifier = Modifier.weight(1f)
                             ) {
                                 Text(
-                                    text = titleColis,
-                                    color = Color.White,
-                                    style = MaterialTheme.typography.bodyLarge,
+                                    text = titleColis ,
+                                    color = Color.White ,
+                                    style = MaterialTheme.typography.bodyLarge ,
                                     fontWeight = FontWeight.Bold
                                 )
                                 Text(
-                                    text = descriptionColis,
-                                    color = Color.White,
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    maxLines = Int.MAX_VALUE,
+                                    text = descriptionColis ,
+                                    color = Color.White ,
+                                    style = MaterialTheme.typography.bodyMedium ,
+                                    maxLines = Int.MAX_VALUE ,
                                     overflow = TextOverflow.Ellipsis
                                 )
                             }
                             RadioButton(
-                                selected = (colis == titleColis),
+                                selected = (colis == titleColis) ,
                                 onClick = {
                                     colis = titleColis
-                                    expandedColis = false },
+                                    expandedColis = false
+                                } ,
                                 colors = RadioButtonDefaults.colors(
-                                    selectedColor = Color.White,
+                                    selectedColor = Color.White ,
                                     unselectedColor = Color.White
                                 )
                             )
                         }
-                        Divider(thickness = 1.dp, color = Color.Gray)
+                        Divider(thickness = 1.dp , color = Color.Gray)
                     }
                 }
             }
@@ -713,31 +734,34 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
                     if (validateFields()) {
                         // Si on a des nouvelles photos (URIs), les uploader d'abord
                         if (sellViewModel.productPhotoUris.value.isNotEmpty()) {
-                            uploadPhotosToFirebase(context, sellViewModel.productPhotoUris.value) { newUrls ->
+                            uploadPhotosToFirebase(
+                                context ,
+                                sellViewModel.productPhotoUris.value
+                            ) { newUrls ->
                                 // Combiner les anciennes URLs avec les nouvelles
                                 val allUrls = sellViewModel.productPhotoUrls.value + newUrls
 
                                 saveArticleToFirestore(
-                                    userId.toString(),
-                                    sellViewModel.productTitle.value,
-                                    sellViewModel.productDescription.value,
-                                    sellViewModel.productPrice.value,
-                                    sellViewModel.selectedCategory.value,
-                                    sellViewModel.selectedType.value,
-                                    sellViewModel.selectedState.value,
-                                    sellViewModel.selectedColors.value,
-                                    sellViewModel.selectedMaterial.value,
-                                    sellViewModel.selectedSize.value,
-                                    sellViewModel.selectedColis.value,
-                                    sellViewModel.isAvailable.value,
-                                    allUrls,
+                                    userId.toString() ,
+                                    sellViewModel.productTitle.value ,
+                                    sellViewModel.productDescription.value ,
+                                    sellViewModel.productPrice.value ,
+                                    sellViewModel.selectedCategory.value ,
+                                    sellViewModel.selectedType.value ,
+                                    sellViewModel.selectedState.value ,
+                                    sellViewModel.selectedColors.value ,
+                                    sellViewModel.selectedMaterial.value ,
+                                    sellViewModel.selectedSize.value ,
+                                    sellViewModel.selectedColis.value ,
+                                    sellViewModel.isAvailable.value ,
+                                    allUrls ,
                                     productId = sellViewModel.productId.value.takeIf { it.isNotEmpty() }
                                 )
 
                                 sellViewModel.reset()
                                 Toast.makeText(
-                                    context,
-                                    if (itemId == null) "Product added" else "Product updated",
+                                    context ,
+                                    if (itemId == null) "Product added" else "Product updated" ,
                                     Toast.LENGTH_LONG
                                 ).show()
                                 navController.navigate(VintedScreen.MonCompte.name)
@@ -745,26 +769,26 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
                         } else {
                             // Pas de nouvelles photos, utiliser seulement les URLs existantes
                             saveArticleToFirestore(
-                                userId.toString(),
-                                sellViewModel.productTitle.value,
-                                sellViewModel.productDescription.value,
-                                sellViewModel.productPrice.value,
-                                sellViewModel.selectedCategory.value,
-                                sellViewModel.selectedType.value,
-                                sellViewModel.selectedState.value,
-                                sellViewModel.selectedColors.value,
-                                sellViewModel.selectedMaterial.value,
-                                sellViewModel.selectedSize.value,
-                                sellViewModel.selectedColis.value,
-                                sellViewModel.isAvailable.value,
-                                sellViewModel.productPhotoUrls.value,
+                                userId.toString() ,
+                                sellViewModel.productTitle.value ,
+                                sellViewModel.productDescription.value ,
+                                sellViewModel.productPrice.value ,
+                                sellViewModel.selectedCategory.value ,
+                                sellViewModel.selectedType.value ,
+                                sellViewModel.selectedState.value ,
+                                sellViewModel.selectedColors.value ,
+                                sellViewModel.selectedMaterial.value ,
+                                sellViewModel.selectedSize.value ,
+                                sellViewModel.selectedColis.value ,
+                                sellViewModel.isAvailable.value ,
+                                sellViewModel.productPhotoUrls.value ,
                                 productId = sellViewModel.productId.value.takeIf { it.isNotEmpty() }
                             )
 
                             sellViewModel.reset()
                             Toast.makeText(
-                                context,
-                                if (itemId == null) "Product added" else "Product updated",
+                                context ,
+                                if (itemId == null) "Product added" else "Product updated" ,
                                 Toast.LENGTH_LONG
                             ).show()
                             navController.navigate(VintedScreen.MonCompte.name)
@@ -772,14 +796,14 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
                     } else {
                         showDialog = true
                     }
-                },
+                } ,
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.White,
+                    containerColor = Color.White ,
                     contentColor = Color(0xFF007782)
-                ),
-                shape = RoundedCornerShape(16.dp),
+                ) ,
+                shape = RoundedCornerShape(16.dp) ,
                 modifier = Modifier
-                    .border(2.dp, Color(0xFF007782), RoundedCornerShape(16.dp))
+                    .border(2.dp , Color(0xFF007782) , RoundedCornerShape(16.dp))
             ) {
                 Text(text = if (itemId == null) "Add" else "Update")
             }
@@ -788,9 +812,9 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
 
     if (showDialog) {
         AlertDialog(
-            onDismissRequest = { showDialog = false },
-            title = { Text(text = "Error") },
-            text = { Text(text = errorMessage) },
+            onDismissRequest = { showDialog = false } ,
+            title = { Text(text = "Error") } ,
+            text = { Text(text = errorMessage) } ,
             confirmButton = {
                 Button(onClick = { showDialog = false }) {
                     Text("OK")
@@ -801,14 +825,14 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
 
     if (showResetDialog) {
         AlertDialog(
-            onDismissRequest = { showResetDialog = false },
-            title = { Text("Confirm Reset") },
-            text = { Text("Are you sure you want to reset all fields?") },
+            onDismissRequest = { showResetDialog = false } ,
+            title = { Text("Confirm Reset") } ,
+            text = { Text("Are you sure you want to reset all fields?") } ,
             dismissButton = {
                 Button(onClick = { showResetDialog = false }) {
                     Text("No")
                 }
-            },
+            } ,
             confirmButton = {
                 Button(
                     onClick = {
@@ -826,27 +850,27 @@ fun SellScreen(navController: NavController, sellViewModel: SellViewModel = view
 // Composable pour afficher une miniature à partir d'une URI locale
 @Composable
 fun PhotoThumbnailFromUri(
-    uri: Uri,
+    uri: Uri ,
     onRemove: () -> Unit
 ) {
     Box(modifier = Modifier.size(80.dp)) {
         AsyncImage(
-            model = uri,
-            contentDescription = "Selected photo",
+            model = uri ,
+            contentDescription = "Selected photo" ,
             modifier = Modifier
                 .fillMaxSize()
                 .clip(RoundedCornerShape(8.dp))
-                .border(1.dp, Color.Gray, RoundedCornerShape(8.dp)),
+                .border(1.dp , Color.Gray , RoundedCornerShape(8.dp)) ,
             contentScale = ContentScale.Crop
         )
 
         Icon(
-            imageVector = Icons.Default.Close,
-            contentDescription = "Remove photo",
-            tint = Color.White,
+            imageVector = Icons.Default.Close ,
+            contentDescription = "Remove photo" ,
+            tint = Color.White ,
             modifier = Modifier
                 .align(Alignment.TopEnd)
-                .background(Color.Red.copy(alpha = 0.7f), CircleShape)
+                .background(Color.Red.copy(alpha = 0.7f) , CircleShape)
                 .padding(4.dp)
                 .size(16.dp)
                 .clickable { onRemove() }
@@ -857,27 +881,27 @@ fun PhotoThumbnailFromUri(
 // Composable pour afficher une miniature à partir d'une URL Firebase
 @Composable
 fun PhotoThumbnailFromUrl(
-    url: String,
+    url: String ,
     onRemove: () -> Unit
 ) {
     Box(modifier = Modifier.size(80.dp)) {
         AsyncImage(
-            model = url,
-            contentDescription = "Existing photo",
+            model = url ,
+            contentDescription = "Existing photo" ,
             modifier = Modifier
                 .fillMaxSize()
                 .clip(RoundedCornerShape(8.dp))
-                .border(1.dp, Color.Gray, RoundedCornerShape(8.dp)),
+                .border(1.dp , Color.Gray , RoundedCornerShape(8.dp)) ,
             contentScale = ContentScale.Crop
         )
 
         Icon(
-            imageVector = Icons.Default.Close,
-            contentDescription = "Remove photo",
-            tint = Color.White,
+            imageVector = Icons.Default.Close ,
+            contentDescription = "Remove photo" ,
+            tint = Color.White ,
             modifier = Modifier
                 .align(Alignment.TopEnd)
-                .background(Color.Red.copy(alpha = 0.7f), CircleShape)
+                .background(Color.Red.copy(alpha = 0.7f) , CircleShape)
                 .padding(4.dp)
                 .size(16.dp)
                 .clickable { onRemove() }
@@ -887,9 +911,9 @@ fun PhotoThumbnailFromUrl(
 
 @Composable
 fun InputFields(
-    label: String,
-    placeholder: String,
-    value: String,
+    label: String ,
+    placeholder: String ,
+    value: String ,
     onValueChange: (String) -> Unit
 ) {
     Column(
@@ -899,20 +923,20 @@ fun InputFields(
         Spacer(modifier = Modifier.height(8.dp))
 
         BasicTextField(
-            value = value,
+            value = value ,
             onValueChange = { newValue ->
                 if (label == "Title" && newValue.length <= 25) {
                     onValueChange(newValue)
                 } else if (label != "Title") {
                     onValueChange(newValue)
                 }
-            },
+            } ,
             keyboardOptions = if (label == "Price") {
                 KeyboardOptions(keyboardType = KeyboardType.Decimal)
             } else {
                 KeyboardOptions.Default
-            },
-            singleLine = true,
+            } ,
+            singleLine = true ,
             decorationBox = { innerTextField ->
                 Column {
                     Box(
@@ -922,15 +946,15 @@ fun InputFields(
                     ) {
                         if (value.isEmpty()) {
                             Text(
-                                text = placeholder,
-                                color = Color.Gray,
+                                text = placeholder ,
+                                color = Color.Gray ,
                                 modifier = Modifier.fillMaxWidth()
                             )
                         }
                         innerTextField()
                     }
                     Divider(
-                        thickness = 1.dp,
+                        thickness = 1.dp ,
                         color = Color.Gray
                     )
                 }
@@ -939,16 +963,16 @@ fun InputFields(
 
         if (label == "Title" && value.length == 25) {
             Text(
-                text = "Limite de 25 caractères atteinte",
-                color = Color.Red,
+                text = "Limite de 25 caractères atteinte" ,
+                color = Color.Red ,
                 modifier = Modifier.padding(start = 8.dp)
             )
         }
 
         if (label == "Description" && value.length == 120) {
             Text(
-                text = "Limite de 120 caractères atteinte",
-                color = Color.Red,
+                text = "Limite de 120 caractères atteinte" ,
+                color = Color.Red ,
                 modifier = Modifier.padding(start = 8.dp)
             )
         }
@@ -961,20 +985,20 @@ fun generateUniqueUri(context: Context): Uri {
         outputDirectory.mkdirs()
     }
     val photoFile = File.createTempFile(
-        "photo_${System.currentTimeMillis()}",
-        ".jpg",
+        "photo_${System.currentTimeMillis()}" ,
+        ".jpg" ,
         outputDirectory
     )
     return FileProvider.getUriForFile(
-        context,
-        "${context.packageName}.provider",
+        context ,
+        "${context.packageName}.provider" ,
         photoFile
     )
 }
 
 fun uploadPhotosToFirebase(
-    context: Context,
-    uriList: List<Uri>,
+    context: Context ,
+    uriList: List<Uri> ,
     onUploadSuccess: (List<String>) -> Unit
 ) {
     val storage = Firebase.storage
@@ -990,13 +1014,13 @@ fun uploadPhotosToFirebase(
     uriList.forEach { uri ->
         val bitmap: Bitmap? = try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                val source = ImageDecoder.createSource(context.contentResolver, uri)
+                val source = ImageDecoder.createSource(context.contentResolver , uri)
                 ImageDecoder.decodeBitmap(source)
             } else {
-                MediaStore.Images.Media.getBitmap(context.contentResolver, uri)
+                MediaStore.Images.Media.getBitmap(context.contentResolver , uri)
             }
         } catch (e: Exception) {
-            Log.e("PhotoCompression", "Erreur chargement bitmap: ${e.message}")
+            Log.e("PhotoCompression" , "Erreur chargement bitmap: ${e.message}")
             null
         }
 
@@ -1009,7 +1033,7 @@ fun uploadPhotosToFirebase(
         }
 
         val baos = ByteArrayOutputStream()
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 50, baos)
+        bitmap.compress(Bitmap.CompressFormat.JPEG , 50 , baos)
         val data = baos.toByteArray()
 
         val photoRef = storageRef.child("Post/${System.currentTimeMillis()}_${uri.lastPathSegment}")
@@ -1025,7 +1049,7 @@ fun uploadPhotosToFirebase(
                 }
             }
             .addOnFailureListener { exception ->
-                Log.e("FirebaseUpload", "Upload failed: ${exception.message}")
+                Log.e("FirebaseUpload" , "Upload failed: ${exception.message}")
                 uploadCount++
                 if (uploadCount == uriList.size) {
                     onUploadSuccess(uploadedUrls)
@@ -1035,44 +1059,44 @@ fun uploadPhotosToFirebase(
 }
 
 fun saveArticleToFirestore(
-    userId: String,
-    title: String,
-    description: String,
-    price: String,
-    category: String,
-    type: String,
-    state: String,
-    couleurs: Set<String>,
-    matieres: Set<String>,
-    size: String,
-    colis: String,
-    isAvailable: Boolean,
-    photoUrls: List<String>, // Toujours des URLs ici
+    userId: String ,
+    title: String ,
+    description: String ,
+    price: String ,
+    category: String ,
+    type: String ,
+    state: String ,
+    couleurs: Set<String> ,
+    matieres: Set<String> ,
+    size: String ,
+    colis: String ,
+    isAvailable: Boolean ,
+    photoUrls: List<String> , // Toujours des URLs ici
     productId: String? = null
 ) {
-    Log.d("Firestore", "Saving with Photo URLs: $photoUrls")
+    Log.d("Firestore" , "Saving with Photo URLs: $photoUrls")
 
     val formattedTitle = formatTitle(title)
     val calendar = Calendar.getInstance(Locale.FRANCE)
-    val dateFormat = SimpleDateFormat("yyyy-MM-dd-HH-mm-ss", Locale.FRANCE)
+    val dateFormat = SimpleDateFormat("yyyy-MM-dd-HH-mm-ss" , Locale.FRANCE)
     val currentDate = dateFormat.format(calendar.time)
 
     val db = Firebase.firestore
     val article = hashMapOf(
-        "userId" to userId,
-        "title" to formattedTitle,
-        "description" to description,
-        "price" to price.toDoubleOrNull(),
-        "category" to category,
-        "type" to type,
-        "size" to size,
-        "state" to state,
-        "color" to couleurs.toList(),
-        "material" to matieres.toList(),
-        "colis" to colis,
-        "available" to isAvailable,
-        "photos" to photoUrls, // URLs Firebase
-        "dateCreation" to currentDate,
+        "userId" to userId ,
+        "title" to formattedTitle ,
+        "description" to description ,
+        "price" to price.toDoubleOrNull() ,
+        "category" to category ,
+        "type" to type ,
+        "size" to size ,
+        "state" to state ,
+        "color" to couleurs.toList() ,
+        "material" to matieres.toList() ,
+        "colis" to colis ,
+        "available" to isAvailable ,
+        "photos" to photoUrls , // URLs Firebase
+        "dateCreation" to currentDate ,
     )
 
     if (productId != null) {
@@ -1080,19 +1104,19 @@ fun saveArticleToFirestore(
             .document(productId)
             .set(article)
             .addOnSuccessListener {
-                Log.d("Firestore", "Article mis à jour avec ID : $productId")
+                Log.d("Firestore" , "Article mis à jour avec ID : $productId")
             }
             .addOnFailureListener { exception ->
-                Log.e("Firestore", "Erreur lors de la mise à jour : ${exception.message}")
+                Log.e("Firestore" , "Erreur lors de la mise à jour : ${exception.message}")
             }
     } else {
         db.collection("Post")
             .add(article)
             .addOnSuccessListener { documentReference ->
-                Log.d("Firestore", "Article enregistré avec ID : ${documentReference.id}")
+                Log.d("Firestore" , "Article enregistré avec ID : ${documentReference.id}")
             }
             .addOnFailureListener { exception ->
-                Log.e("Firestore", "Erreur lors de l'enregistrement : ${exception.message}")
+                Log.e("Firestore" , "Erreur lors de l'enregistrement : ${exception.message}")
             }
     }
 }

@@ -1,75 +1,74 @@
 package com.example.project_sy43.navigation
 
+import android.util.Log
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.example.project_sy43.ui.theme.main_screens.Accueil
-import com.example.project_sy43.ui.theme.main_screens.LoginScreen
-import com.example.project_sy43.viewmodel.ProductViewModel
 import androidx.navigation.navArgument
+import com.example.project_sy43.ui.theme.children_screen.BabyGirlScreen
+import com.example.project_sy43.ui.theme.children_screen.BabyScreen
+import com.example.project_sy43.ui.theme.children_screen.BabyShoesScreen
+import com.example.project_sy43.ui.theme.main_screens.Accueil
+import com.example.project_sy43.ui.theme.main_screens.CategorySelectionScreen
+import com.example.project_sy43.ui.theme.main_screens.ClothingDetailView
+import com.example.project_sy43.ui.theme.main_screens.ConversationScreen
+import com.example.project_sy43.ui.theme.main_screens.Dressing
+import com.example.project_sy43.ui.theme.main_screens.LoginScreen
+import com.example.project_sy43.ui.theme.main_screens.Messages
+import com.example.project_sy43.ui.theme.main_screens.MonCompte
+import com.example.project_sy43.ui.theme.main_screens.NotificationSetting
+import com.example.project_sy43.ui.theme.main_screens.Profile
+import com.example.project_sy43.ui.theme.main_screens.PurchaseScreen
+import com.example.project_sy43.ui.theme.main_screens.PurchaseScreenWithNegotiatedPrice
+import com.example.project_sy43.ui.theme.main_screens.Search
+import com.example.project_sy43.ui.theme.main_screens.SellScreen
+import com.example.project_sy43.ui.theme.main_screens.Setting
+import com.example.project_sy43.ui.theme.main_screens.SignUpScreen
+import com.example.project_sy43.ui.theme.main_screens.TypeClotheScreen
+import com.example.project_sy43.ui.theme.main_screens.UpdatePassword
+import com.example.project_sy43.ui.theme.main_screens.UpdateProfile
 import com.example.project_sy43.ui.theme.second_screens.AccessoireSportScreen
 import com.example.project_sy43.ui.theme.second_screens.BlazerScreen
-import com.example.project_sy43.ui.theme.main_screens.ClothingDetailView
-import com.example.project_sy43.ui.theme.main_screens.MonCompte
-import com.example.project_sy43.ui.theme.main_screens.SellScreen
-import com.example.project_sy43.ui.theme.main_screens.SignUpScreen
+import com.example.project_sy43.ui.theme.second_screens.ChildrenClothesScreen
 import com.example.project_sy43.ui.theme.second_screens.ColorScreen
 import com.example.project_sy43.ui.theme.second_screens.CombinaisonScreen
-import com.example.project_sy43.ui.theme.main_screens.Dressing
 import com.example.project_sy43.ui.theme.second_screens.HautScreen
 import com.example.project_sy43.ui.theme.second_screens.JupeScreen
 import com.example.project_sy43.ui.theme.second_screens.LingerieMaterniteScreen
 import com.example.project_sy43.ui.theme.second_screens.LingeriePyjamaScreen
 import com.example.project_sy43.ui.theme.second_screens.MaillotDeBainScreen
+import com.example.project_sy43.ui.theme.second_screens.ManClothesScreen
 import com.example.project_sy43.ui.theme.second_screens.ManteauxEtVestesScreen
 import com.example.project_sy43.ui.theme.second_screens.ManteauxScreen
 import com.example.project_sy43.ui.theme.second_screens.MaterniteScreen
 import com.example.project_sy43.ui.theme.second_screens.MatieresScreen
-import com.example.project_sy43.ui.theme.main_screens.Messages
-import com.example.project_sy43.ui.theme.main_screens.Profile
-import com.example.project_sy43.ui.theme.main_screens.Search
-import com.example.project_sy43.ui.theme.main_screens.Setting
-import com.example.project_sy43.ui.theme.second_screens.SizeScreen
-import com.example.project_sy43.viewmodel.PersonViewModel
-import com.example.project_sy43.viewmodel.SellViewModel
-import com.example.project_sy43.ui.theme.main_screens.UpdatePassword
-import com.example.project_sy43.ui.theme.main_screens.UpdateProfile
-import com.example.project_sy43.ui.theme.main_screens.NotificationSetting
 import com.example.project_sy43.ui.theme.second_screens.PantalonScreen
 import com.example.project_sy43.ui.theme.second_screens.RobeOccasionScreen
 import com.example.project_sy43.ui.theme.second_screens.RobeScreen
 import com.example.project_sy43.ui.theme.second_screens.ShortScreen
+import com.example.project_sy43.ui.theme.second_screens.SizeScreen
 import com.example.project_sy43.ui.theme.second_screens.SportScreen
 import com.example.project_sy43.ui.theme.second_screens.SweatCapucheScreen
 import com.example.project_sy43.ui.theme.second_screens.SweatScreen
-import com.example.project_sy43.ui.theme.main_screens.TypeClotheScreen
 import com.example.project_sy43.ui.theme.second_screens.VestesScreen
-import com. example. project_sy43.ui. theme. main_screens. ConversationScreen
-import android. util. Log
-import androidx.compose.runtime.LaunchedEffect
-import androidx.lifecycle.viewmodel.compose.viewModel
-
-import com.example.project_sy43.ui.theme.children_screen.BabyGirlScreen
-import com.example.project_sy43.ui.theme.children_screen.BabyScreen
-import com.example.project_sy43.ui.theme.children_screen.BabyShoesScreen
-import com.example.project_sy43.viewmodel.ConversationViewModel
-import com.example.project_sy43.ui.theme.main_screens.CategorySelectionScreen
-import com.example.project_sy43.ui.theme.main_screens.PurchaseScreen
-import com.example.project_sy43.ui.theme.main_screens.PurchaseScreenWithNegotiatedPrice
-import com.example.project_sy43.ui.theme.second_screens.ChildrenClothesScreen
-import com.example.project_sy43.ui.theme.second_screens.ManClothesScreen
 import com.example.project_sy43.ui.theme.second_screens.WomanClothesScreen
+import com.example.project_sy43.viewmodel.ConversationViewModel
+import com.example.project_sy43.viewmodel.PersonViewModel
+import com.example.project_sy43.viewmodel.ProductViewModel
+import com.example.project_sy43.viewmodel.SellViewModel
 import com.example.project_sy43.viewmodel.SharedViewModel
 import com.google.firebase.firestore.FirebaseFirestore
 
 @Composable
 fun VintedNavGraph(
-    navController: NavHostController,
-    viewModelProduct: ProductViewModel,
-    viewModelSell: SellViewModel,
-    viewModelPerson: PersonViewModel,
+    navController: NavHostController ,
+    viewModelProduct: ProductViewModel ,
+    viewModelSell: SellViewModel ,
+    viewModelPerson: PersonViewModel ,
     viewModelConversation: ConversationViewModel
 ) {
     NavHost(navController = navController , startDestination = VintedScreen.MonCompte.name) {
@@ -391,7 +390,7 @@ fun VintedNavGraph(
             )
         ) { backStackEntry ->
             val itemId = backStackEntry.arguments?.getString("itemId")
-            val menuDeroulant = backStackEntry.arguments?.getBoolean("menuDeroulant") ?: false
+            val menuDeroulant = backStackEntry.arguments?.getBoolean("menuDeroulant") == true
 
             ClothingDetailView(
                 personViewModel = viewModelPerson ,
@@ -446,9 +445,9 @@ fun VintedNavGraph(
         }
 
         composable(
-            route = "${VintedScreen.ResumeBeforePurchaseScreen.name}/{productId}/{negotiatedPrice}",
+            route = "${VintedScreen.ResumeBeforePurchaseScreen.name}/{productId}/{negotiatedPrice}" ,
             arguments = listOf(
-                navArgument("productId") { type = NavType.StringType },
+                navArgument("productId") { type = NavType.StringType } ,
                 navArgument("negotiatedPrice") { type = NavType.FloatType }
             )
         ) { backStackEntry ->
@@ -457,9 +456,9 @@ fun VintedNavGraph(
             val negotiatedPrice = negotiatedPriceFloat.toDouble()
 
             PurchaseScreenWithNegotiatedPrice(
-                productId = productId,
-                negotiatedPrice = negotiatedPrice,
-                navController = navController,
+                productId = productId ,
+                negotiatedPrice = negotiatedPrice ,
+                navController = navController ,
                 onBackClick = { navController.popBackStack() }
             )
         }
@@ -468,11 +467,11 @@ fun VintedNavGraph(
             route = "${VintedScreen.PurchaseScreen.name}/{productId}/{itemName}"
         ) {
             PurchaseScreen(
-                db = FirebaseFirestore.getInstance(),
-                navController = navController,
-                itemId = it.arguments?.getString("productId") ?: "",
+                db = FirebaseFirestore.getInstance() ,
+                navController = navController ,
+                itemId = it.arguments?.getString("productId") ?: "" ,
                 itemName = it.arguments?.getString("itemName") ?: ""
-                )
+            )
         }
     }
 }

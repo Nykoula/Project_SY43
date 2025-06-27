@@ -1,5 +1,6 @@
 package com.example.project_sy43.ui.theme.main_screens
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -24,7 +25,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -42,16 +42,15 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import com.example.project_sy43.R
 import com.example.project_sy43.navigation.VintedScreen
-import com.google.firebase.auth.FirebaseAuth
-import androidx.navigation.NavController
 import com.example.project_sy43.viewmodel.PersonViewModel
-import android. util. Log
+import com.google.firebase.auth.FirebaseAuth
 
 @Composable
 fun LoginScreen(
-    navController: NavController,
+    navController: NavController ,
     onCancel: () -> Unit
 ) {
     var email by remember { mutableStateOf("") }
@@ -65,69 +64,69 @@ fun LoginScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(24.dp),
-        verticalArrangement = Arrangement.Center,
+            .padding(24.dp) ,
+        verticalArrangement = Arrangement.Center ,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Image(
-            painter = image,
-            contentDescription = null,
-            modifier = Modifier.size(120.dp),
+            painter = image ,
+            contentDescription = null ,
+            modifier = Modifier.size(120.dp) ,
             colorFilter = ColorFilter.tint(Color(0xFF007782))
         )
 
         Spacer(modifier = Modifier.height(24.dp))
 
         OutlinedTextField(
-            value = email,
-            onValueChange = { email = it },
-            modifier = Modifier.fillMaxWidth(),
+            value = email ,
+            onValueChange = { email = it } ,
+            modifier = Modifier.fillMaxWidth() ,
             leadingIcon = {
                 Icon(
-                    imageVector = Icons.Default.Email,
-                    contentDescription = null,
+                    imageVector = Icons.Default.Email ,
+                    contentDescription = null ,
                     tint = Color(0xFF007782)
                 )
-            },
-            placeholder = { Text("Email") },
+            } ,
+            placeholder = { Text("Email") } ,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
         OutlinedTextField(
-            value = password,
-            onValueChange = { password = it },
+            value = password ,
+            onValueChange = { password = it } ,
             leadingIcon = {
                 Icon(
-                    imageVector = Icons.Default.Lock,
-                    contentDescription = "Password Icon",
+                    imageVector = Icons.Default.Lock ,
+                    contentDescription = "Password Icon" ,
                     tint = Color(0xFF007782)
                 )
-            },
-            placeholder = { Text("Password") },
+            } ,
+            placeholder = { Text("Password") } ,
             trailingIcon = {
                 IconButton(
                     onClick = { isPasswordVisible = !isPasswordVisible }
                 ) {
                     Icon(
-                        imageVector = if (isPasswordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
-                        contentDescription = if (isPasswordVisible) "Hide password" else "Show password",
+                        imageVector = if (isPasswordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff ,
+                        contentDescription = if (isPasswordVisible) "Hide password" else "Show password" ,
                         tint = Color.Gray
                     )
                 }
-            },
+            } ,
             modifier = Modifier
-                .fillMaxWidth(),
+                .fillMaxWidth() ,
             visualTransformation = if (isPasswordVisible) VisualTransformation.None
-            else PasswordVisualTransformation(),
+            else PasswordVisualTransformation() ,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
         )
 
         if (errorMessage.isNotEmpty()) {
             Text(
-                text = errorMessage,
-                color = Color.Red,
+                text = errorMessage ,
+                color = Color.Red ,
                 modifier = Modifier.padding(bottom = 16.dp)
             )
         }
@@ -146,9 +145,9 @@ fun LoginScreen(
                 // Normaliser l'email
                 val normalizedEmail = email.trim().lowercase()
 
-                Log.d("LoginScreen", "Email: $normalizedEmail, Password: $password")
+                Log.d("LoginScreen" , "Email: $normalizedEmail, Password: $password")
 
-                authentification.signInWithEmailAndPassword(normalizedEmail, password)
+                authentification.signInWithEmailAndPassword(normalizedEmail , password)
                     .addOnCompleteListener { task ->
                         if (task.isSuccessful) {
                             errorMessage = ""
@@ -158,17 +157,17 @@ fun LoginScreen(
                             }
                         } else {
                             errorMessage = "Email ou mot de passe invalide."
-                            Log.e("LoginScreen", "Login failed", task.exception)
+                            Log.e("LoginScreen" , "Login failed" , task.exception)
                         }
                     }
                     .addOnFailureListener { exception ->
-                        Log.e("LoginScreen", "Login failed with exception", exception)
+                        Log.e("LoginScreen" , "Login failed with exception" , exception)
                         errorMessage = "Erreur lors de la connexion : ${exception.localizedMessage}"
                     }
-            }, colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFF007782),
+            } , colors = ButtonDefaults.buttonColors(
+                containerColor = Color(0xFF007782) ,
                 contentColor = Color.White
-            ), shape = RoundedCornerShape(16.dp),
+            ) , shape = RoundedCornerShape(16.dp) ,
             modifier = Modifier
                 .fillMaxWidth()
         )
@@ -179,11 +178,11 @@ fun LoginScreen(
         }
         Spacer(modifier = Modifier.height(16.dp))
         Button(
-            onClick = onCancel,
+            onClick = onCancel ,
             colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFF007782),
+                containerColor = Color(0xFF007782) ,
                 contentColor = Color.White
-            ), shape = RoundedCornerShape(16.dp),
+            ) , shape = RoundedCornerShape(16.dp) ,
             modifier = Modifier
                 .fillMaxWidth()
         )
@@ -201,9 +200,9 @@ fun LoginScreen(
                 text = "Don't have an account ? "
             )
             Text(
-                text = "Sign up",
-                fontWeight = FontWeight.Bold,
-                textDecoration = TextDecoration.Underline,
+                text = "Sign up" ,
+                fontWeight = FontWeight.Bold ,
+                textDecoration = TextDecoration.Underline ,
                 modifier = Modifier.clickable {
                     navController.navigate(VintedScreen.SignUp.name)
                 }

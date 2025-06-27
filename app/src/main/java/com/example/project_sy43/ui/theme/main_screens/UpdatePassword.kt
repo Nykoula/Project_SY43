@@ -1,14 +1,33 @@
 package com.example.project_sy43.ui.theme.main_screens
 
 import android.widget.Toast
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -82,23 +101,35 @@ fun UpdatePassword(navController: NavController) {
             val email = user.email
             if (email.isNullOrEmpty()) {
                 isLoading = false
-                Toast.makeText(context, "Impossible de récupérer l'email de l'utilisateur", Toast.LENGTH_LONG).show()
+                Toast.makeText(
+                    context ,
+                    "Impossible de récupérer l'email de l'utilisateur" ,
+                    Toast.LENGTH_LONG
+                ).show()
                 return
             }
 
-            val credential = EmailAuthProvider.getCredential(email, currentPassword)
+            val credential = EmailAuthProvider.getCredential(email , currentPassword)
 
             user.reauthenticate(credential)
                 .addOnSuccessListener {
                     user.updatePassword(newPassword)
                         .addOnSuccessListener {
                             isLoading = false
-                            Toast.makeText(context, "Mot de passe modifié avec succès", Toast.LENGTH_LONG).show()
+                            Toast.makeText(
+                                context ,
+                                "Mot de passe modifié avec succès" ,
+                                Toast.LENGTH_LONG
+                            ).show()
                             navController.popBackStack()
                         }
                         .addOnFailureListener { exception ->
                             isLoading = false
-                            Toast.makeText(context, "Erreur lors du changement de mot de passe: ${exception.localizedMessage}", Toast.LENGTH_LONG).show()
+                            Toast.makeText(
+                                context ,
+                                "Erreur lors du changement de mot de passe: ${exception.localizedMessage}" ,
+                                Toast.LENGTH_LONG
+                            ).show()
                         }
                 }
                 .addOnFailureListener { exception ->
@@ -106,7 +137,11 @@ fun UpdatePassword(navController: NavController) {
                     if (exception is FirebaseAuthInvalidCredentialsException) {
                         currentPasswordError = "Mot de passe actuel incorrect"
                     } else {
-                        Toast.makeText(context, "Échec de la réauthentification: ${exception.localizedMessage}", Toast.LENGTH_LONG).show()
+                        Toast.makeText(
+                            context ,
+                            "Échec de la réauthentification: ${exception.localizedMessage}" ,
+                            Toast.LENGTH_LONG
+                        ).show()
                     }
                 }
         }
@@ -114,108 +149,112 @@ fun UpdatePassword(navController: NavController) {
 
     Scaffold(
         topBar = {
-            VintedTopBar(title = "Modifier le mot de passe", navController, true)
+            VintedTopBar(title = "Modifier le mot de passe" , navController , true)
         }
     ) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
+                .padding(16.dp) ,
+            verticalArrangement = Arrangement.spacedBy(16.dp) ,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(modifier = Modifier.height(20.dp))
 
             Card(
-                modifier = Modifier.fillMaxWidth(),
-                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                modifier = Modifier.fillMaxWidth() ,
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp) ,
                 colors = CardDefaults.cardColors(containerColor = Color.White)
             ) {
                 Column(
-                    modifier = Modifier.padding(24.dp),
+                    modifier = Modifier.padding(24.dp) ,
                     verticalArrangement = Arrangement.spacedBy(20.dp)
                 ) {
                     OutlinedTextField(
-                        value = currentPassword,
+                        value = currentPassword ,
                         onValueChange = {
                             currentPassword = it
                             currentPasswordError = ""
-                        },
-                        label = { Text("Mot de passe actuel") },
-                        visualTransformation = if (currentPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                        } ,
+                        label = { Text("Mot de passe actuel") } ,
+                        visualTransformation = if (currentPasswordVisible) VisualTransformation.None else PasswordVisualTransformation() ,
                         trailingIcon = {
-                            IconButton(onClick = { currentPasswordVisible = !currentPasswordVisible }) {
+                            IconButton(onClick = {
+                                currentPasswordVisible = !currentPasswordVisible
+                            }) {
                                 Icon(
-                                    imageVector = if (currentPasswordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                                    imageVector = if (currentPasswordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff ,
                                     contentDescription = null
                                 )
                             }
-                        },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                        modifier = Modifier.fillMaxWidth(),
+                        } ,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password) ,
+                        modifier = Modifier.fillMaxWidth() ,
                         isError = currentPasswordError.isNotEmpty()
                     )
                     if (currentPasswordError.isNotEmpty()) {
                         Text(
-                            text = currentPasswordError,
-                            color = MaterialTheme.colorScheme.error,
+                            text = currentPasswordError ,
+                            color = MaterialTheme.colorScheme.error ,
                             style = MaterialTheme.typography.bodySmall
                         )
                     }
 
                     OutlinedTextField(
-                        value = newPassword,
+                        value = newPassword ,
                         onValueChange = {
                             newPassword = it
                             newPasswordError = ""
-                        },
-                        label = { Text("Nouveau mot de passe") },
-                        visualTransformation = if (newPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                        } ,
+                        label = { Text("Nouveau mot de passe") } ,
+                        visualTransformation = if (newPasswordVisible) VisualTransformation.None else PasswordVisualTransformation() ,
                         trailingIcon = {
                             IconButton(onClick = { newPasswordVisible = !newPasswordVisible }) {
                                 Icon(
-                                    imageVector = if (newPasswordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                                    imageVector = if (newPasswordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff ,
                                     contentDescription = null
                                 )
                             }
-                        },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                        modifier = Modifier.fillMaxWidth(),
+                        } ,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password) ,
+                        modifier = Modifier.fillMaxWidth() ,
                         isError = newPasswordError.isNotEmpty()
                     )
                     if (newPasswordError.isNotEmpty()) {
                         Text(
-                            text = newPasswordError,
-                            color = MaterialTheme.colorScheme.error,
+                            text = newPasswordError ,
+                            color = MaterialTheme.colorScheme.error ,
                             style = MaterialTheme.typography.bodySmall
                         )
                     }
 
                     OutlinedTextField(
-                        value = confirmPassword,
+                        value = confirmPassword ,
                         onValueChange = {
                             confirmPassword = it
                             confirmPasswordError = ""
-                        },
-                        label = { Text("Confirmer le nouveau mot de passe") },
-                        visualTransformation = if (confirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                        } ,
+                        label = { Text("Confirmer le nouveau mot de passe") } ,
+                        visualTransformation = if (confirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation() ,
                         trailingIcon = {
-                            IconButton(onClick = { confirmPasswordVisible = !confirmPasswordVisible }) {
+                            IconButton(onClick = {
+                                confirmPasswordVisible = !confirmPasswordVisible
+                            }) {
                                 Icon(
-                                    imageVector = if (confirmPasswordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                                    imageVector = if (confirmPasswordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff ,
                                     contentDescription = null
                                 )
                             }
-                        },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                        modifier = Modifier.fillMaxWidth(),
+                        } ,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password) ,
+                        modifier = Modifier.fillMaxWidth() ,
                         isError = confirmPasswordError.isNotEmpty()
                     )
                     if (confirmPasswordError.isNotEmpty()) {
                         Text(
-                            text = confirmPasswordError,
-                            color = MaterialTheme.colorScheme.error,
+                            text = confirmPasswordError ,
+                            color = MaterialTheme.colorScheme.error ,
                             style = MaterialTheme.typography.bodySmall
                         )
                     }
@@ -223,20 +262,20 @@ fun UpdatePassword(navController: NavController) {
                     Spacer(modifier = Modifier.height(10.dp))
 
                     Button(
-                        onClick = { changePassword() },
-                        enabled = !isLoading && currentPassword.isNotEmpty() && newPassword.isNotEmpty() && confirmPassword.isNotEmpty(),
+                        onClick = { changePassword() } ,
+                        enabled = !isLoading && currentPassword.isNotEmpty() && newPassword.isNotEmpty() && confirmPassword.isNotEmpty() ,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(50.dp),
+                            .height(50.dp) ,
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFF007782),
+                            containerColor = Color(0xFF007782) ,
                             contentColor = Color.White
-                        ),
+                        ) ,
                         shape = RoundedCornerShape(12.dp)
                     ) {
                         Text(
-                            text = if (isLoading) "Modification en cours..." else "Modifier le mot de passe",
-                            style = MaterialTheme.typography.bodyLarge,
+                            text = if (isLoading) "Modification en cours..." else "Modifier le mot de passe" ,
+                            style = MaterialTheme.typography.bodyLarge ,
                             fontWeight = FontWeight.Medium
                         )
                     }

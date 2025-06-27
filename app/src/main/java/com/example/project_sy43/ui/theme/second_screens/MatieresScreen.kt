@@ -28,18 +28,23 @@ import com.example.project_sy43.ui.theme.components.VintedTopBar
 import com.example.project_sy43.viewmodel.SellViewModel
 
 @Composable
-fun MatieresScreen(navController: NavController, sellViewModel: SellViewModel) {
+fun MatieresScreen(navController: NavController , sellViewModel: SellViewModel) {
 
     var selectedMatieres by sellViewModel.selectedMaterial
 
     Scaffold(
         topBar = {
-            VintedTopBar(title = "Matière (recommandé)", navController, true, description = "Sélectionne jusqu'à 3 options")
-        },
+            VintedTopBar(
+                title = "Matière (recommandé)" ,
+                navController ,
+                true ,
+                description = "Sélectionne jusqu'à 3 options"
+            )
+        } ,
         bottomBar = {
             ButtonBottomBar(
-                navController,
-                VintedScreen.Matieres,
+                navController ,
+                VintedScreen.Matieres ,
                 onSaveClicked = {
                     sellViewModel.setSelectedMaterial(selectedMatieres)
                 }
@@ -53,21 +58,21 @@ fun MatieresScreen(navController: NavController, sellViewModel: SellViewModel) {
         ) {
             items(
                 listOf(
-                    "Acier", "Acrylique", "Alpaga", "Argent", "Bambou", "Bois",
-                    "Cachemire", "Caoutchouc", "Carton", "Coton", "Cuir", "Cuir synthétique",
-                    "Cuir verni", "Céramique", "Daim", "Denim", "Dentelle", "Duvet",
-                    "Élasthane", "Fausse fourrure", "Feutre", "Flanelle", "Jute",
-                    "Laine", "Latex", "Lin", "Maille", "Mohair", "Mousse", "Mousseline",
-                    "Mérinos", "Métal", "Nylon", "Néoprène", "Or", "Paille", "Papier",
-                    "Peluche", "Pierre", "Plastique", "Polaire", "Polyester", "Porcelaine",
-                    "Rotin", "Satin", "Sequin", "Silicone", "Soie", "Toile", "Tulle",
-                    "Tweed", "Velours", "Velours côtelé", "Verre", "Viscose"
+                    "Acier" , "Acrylique" , "Alpaga" , "Argent" , "Bambou" , "Bois" ,
+                    "Cachemire" , "Caoutchouc" , "Carton" , "Coton" , "Cuir" , "Cuir synthétique" ,
+                    "Cuir verni" , "Céramique" , "Daim" , "Denim" , "Dentelle" , "Duvet" ,
+                    "Élasthane" , "Fausse fourrure" , "Feutre" , "Flanelle" , "Jute" ,
+                    "Laine" , "Latex" , "Lin" , "Maille" , "Mohair" , "Mousse" , "Mousseline" ,
+                    "Mérinos" , "Métal" , "Nylon" , "Néoprène" , "Or" , "Paille" , "Papier" ,
+                    "Peluche" , "Pierre" , "Plastique" , "Polaire" , "Polyester" , "Porcelaine" ,
+                    "Rotin" , "Satin" , "Sequin" , "Silicone" , "Soie" , "Toile" , "Tulle" ,
+                    "Tweed" , "Velours" , "Velours côtelé" , "Verre" , "Viscose"
                 )
             ) { matiere ->
                 val isChecked = selectedMatieres.contains(matiere)
 
                 Row(
-                    verticalAlignment = Alignment.CenterVertically,
+                    verticalAlignment = Alignment.CenterVertically ,
                     modifier = Modifier
                         .fillMaxWidth()
                         .clickable {
@@ -80,10 +85,10 @@ fun MatieresScreen(navController: NavController, sellViewModel: SellViewModel) {
                             }
                         }
                 ) {
-                    Text(text = matiere, fontWeight = FontWeight.Bold)
+                    Text(text = matiere , fontWeight = FontWeight.Bold)
                     Spacer(modifier = Modifier.weight(1f))
                     Checkbox(
-                        checked = isChecked,
+                        checked = isChecked ,
                         onCheckedChange = { isChecked ->
                             if (isChecked) {
                                 if (selectedMatieres.size < 3) {
@@ -95,7 +100,7 @@ fun MatieresScreen(navController: NavController, sellViewModel: SellViewModel) {
                         }
                     )
                 }
-                Divider(thickness = 1.dp, color = Color.Gray)
+                Divider(thickness = 1.dp , color = Color.Gray)
             }
 
             item {

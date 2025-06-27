@@ -47,7 +47,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 
 @Composable
 fun NotificationSetting(
-    navController: NavController,
+    navController: NavController ,
     onCancel: () -> Unit
 ) {
     val db = FirebaseFirestore.getInstance()
@@ -69,9 +69,9 @@ fun NotificationSetting(
             db.collection("NotificationPreferences").document(uid).get()
                 .addOnSuccessListener { document ->
                     if (document != null && document.exists()) {
-                        newMessagesNotifications = document.getBoolean("newMessages") ?: true
-                        vintedNewsEmails = document.getBoolean("vintedNews") ?: true
-                        commercialEmails = document.getBoolean("commercial") ?: true
+                        newMessagesNotifications = document.getBoolean("newMessages") != false
+                        vintedNewsEmails = document.getBoolean("vintedNews") != false
+                        commercialEmails = document.getBoolean("commercial") != false
                     }
                 }
                 .addOnFailureListener {
@@ -81,13 +81,13 @@ fun NotificationSetting(
     }
 
     Scaffold(
-        modifier = Modifier.fillMaxSize(),
-        containerColor = Color.White,
+        modifier = Modifier.fillMaxSize() ,
+        containerColor = Color.White ,
         topBar = {
-            VintedTopBar(title = "Notifications", navController, true)
-        },
+            VintedTopBar(title = "Notifications" , navController , true)
+        } ,
         bottomBar = {
-            VintedBottomBar(navController, VintedScreen.Setting)
+            VintedBottomBar(navController , VintedScreen.Setting)
         }
     ) { innerPadding ->
         Column(
@@ -95,31 +95,31 @@ fun NotificationSetting(
                 .fillMaxSize()
                 .padding(innerPadding)
                 .verticalScroll(rememberScrollState())
-                .padding(16.dp),
+                .padding(16.dp) ,
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
 
             // Section Notifications push
             Card(
-                modifier = Modifier.fillMaxWidth(),
-                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                modifier = Modifier.fillMaxWidth() ,
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp) ,
                 colors = CardDefaults.cardColors(containerColor = Color.White)
             ) {
                 Column(
                     modifier = Modifier.padding(16.dp)
                 ) {
                     Text(
-                        text = "Notifications push",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
+                        text = "Notifications push" ,
+                        style = MaterialTheme.typography.titleMedium ,
+                        fontWeight = FontWeight.Bold ,
                         color = Color(0xFF007782)
                     )
 
                     Spacer(modifier = Modifier.height(8.dp))
 
                     Text(
-                        text = "Recevez des notifications directement sur votre appareil",
-                        style = MaterialTheme.typography.bodyMedium,
+                        text = "Recevez des notifications directement sur votre appareil" ,
+                        style = MaterialTheme.typography.bodyMedium ,
                         color = Color.Gray
                     )
 
@@ -129,10 +129,10 @@ fun NotificationSetting(
 
                     // Nouveaux messages
                     NotificationSettingItem(
-                        icon = Icons.Outlined.Message,
-                        title = "Nouveaux messages",
-                        subtitle = "Être notifié lors de nouveaux messages",
-                        isChecked = newMessagesNotifications,
+                        icon = Icons.Outlined.Message ,
+                        title = "Nouveaux messages" ,
+                        subtitle = "Être notifié lors de nouveaux messages" ,
+                        isChecked = newMessagesNotifications ,
                         onCheckedChange = { newMessagesNotifications = it }
                     )
                 }
@@ -140,25 +140,25 @@ fun NotificationSetting(
 
             // Section Notifications par email
             Card(
-                modifier = Modifier.fillMaxWidth(),
-                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                modifier = Modifier.fillMaxWidth() ,
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp) ,
                 colors = CardDefaults.cardColors(containerColor = Color.White)
             ) {
                 Column(
                     modifier = Modifier.padding(16.dp)
                 ) {
                     Text(
-                        text = "Notifications par email",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
+                        text = "Notifications par email" ,
+                        style = MaterialTheme.typography.titleMedium ,
+                        fontWeight = FontWeight.Bold ,
                         color = Color(0xFF007782)
                     )
 
                     Spacer(modifier = Modifier.height(8.dp))
 
                     Text(
-                        text = "Gérez vos préférences de réception d'emails",
-                        style = MaterialTheme.typography.bodyMedium,
+                        text = "Gérez vos préférences de réception d'emails" ,
+                        style = MaterialTheme.typography.bodyMedium ,
                         color = Color.Gray
                     )
 
@@ -168,10 +168,10 @@ fun NotificationSetting(
 
                     // Nouveautés Vinted
                     NotificationSettingItem(
-                        icon = Icons.Outlined.Notifications,
-                        title = "Nouveautés Vinted",
-                        subtitle = "Recevoir les actualités et nouveautés par email",
-                        isChecked = vintedNewsEmails,
+                        icon = Icons.Outlined.Notifications ,
+                        title = "Nouveautés Vinted" ,
+                        subtitle = "Recevoir les actualités et nouveautés par email" ,
+                        isChecked = vintedNewsEmails ,
                         onCheckedChange = { vintedNewsEmails = it }
                     )
 
@@ -181,10 +181,10 @@ fun NotificationSetting(
 
                     // Communications commerciales
                     NotificationSettingItem(
-                        icon = Icons.Outlined.Store,
-                        title = "Communications commerciales",
-                        subtitle = "Recevoir des offres promotionnelles par email",
-                        isChecked = commercialEmails,
+                        icon = Icons.Outlined.Store ,
+                        title = "Communications commerciales" ,
+                        subtitle = "Recevoir des offres promotionnelles par email" ,
+                        isChecked = commercialEmails ,
                         onCheckedChange = { commercialEmails = it }
                     )
                 }
@@ -194,28 +194,28 @@ fun NotificationSetting(
             Button(
                 onClick = {
                     saveNotificationPreferences(
-                        userId = userId,
-                        db = db,
-                        newMessages = newMessagesNotifications,
-                        vintedNews = vintedNewsEmails,
-                        commercial = commercialEmails,
-                        onSaving = { isSaving = it },
+                        userId = userId ,
+                        db = db ,
+                        newMessages = newMessagesNotifications ,
+                        vintedNews = vintedNewsEmails ,
+                        commercial = commercialEmails ,
+                        onSaving = { isSaving = it } ,
                         onSuccess = { saveSuccess = true }
                     )
-                },
+                } ,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(50.dp),
+                    .height(50.dp) ,
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF007782),
+                    containerColor = Color(0xFF007782) ,
                     contentColor = Color.White
-                ),
-                shape = RoundedCornerShape(12.dp),
+                ) ,
+                shape = RoundedCornerShape(12.dp) ,
                 enabled = !isSaving
             ) {
                 Text(
-                    text = if (isSaving) "Sauvegarde..." else if (saveSuccess) "Sauvegardé ✓" else "Sauvegarder les préférences",
-                    style = MaterialTheme.typography.bodyLarge,
+                    text = if (isSaving) "Sauvegarde..." else if (saveSuccess) "Sauvegardé ✓" else "Sauvegarder les préférences" ,
+                    style = MaterialTheme.typography.bodyLarge ,
                     fontWeight = FontWeight.Medium
                 )
             }
@@ -233,20 +233,20 @@ fun NotificationSetting(
 
 @Composable
 fun NotificationSettingItem(
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
-    title: String,
-    subtitle: String,
-    isChecked: Boolean,
+    icon: androidx.compose.ui.graphics.vector.ImageVector ,
+    title: String ,
+    subtitle: String ,
+    isChecked: Boolean ,
     onCheckedChange: (Boolean) -> Unit
 ) {
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth() ,
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
-            imageVector = icon,
-            contentDescription = title,
-            tint = Color(0xFF007782),
+            imageVector = icon ,
+            contentDescription = title ,
+            tint = Color(0xFF007782) ,
             modifier = Modifier.size(24.dp)
         )
 
@@ -256,25 +256,25 @@ fun NotificationSettingItem(
             modifier = Modifier.weight(1f)
         ) {
             Text(
-                text = title,
-                style = MaterialTheme.typography.bodyLarge,
-                fontWeight = FontWeight.Medium,
+                text = title ,
+                style = MaterialTheme.typography.bodyLarge ,
+                fontWeight = FontWeight.Medium ,
                 color = Color.Black
             )
             Text(
-                text = subtitle,
-                style = MaterialTheme.typography.bodyMedium,
+                text = subtitle ,
+                style = MaterialTheme.typography.bodyMedium ,
                 color = Color.Gray
             )
         }
 
         Switch(
-            checked = isChecked,
-            onCheckedChange = onCheckedChange,
+            checked = isChecked ,
+            onCheckedChange = onCheckedChange ,
             colors = SwitchDefaults.colors(
-                checkedThumbColor = Color.White,
-                checkedTrackColor = Color(0xFF007782),
-                uncheckedThumbColor = Color.White,
+                checkedThumbColor = Color.White ,
+                checkedTrackColor = Color(0xFF007782) ,
+                uncheckedThumbColor = Color.White ,
                 uncheckedTrackColor = Color.LightGray
             )
         )
@@ -282,21 +282,21 @@ fun NotificationSettingItem(
 }
 
 private fun saveNotificationPreferences(
-    userId: String?,
-    db: FirebaseFirestore,
-    newMessages: Boolean,
-    vintedNews: Boolean,
-    commercial: Boolean,
-    onSaving: (Boolean) -> Unit,
+    userId: String? ,
+    db: FirebaseFirestore ,
+    newMessages: Boolean ,
+    vintedNews: Boolean ,
+    commercial: Boolean ,
+    onSaving: (Boolean) -> Unit ,
     onSuccess: () -> Unit
 ) {
     userId?.let { uid ->
         onSaving(true)
 
         val preferences = hashMapOf(
-            "newMessages" to newMessages,
-            "vintedNews" to vintedNews,
-            "commercial" to commercial,
+            "newMessages" to newMessages ,
+            "vintedNews" to vintedNews ,
+            "commercial" to commercial ,
             "lastUpdated" to com.google.firebase.Timestamp.now()
         )
 

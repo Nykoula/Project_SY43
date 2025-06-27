@@ -1,4 +1,5 @@
 package com.example.project_sy43.ui.theme.second_screens
+
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -29,12 +30,12 @@ import com.example.project_sy43.ui.theme.components.VintedTopBar
 import com.example.project_sy43.viewmodel.SellViewModel
 
 @Composable
-fun RobeScreen(navController: NavController, sellViewModel: SellViewModel) {
+fun RobeScreen(navController: NavController , sellViewModel: SellViewModel) {
     var selectedType by sellViewModel.selectedType
 
     Scaffold(
         topBar = {
-            VintedTopBar(title = "Robe", navController, true)
+            VintedTopBar(title = "Robe" , navController , true)
         }
     ) { innerPadding ->
         LazyColumn(
@@ -42,52 +43,52 @@ fun RobeScreen(navController: NavController, sellViewModel: SellViewModel) {
                 .padding(innerPadding)
                 .fillMaxSize()
         ) {
-            item{
+            item {
                 Row(
-                    verticalAlignment = Alignment.CenterVertically,
+                    verticalAlignment = Alignment.CenterVertically ,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                        .padding(horizontal = 16.dp , vertical = 8.dp)
                         .clickable {
                             navController.navigate(VintedScreen.RobeOccasion.name)
                         }
                 ) {
-                    Text(text = "Pour occasions", fontWeight = FontWeight.Bold)
+                    Text(text = "Pour occasions" , fontWeight = FontWeight.Bold)
                     Spacer(modifier = Modifier.weight(1f))
                     Icon(
-                        imageVector = Icons.Outlined.KeyboardArrowRight,
+                        imageVector = Icons.Outlined.KeyboardArrowRight ,
                         contentDescription = "Arrow"
                     )
                 }
-                Divider(thickness = 1.dp, color = Color.Gray)
+                Divider(thickness = 1.dp , color = Color.Gray)
             }
             items(
                 listOf(
-                    "Mini robes", "Robes midi", "Robes longues", "Robes d'été",
-                    "Robes d'hiver", "Robes chics", "Robes casual",
-                    "Robes sans bretelles", "Petites robes noires",
-                    "Robes en jean", "Autres robes"
+                    "Mini robes" , "Robes midi" , "Robes longues" , "Robes d'été" ,
+                    "Robes d'hiver" , "Robes chics" , "Robes casual" ,
+                    "Robes sans bretelles" , "Petites robes noires" ,
+                    "Robes en jean" , "Autres robes"
                 )
             ) { type ->
                 Row(
-                    verticalAlignment = Alignment.CenterVertically,
+                    verticalAlignment = Alignment.CenterVertically ,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                        .padding(horizontal = 16.dp , vertical = 8.dp)
                         .clickable {
                             selectedType = type
                             sellViewModel.setProductType(type)
-                            navController.popBackStack("Sell", inclusive = false)
+                            navController.popBackStack("Sell" , inclusive = false)
                         }
                 ) {
-                    Text(text = type, fontWeight = FontWeight.Bold)
+                    Text(text = type , fontWeight = FontWeight.Bold)
                     Spacer(modifier = Modifier.weight(1f))
                     RadioButton(
-                        selected = selectedType == type,
+                        selected = selectedType == type ,
                         onClick = null // on désactive onClick
                     )
                 }
-                Divider(thickness = 1.dp, color = Color.Gray)
+                Divider(thickness = 1.dp , color = Color.Gray)
             }
             item {
                 Spacer(modifier = Modifier.height(16.dp))

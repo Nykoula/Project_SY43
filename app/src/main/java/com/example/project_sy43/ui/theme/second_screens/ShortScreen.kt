@@ -26,21 +26,21 @@ import com.example.project_sy43.viewmodel.SellViewModel
 
 object Short {
     val womanType = listOf(
-        "Shorts taille basse",
-        "Shorts taille haute",
-        "Shorts longueur genou",
-        "Shorts en jean",
-        "Shorts en dentelle",
-        "Shorts en cuir",
-        "Shorts cargo",
-        "Pantacourts",
+        "Shorts taille basse" ,
+        "Shorts taille haute" ,
+        "Shorts longueur genou" ,
+        "Shorts en jean" ,
+        "Shorts en dentelle" ,
+        "Shorts en cuir" ,
+        "Shorts cargo" ,
+        "Pantacourts" ,
         "Autres shorts"
     )
     val manType = listOf(
-        "Shorts cargo",
-        "Shorts chino",
-        "Shorts en jean",
-        "Bermuda",
+        "Shorts cargo" ,
+        "Shorts chino" ,
+        "Shorts en jean" ,
+        "Bermuda" ,
         "Autres shorts"
 
     )
@@ -50,7 +50,7 @@ object Short {
 }
 
 @Composable
-fun ShortScreen(navController: NavController, sellViewModel: SellViewModel) {
+fun ShortScreen(navController: NavController , sellViewModel: SellViewModel) {
 
     var selectedType by sellViewModel.selectedType
 
@@ -63,7 +63,7 @@ fun ShortScreen(navController: NavController, sellViewModel: SellViewModel) {
 
     Scaffold(
         topBar = {
-            VintedTopBar(title = "Shorts", navController, true)
+            VintedTopBar(title = "Shorts" , navController , true)
         }
     ) { innerPadding ->
         LazyColumn(
@@ -75,24 +75,24 @@ fun ShortScreen(navController: NavController, sellViewModel: SellViewModel) {
                 typeList
             ) { type ->
                 Row(
-                    verticalAlignment = Alignment.CenterVertically,
+                    verticalAlignment = Alignment.CenterVertically ,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                        .padding(horizontal = 16.dp , vertical = 8.dp)
                         .clickable {
                             selectedType = type
                             sellViewModel.setProductType(type)
-                            navController.popBackStack("Sell", inclusive = false)
+                            navController.popBackStack("Sell" , inclusive = false)
                         }
                 ) {
-                    Text(text = type, fontWeight = FontWeight.Bold)
+                    Text(text = type , fontWeight = FontWeight.Bold)
                     Spacer(modifier = Modifier.weight(1f))
                     RadioButton(
-                        selected = selectedType == type,
+                        selected = selectedType == type ,
                         onClick = null // on désactive onClick
                     )
                 }
-                Divider(thickness = 1.dp, color = Color.Gray)
+                Divider(thickness = 1.dp , color = Color.Gray)
             }
         }
     }

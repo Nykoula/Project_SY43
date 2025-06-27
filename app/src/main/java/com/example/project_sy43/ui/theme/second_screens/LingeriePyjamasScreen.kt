@@ -26,27 +26,27 @@ import com.example.project_sy43.viewmodel.SellViewModel
 
 object Pyjama {
     val womanType = listOf(
-        "Soutiens-gorge",
-        "Culottes",
-        "Ensembles",
-        "Gaines",
-        "Pyjamas",
-        "Peignoirs",
-        "Collants",
-        "Chaussettes",
-        "Accessoires de lingerie",
-        "Autres lingerie",
+        "Soutiens-gorge" ,
+        "Culottes" ,
+        "Ensembles" ,
+        "Gaines" ,
+        "Pyjamas" ,
+        "Peignoirs" ,
+        "Collants" ,
+        "Chaussettes" ,
+        "Accessoires de lingerie" ,
+        "Autres lingerie" ,
         "Autres pyjamas"
     )
     val manType = listOf(
-        "Sous-vêtements",
-        "Chaussettes",
-        "Peignoirs",
-        "Pyjamas une pièce",
-        "Bas de pyjamas",
-        "Ensembles de pyjamas",
-        "Hauts de pyjamas",
-        "Autres pyjamas",
+        "Sous-vêtements" ,
+        "Chaussettes" ,
+        "Peignoirs" ,
+        "Pyjamas une pièce" ,
+        "Bas de pyjamas" ,
+        "Ensembles de pyjamas" ,
+        "Hauts de pyjamas" ,
+        "Autres pyjamas" ,
         "Autres sous-vêtements"
 
     )
@@ -56,7 +56,7 @@ object Pyjama {
 }
 
 @Composable
-fun LingeriePyjamaScreen(navController: NavController, sellViewModel: SellViewModel) {
+fun LingeriePyjamaScreen(navController: NavController , sellViewModel: SellViewModel) {
 
     var selectedType by sellViewModel.selectedType
 
@@ -69,7 +69,7 @@ fun LingeriePyjamaScreen(navController: NavController, sellViewModel: SellViewMo
 
     Scaffold(
         topBar = {
-            VintedTopBar(title = "Lingerie et pyjamas", navController, true)
+            VintedTopBar(title = "Lingerie et pyjamas" , navController , true)
         }
     ) { innerPadding ->
         LazyColumn(
@@ -81,24 +81,24 @@ fun LingeriePyjamaScreen(navController: NavController, sellViewModel: SellViewMo
                 typeList
             ) { type ->
                 Row(
-                    verticalAlignment = Alignment.CenterVertically,
+                    verticalAlignment = Alignment.CenterVertically ,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                        .padding(horizontal = 16.dp , vertical = 8.dp)
                         .clickable {
                             selectedType = type
                             sellViewModel.setProductType(type)
-                            navController.popBackStack("Sell", inclusive = false)
+                            navController.popBackStack("Sell" , inclusive = false)
                         }
                 ) {
-                    Text(text = type, fontWeight = FontWeight.Bold)
+                    Text(text = type , fontWeight = FontWeight.Bold)
                     Spacer(modifier = Modifier.weight(1f))
                     RadioButton(
-                        selected = selectedType == type,
+                        selected = selectedType == type ,
                         onClick = null // on désactive onClick
                     )
                 }
-                Divider(thickness = 1.dp, color = Color.Gray)
+                Divider(thickness = 1.dp , color = Color.Gray)
             }
         }
     }

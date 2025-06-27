@@ -52,27 +52,27 @@ import com.google.firebase.firestore.FirebaseFirestore
 
 // Data class pour les vêtements vendus
 data class SoldClothingItem(
-    val id: String = "",
-    val title: String = "",
-    val description: String = "",
-    val price: Double = 0.0,
-    val size: String = "",
-    val category: String = "",
-    val type: String = "",
-    val state: String = "",
-    val colis: String = "",
-    val color: List<String> = emptyList(),
-    val material: List<String> = emptyList(),
-    val photos: List<String> = emptyList(),
-    val userId: String = "",
-    val dateCreation: String = "",
+    val id: String = "" ,
+    val title: String = "" ,
+    val description: String = "" ,
+    val price: Double = 0.0 ,
+    val size: String = "" ,
+    val category: String = "" ,
+    val type: String = "" ,
+    val state: String = "" ,
+    val colis: String = "" ,
+    val color: List<String> = emptyList() ,
+    val material: List<String> = emptyList() ,
+    val photos: List<String> = emptyList() ,
+    val userId: String = "" ,
+    val dateCreation: String = "" ,
     val isAvailable: Boolean = true
 )
 
 @Composable
 fun Dressing(
-    personViewModel: PersonViewModel = viewModel(),
-    navController: NavController,
+    personViewModel: PersonViewModel = viewModel() ,
+    navController: NavController ,
     onCancel: () -> Unit
 ) {
     val db = FirebaseFirestore.getInstance()
@@ -82,35 +82,34 @@ fun Dressing(
     // États pour les données
     var soldItems by remember { mutableStateOf<List<SoldClothingItem>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
-    var selectedItem by remember { mutableStateOf<SoldClothingItem?>(null) }
 
     // Charger les vêtements vendus depuis la collection Post
     LaunchedEffect(userId) {
         userId?.let { uid ->
             db.collection("Post")
-                .whereEqualTo("userId", uid)
+                .whereEqualTo("userId" , uid)
                 .get()
                 .addOnSuccessListener { documents ->
                     soldItems = documents.map { document ->
                         SoldClothingItem(
-                            id = document.id,
-                            title = document.getString("title") ?: "",
-                            description = document.getString("description") ?: "",
-                            price = document.getDouble("price") ?: 0.0,
-                            size = document.getString("size") ?: "",
-                            category = document.getString("category") ?: "",
-                            type = document.getString("type") ?: "",
-                            state = document.getString("state") ?: "",
-                            colis = document.getString("colis") ?: "",
+                            id = document.id ,
+                            title = document.getString("title") ?: "" ,
+                            description = document.getString("description") ?: "" ,
+                            price = document.getDouble("price") ?: 0.0 ,
+                            size = document.getString("size") ?: "" ,
+                            category = document.getString("category") ?: "" ,
+                            type = document.getString("type") ?: "" ,
+                            state = document.getString("state") ?: "" ,
+                            colis = document.getString("colis") ?: "" ,
                             color = (document.get("color") as? List<*>)?.mapNotNull { it as? String }
-                                ?: emptyList(),
+                                ?: emptyList() ,
                             material = (document.get("material") as? List<*>)?.mapNotNull { it as? String }
-                                ?: emptyList(),
+                                ?: emptyList() ,
                             photos = (document.get("photos") as? List<*>)?.mapNotNull { it as? String }
-                                ?: emptyList(),
-                            userId = document.getString("userId") ?: "",
-                            dateCreation = document.getString("dateCreation") ?: "",
-                            isAvailable = document.getBoolean("available") ?: true
+                                ?: emptyList() ,
+                            userId = document.getString("userId") ?: "" ,
+                            dateCreation = document.getString("dateCreation") ?: "" ,
+                            isAvailable = document.getBoolean("available") != false
                         )
                     }.sortedByDescending { it.dateCreation }
                     isLoading = false
@@ -123,13 +122,13 @@ fun Dressing(
     }
 
     Scaffold(
-        modifier = Modifier.fillMaxSize(),
-        containerColor = Color.White,
+        modifier = Modifier.fillMaxSize() ,
+        containerColor = Color.White ,
         topBar = {
-            VintedTopBar(title = "Mon dressing", navController, true)
-        },
+            VintedTopBar(title = "Mon dressing" , navController , true)
+        } ,
         bottomBar = {
-            VintedBottomBar(navController, VintedScreen.Profile)
+            VintedBottomBar(navController , VintedScreen.Profile)
         }
     ) { innerPadding ->
 
@@ -143,24 +142,24 @@ fun Dressing(
         ) {
             // Titre avec nombre d'articles
             Text(
-                text = "Mon dressing (${soldItems.size})",
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold,
-                color = Color(0xFF007782),
+                text = "Mon dressing (${soldItems.size})" ,
+                style = MaterialTheme.typography.titleLarge ,
+                fontWeight = FontWeight.Bold ,
+                color = Color(0xFF007782) ,
                 modifier = Modifier.padding(bottom = 16.dp)
             )
 
             // Contenu principal
             if (isLoading) {
                 Box(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier.fillMaxSize() ,
                     contentAlignment = Alignment.Center
                 ) {
                     CircularProgressIndicator(color = Color(0xFF007782))
                 }
             } else {
                 SoldClothingList(
-                    items = soldItems,
+                    items = soldItems ,
                     onItemClick = {
                         if (it.isAvailable) {
                             navController.navigate("${VintedScreen.ArticleDetail.name}/${it.id}?menuDeroulant=true")
@@ -176,45 +175,45 @@ fun Dressing(
 
 @Composable
 fun SoldClothingList(
-    items: List<SoldClothingItem>,
+    items: List<SoldClothingItem> ,
     onItemClick: (SoldClothingItem) -> Unit
 ) {
     if (items.isEmpty()) {
         Box(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize() ,
             contentAlignment = Alignment.Center
         ) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Icon(
-                    imageVector = Icons.Outlined.Store,
-                    contentDescription = null,
-                    modifier = Modifier.size(64.dp),
+                    imageVector = Icons.Outlined.Store ,
+                    contentDescription = null ,
+                    modifier = Modifier.size(64.dp) ,
                     tint = Color.Gray
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
-                    text = "Vous n'avez encore vendu aucun vêtement",
-                    style = MaterialTheme.typography.bodyLarge,
+                    text = "Vous n'avez encore vendu aucun vêtement" ,
+                    style = MaterialTheme.typography.bodyLarge ,
                     color = Color.Gray
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = "Commencez à vendre vos articles !",
-                    style = MaterialTheme.typography.bodyMedium,
+                    text = "Commencez à vendre vos articles !" ,
+                    style = MaterialTheme.typography.bodyMedium ,
                     color = Color.Gray
                 )
             }
         }
     } else {
         LazyColumn(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize() ,
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             items(items) { item ->
                 SoldClothingListItem(
-                    item = item,
+                    item = item ,
                     onClick = { onItemClick(item) }
                 )
             }
@@ -224,20 +223,20 @@ fun SoldClothingList(
 
 @Composable
 fun SoldClothingListItem(
-    item: SoldClothingItem,
+    item: SoldClothingItem ,
     onClick: () -> Unit
 ) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onClick() },
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+            .clickable { onClick() } ,
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp) ,
         colors = CardDefaults.cardColors(containerColor = Color.White)
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
+                .padding(16.dp) ,
             verticalAlignment = Alignment.CenterVertically
         ) {
             // Image du vêtement ou placeholder
@@ -248,22 +247,22 @@ fun SoldClothingListItem(
             ) {
                 if (item.photos.isNotEmpty()) {
                     AsyncImage(
-                        model = item.photos.first(),
-                        contentDescription = item.title,
-                        modifier = Modifier.fillMaxSize(),
+                        model = item.photos.first() ,
+                        contentDescription = item.title ,
+                        modifier = Modifier.fillMaxSize() ,
                         contentScale = ContentScale.Crop
                     )
                 } else {
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
-                            .background(Color(0xFF007782).copy(alpha = 0.1f)),
+                            .background(Color(0xFF007782).copy(alpha = 0.1f)) ,
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
-                            imageVector = Icons.Outlined.Store,
-                            contentDescription = null,
-                            tint = Color(0xFF007782),
+                            imageVector = Icons.Outlined.Store ,
+                            contentDescription = null ,
+                            tint = Color(0xFF007782) ,
                             modifier = Modifier.size(30.dp)
                         )
                     }
@@ -276,17 +275,17 @@ fun SoldClothingListItem(
                 modifier = Modifier.weight(1f)
             ) {
                 Text(
-                    text = item.title,
-                    style = MaterialTheme.typography.bodyLarge,
-                    fontWeight = FontWeight.Medium,
+                    text = item.title ,
+                    style = MaterialTheme.typography.bodyLarge ,
+                    fontWeight = FontWeight.Medium ,
                     color = Color.Black
                 )
                 Spacer(modifier = Modifier.height(4.dp))
 
                 if (item.category.isNotEmpty() || item.type.isNotEmpty()) {
                     Text(
-                        text = "${item.category}${if (item.category.isNotEmpty() && item.type.isNotEmpty()) " • " else ""}${item.type}",
-                        style = MaterialTheme.typography.bodyMedium,
+                        text = "${item.category}${if (item.category.isNotEmpty() && item.type.isNotEmpty()) " • " else ""}${item.type}" ,
+                        style = MaterialTheme.typography.bodyMedium ,
                         color = Color.Gray
                     )
                     Spacer(modifier = Modifier.height(4.dp))
@@ -294,43 +293,43 @@ fun SoldClothingListItem(
 
                 if (item.size.isNotEmpty()) {
                     Text(
-                        text = "${item.size}",
-                        style = MaterialTheme.typography.bodyMedium,
+                        text = "${item.size}" ,
+                        style = MaterialTheme.typography.bodyMedium ,
                         color = Color.Gray
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                 }
 
                 Text(
-                    text = "${item.price}€",
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.Bold,
+                    text = "${item.price}€" ,
+                    style = MaterialTheme.typography.bodyMedium ,
+                    fontWeight = FontWeight.Bold ,
                     color = Color(0xFF007782)
                 )
 
                 Spacer(modifier = Modifier.height(2.dp))
-                Log.d("SoldClothingListItem", "isAvailable: ${item.isAvailable} + ${item.title}")
+                Log.d("SoldClothingListItem" , "isAvailable: ${item.isAvailable} + ${item.title}")
                 Text(
-                    text = if (item.isAvailable) "À vendre" else "Vendu",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = if (item.isAvailable) Color.Green else Color.Red,
+                    text = if (item.isAvailable) "À vendre" else "Vendu" ,
+                    style = MaterialTheme.typography.bodySmall ,
+                    color = if (item.isAvailable) Color.Green else Color.Red ,
                     fontWeight = FontWeight.Bold
                 )
 
                 if (item.state.isNotEmpty()) {
                     Spacer(modifier = Modifier.height(2.dp))
                     Text(
-                        text = item.state,
-                        style = MaterialTheme.typography.bodySmall,
+                        text = item.state ,
+                        style = MaterialTheme.typography.bodySmall ,
                         color = Color.Gray
                     )
                 }
             }
 
             Icon(
-                imageVector = Icons.Outlined.KeyboardArrowRight,
-                contentDescription = "Voir détails",
-                tint = Color.Gray,
+                imageVector = Icons.Outlined.KeyboardArrowRight ,
+                contentDescription = "Voir détails" ,
+                tint = Color.Gray ,
                 modifier = Modifier.size(20.dp)
             )
         }
@@ -339,25 +338,25 @@ fun SoldClothingListItem(
 
 
 @Composable
-fun DetailRow(label: String, value: String) {
+fun DetailRow(label: String , value: String) {
     if (value.isNotEmpty()) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 4.dp),
+                .padding(vertical = 4.dp) ,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                text = label,
-                style = MaterialTheme.typography.bodyMedium,
-                color = Color.Gray,
+                text = label ,
+                style = MaterialTheme.typography.bodyMedium ,
+                color = Color.Gray ,
                 modifier = Modifier.weight(1f)
             )
             Text(
-                text = value,
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.Medium,
-                color = Color.Black,
+                text = value ,
+                style = MaterialTheme.typography.bodyMedium ,
+                fontWeight = FontWeight.Medium ,
+                color = Color.Black ,
                 modifier = Modifier.weight(1f)
             )
         }

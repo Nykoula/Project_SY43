@@ -25,13 +25,13 @@ import com.example.project_sy43.ui.theme.components.VintedTopBar
 import com.example.project_sy43.viewmodel.SellViewModel
 
 @Composable
-fun MaillotDeBainScreen(navController: NavController, sellViewModel: SellViewModel) {
+fun MaillotDeBainScreen(navController: NavController , sellViewModel: SellViewModel) {
 
     var selectedType by sellViewModel.selectedType
 
     Scaffold(
         topBar = {
-            VintedTopBar(title = "Maillots de bain", navController, true)
+            VintedTopBar(title = "Maillots de bain" , navController , true)
         }
     ) { innerPadding ->
         LazyColumn(
@@ -41,31 +41,31 @@ fun MaillotDeBainScreen(navController: NavController, sellViewModel: SellViewMod
         ) {
             items(
                 listOf(
-                    "Maillots de bain une pièce",
-                    "Maillots de bain deux pièces",
-                    "Paréos et sarongs",
+                    "Maillots de bain une pièce" ,
+                    "Maillots de bain deux pièces" ,
+                    "Paréos et sarongs" ,
                     "Autres maillots de bain"
                 )
             ) { type ->
                 Row(
-                    verticalAlignment = Alignment.CenterVertically,
+                    verticalAlignment = Alignment.CenterVertically ,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                        .padding(horizontal = 16.dp , vertical = 8.dp)
                         .clickable {
                             selectedType = type
                             sellViewModel.setProductType(type)
-                            navController.popBackStack("Sell", inclusive = false)
+                            navController.popBackStack("Sell" , inclusive = false)
                         }
                 ) {
-                    Text(text = type, fontWeight = FontWeight.Bold)
+                    Text(text = type , fontWeight = FontWeight.Bold)
                     Spacer(modifier = Modifier.weight(1f))
                     RadioButton(
-                        selected = selectedType == type,
+                        selected = selectedType == type ,
                         onClick = null // on désactive onClick
                     )
                 }
-                Divider(thickness = 1.dp, color = Color.Gray)
+                Divider(thickness = 1.dp , color = Color.Gray)
             }
         }
     }

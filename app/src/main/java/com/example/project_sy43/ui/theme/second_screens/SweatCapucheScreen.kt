@@ -31,39 +31,39 @@ import com.example.project_sy43.viewmodel.SellViewModel
 
 object Sweat {
     val womanType = listOf(
-        "Sweats & sweats à capuche", "Kimonos",
-        "Cardigans", "Boléros", "Vestes",
+        "Sweats & sweats à capuche" , "Kimonos" ,
+        "Cardigans" , "Boléros" , "Vestes" ,
         "Autres pull-overs & sweat-shirts"
     )
     val manType = listOf(
-        "Sweats",
-        "Pulls et pulls à capuche",
-        "Pulls à capuche avec zip",
-        "Pulls ras du cou",
-        "Pulls à col roulé",
-        "Pulls à col V",
-        "Pulls d'hiver",
-        "Cardigans",
-        "Sweats à col V",
-        "Sweats longs",
-        "Autres pulls",
+        "Sweats" ,
+        "Pulls et pulls à capuche" ,
+        "Pulls à capuche avec zip" ,
+        "Pulls ras du cou" ,
+        "Pulls à col roulé" ,
+        "Pulls à col V" ,
+        "Pulls d'hiver" ,
+        "Cardigans" ,
+        "Sweats à col V" ,
+        "Sweats longs" ,
+        "Autres pulls" ,
         "Autres sweats"
 
     )
     val childrenType = listOf(
-        "Pulls",
-        "Pulls à col V",
-        "Pulls à col roulé",
-        "Gilets zippés",
-        "Boléros",
-        "Pulls à capuche & sweatshirts",
-        "Gilets",
+        "Pulls" ,
+        "Pulls à col V" ,
+        "Pulls à col roulé" ,
+        "Gilets zippés" ,
+        "Boléros" ,
+        "Pulls à capuche & sweatshirts" ,
+        "Gilets" ,
         "Autres pulls/sweats"
     )
 }
 
 @Composable
-fun SweatCapucheScreen(navController: NavController, sellViewModel: SellViewModel) {
+fun SweatCapucheScreen(navController: NavController , sellViewModel: SellViewModel) {
     var selectedType by sellViewModel.selectedType
 
     val typeList = when (sellViewModel.selectedCategory.value) {
@@ -75,7 +75,7 @@ fun SweatCapucheScreen(navController: NavController, sellViewModel: SellViewMode
 
     Scaffold(
         topBar = {
-            VintedTopBar(title = "Sweats et sweats à capuche", navController, true)
+            VintedTopBar(title = "Sweats et sweats à capuche" , navController , true)
         }
     ) { innerPadding ->
         LazyColumn(
@@ -83,25 +83,25 @@ fun SweatCapucheScreen(navController: NavController, sellViewModel: SellViewMode
                 .padding(innerPadding)
                 .fillMaxSize()
         ) {
-            if(sellViewModel.selectedCategory.value == "Woman" || sellViewModel.selectedCategory.value == "Man"){
-                item{
+            if (sellViewModel.selectedCategory.value == "Woman" || sellViewModel.selectedCategory.value == "Man") {
+                item {
                     Row(
-                        verticalAlignment = Alignment.CenterVertically,
+                        verticalAlignment = Alignment.CenterVertically ,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 8.dp)
+                            .padding(horizontal = 16.dp , vertical = 8.dp)
                             .clickable {
                                 navController.navigate(VintedScreen.Sweat.name)
                             }
                     ) {
-                        Text(text = "Sweats", fontWeight = FontWeight.Bold)
+                        Text(text = "Sweats" , fontWeight = FontWeight.Bold)
                         Spacer(modifier = Modifier.weight(1f))
                         Icon(
-                            imageVector = Icons.Outlined.KeyboardArrowRight,
+                            imageVector = Icons.Outlined.KeyboardArrowRight ,
                             contentDescription = "Arrow"
                         )
                     }
-                    Divider(thickness = 1.dp, color = Color.Gray)
+                    Divider(thickness = 1.dp , color = Color.Gray)
                 }
             }
 
@@ -109,24 +109,24 @@ fun SweatCapucheScreen(navController: NavController, sellViewModel: SellViewMode
                 typeList
             ) { type ->
                 Row(
-                    verticalAlignment = Alignment.CenterVertically,
+                    verticalAlignment = Alignment.CenterVertically ,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                        .padding(horizontal = 16.dp , vertical = 8.dp)
                         .clickable {
                             selectedType = type
                             sellViewModel.setProductType(type)
                             navController.navigate(VintedScreen.Sell.name)
                         }
                 ) {
-                    Text(text = type, fontWeight = FontWeight.Bold)
+                    Text(text = type , fontWeight = FontWeight.Bold)
                     Spacer(modifier = Modifier.weight(1f))
                     RadioButton(
-                        selected = selectedType == type,
+                        selected = selectedType == type ,
                         onClick = null // on désactive onClick
                     )
                 }
-                Divider(thickness = 1.dp, color = Color.Gray)
+                Divider(thickness = 1.dp , color = Color.Gray)
             }
             item {
                 Spacer(modifier = Modifier.height(16.dp))

@@ -1,15 +1,27 @@
 package com.example.project_sy43.ui.theme.main_screens
 
 import android.util.Log
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.project_sy43.model.Product
-import com.example.project_sy43.navigation.VintedNavGraph
 import com.example.project_sy43.navigation.VintedScreen
 import com.example.project_sy43.ui.theme.components.VintedBottomBar
 import com.example.project_sy43.ui.theme.components.VintedTopBar
@@ -17,15 +29,15 @@ import com.google.firebase.firestore.FirebaseFirestore
 
 @Composable
 fun PurchaseScreenWithNegotiatedPrice(
-    productId: String,
-    negotiatedPrice: Double,
-    navController: NavController,
+    productId: String ,
+    negotiatedPrice: Double ,
+    navController: NavController ,
     onBackClick: () -> Unit
 ) {
     var clothing by remember { mutableStateOf<Product?>(null) }
 
     LaunchedEffect(productId) {
-        productId?.let {id ->
+        productId?.let { id ->
             FirebaseFirestore.getInstance()
                 .collection("Post")
                 .document(id)
@@ -38,7 +50,7 @@ fun PurchaseScreenWithNegotiatedPrice(
                     }
                 }
                 .addOnFailureListener { e ->
-                    Log.e("ResumeBeforePurchase", "Erreur Firestore", e)
+                    Log.e("ResumeBeforePurchase" , "Erreur Firestore" , e)
                 }
         }
     }
@@ -46,14 +58,14 @@ fun PurchaseScreenWithNegotiatedPrice(
     Scaffold(
         topBar = {
             VintedTopBar(
-                title = "Achat",
-                navController = navController,
+                title = "Achat" ,
+                navController = navController ,
                 canGoBack = true
             )
-        },
+        } ,
         bottomBar = {
             VintedBottomBar(
-                navController = navController,
+                navController = navController ,
                 currentScreen = VintedScreen.MonCompte
             )
         }
@@ -70,10 +82,10 @@ fun PurchaseScreenWithNegotiatedPrice(
                     .fillMaxWidth()
             ) {
                 ClothingDetailView(
-                    navController = navController,
-                    itemId = productId,
-                    onCancel = onBackClick,
-                    menuDeroulant = true,
+                    navController = navController ,
+                    itemId = productId ,
+                    onCancel = onBackClick ,
+                    menuDeroulant = true ,
                     topBar = false
                 )
             }
@@ -81,9 +93,9 @@ fun PurchaseScreenWithNegotiatedPrice(
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = "Prix négocié : ${negotiatedPrice}€",
-                style = MaterialTheme.typography.headlineMedium,
-                color = MaterialTheme.colorScheme.primary,
+                text = "Prix négocié : ${negotiatedPrice}€" ,
+                style = MaterialTheme.typography.headlineMedium ,
+                color = MaterialTheme.colorScheme.primary ,
                 modifier = Modifier.padding(horizontal = 16.dp)
             )
 
@@ -92,10 +104,10 @@ fun PurchaseScreenWithNegotiatedPrice(
             Button(
                 onClick = {
                     navController.navigate("${VintedScreen.PurchaseScreen.name}/${productId}/${clothing?.title ?: ""}")
-                },
+                } ,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                    .padding(horizontal = 16.dp , vertical = 8.dp)
             ) {
                 Text("Confirmer l'achat - ${negotiatedPrice}€")
             }

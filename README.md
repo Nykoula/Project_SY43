@@ -18,6 +18,7 @@ This project has a such potential and we are doing our best to improve by taking
 __**Messagerie :**__
 - La messagerie fonctionne : on peut reproposer un prix, le vendeur verra alors le Bouton "Accepter"
 - Lorsqu'il accepte l'offre, un message pour dire que la proposition a été accepté est automatiquement envoyé
+--> En revanche la conversation ne s'actualise pas, il faut donc relancer l'application pour voir les changements
 - Désormais on peut voir l'icône du produit que l'on souhaite acheter dans notre Inbox
 - On voit l'heure des messages, et il y'a une séparation concernant les jours
 - Les conversations se créent automatiquement lorsqu'un message est envoyé
@@ -43,4 +44,5 @@ __**Photo de profil :**__
 
 __**Détails sur l'article :**__
 - Le bouton "négocier" ne recréer pas une autre conversation si une existe déjà avec cette utilisateur sur ce produit
+
 

@@ -8,9 +8,24 @@ import android.location.Location
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -23,19 +38,23 @@ import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.maps.android.compose.*
-import kotlinx.coroutines.tasks.await
+import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.MapProperties
+import com.google.maps.android.compose.Marker
+import com.google.maps.android.compose.MarkerState
+import com.google.maps.android.compose.rememberCameraPositionState
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
-import java.util.*
+import java.util.Locale
 
 
 @SuppressLint("MissingPermission")
 @Composable
 fun PurchaseScreen(
-    db: FirebaseFirestore,
-    navController: NavHostController,
-    itemId: String,
+    db: FirebaseFirestore ,
+    navController: NavHostController ,
+    itemId: String ,
     itemName: String
 ) {
     val context = LocalContext.current
@@ -43,7 +62,7 @@ fun PurchaseScreen(
     var buyerName by remember { mutableStateOf("") }
     var cardNumber by remember { mutableStateOf("") }
     var address by remember { mutableStateOf("") }
-    var deliveryLocation by remember { mutableStateOf(LatLng(48.8566, 2.3522)) } // Paris
+    var deliveryLocation by remember { mutableStateOf(LatLng(48.8566 , 2.3522)) } // Paris
     var userLocation by remember { mutableStateOf<LatLng?>(null) }
     val cameraPositionState = rememberCameraPositionState()
 
@@ -51,7 +70,7 @@ fun PurchaseScreen(
     var hasLocationPermission by remember {
         mutableStateOf(
             ActivityCompat.checkSelfPermission(
-                context,
+                context ,
                 Manifest.permission.ACCESS_FINE_LOCATION
             ) == PackageManager.PERMISSION_GRANTED
         )
@@ -76,14 +95,15 @@ fun PurchaseScreen(
             try {
                 val location: Location? = fusedLocationClient.lastLocation.await()
                 location?.let {
-                    userLocation = LatLng(it.latitude, it.longitude)
-                    cameraPositionState.position = CameraPosition.fromLatLngZoom(userLocation!!, 15f)
+                    userLocation = LatLng(it.latitude , it.longitude)
+                    cameraPositionState.position =
+                        CameraPosition.fromLatLngZoom(userLocation!! , 15f)
                 }
             } catch (e: Exception) {
-                Log.e("Map", "Erreur récupération localisation utilisateur : ${e.message}")
+                Log.e("Map" , "Erreur récupération localisation utilisateur : ${e.message}")
             }
         } else {
-            Log.w("Map", "Permission localisation refusée")
+            Log.w("Map" , "Permission localisation refusée")
         }
 
     }
@@ -91,105 +111,107 @@ fun PurchaseScreen(
     // Géocodage de l’adresse saisie
     LaunchedEffect(address) {
         if (address.length > 5) {
-            val geo = Geocoder(context, Locale.getDefault())
+            val geo = Geocoder(context , Locale.getDefault())
             try {
-                val results = withContext(Dispatchers.IO) { geo.getFromLocationName(address, 1) }
+                val results = withContext(Dispatchers.IO) { geo.getFromLocationName(address , 1) }
                 results?.firstOrNull()?.let {
-                    deliveryLocation = LatLng(it.latitude, it.longitude)
-                    cameraPositionState.position = CameraPosition.fromLatLngZoom(deliveryLocation, 15f)
+                    deliveryLocation = LatLng(it.latitude , it.longitude)
+                    cameraPositionState.position =
+                        CameraPosition.fromLatLngZoom(deliveryLocation , 15f)
                 }
             } catch (e: Exception) {
-                Log.e("Map", "Erreur géocodage : ${e.message}")
+                Log.e("Map" , "Erreur géocodage : ${e.message}")
             }
         }
     }
     Scaffold(
         topBar = {
             VintedTopBar(
-                title = "Achat",
-                navController = navController,
+                title = "Achat" ,
+                navController = navController ,
                 canGoBack = true
             )
-        },
+        } ,
         bottomBar = {
             VintedBottomBar(
-                navController = navController,
+                navController = navController ,
                 currentScreen = VintedScreen.MonCompte
             )
         }
     ) { innerPadding ->
-    Column(
-        modifier = Modifier
-        .padding(innerPadding)
-        .padding(16.dp)
-        .fillMaxSize())
-    {
-        Text("Article : $itemName", style = MaterialTheme.typography.titleLarge)
-        Text("ID article : $itemId", style = MaterialTheme.typography.bodyMedium)
-        Spacer(Modifier.height(16.dp))
-        OutlinedTextField(
-            value = buyerName,
-            onValueChange = { buyerName = it },
-            label = { Text("Votre nom") },
-            modifier = Modifier.fillMaxWidth()
+        Column(
+            modifier = Modifier
+                .padding(innerPadding)
+                .padding(16.dp)
+                .fillMaxSize()
         )
-        Spacer(Modifier.height(8.dp))
-        OutlinedTextField(
-            value = cardNumber,
-            onValueChange = { cardNumber = it },
-            label = { Text("Votre numéro de carte") },
-            modifier = Modifier.fillMaxWidth()
-        )
-        Spacer(Modifier.height(8.dp))
-        OutlinedTextField(
-            value = address,
-            onValueChange = { address = it },
-            label = { Text("Adresse de livraison") },
-            modifier = Modifier.fillMaxWidth()
-        )
-        Spacer(Modifier.height(16.dp))
-        Button(
-            onClick = {
-                if (itemId.isNotBlank()) {
-                    db.collection("Post").document(itemId)
-                        .update("available", false)
-                        .addOnSuccessListener {
-                            navController.navigate(VintedScreen.MonCompte.name) {
-                                popUpTo(0)
+        {
+            Text("Article : $itemName" , style = MaterialTheme.typography.titleLarge)
+            Text("ID article : $itemId" , style = MaterialTheme.typography.bodyMedium)
+            Spacer(Modifier.height(16.dp))
+            OutlinedTextField(
+                value = buyerName ,
+                onValueChange = { buyerName = it } ,
+                label = { Text("Votre nom") } ,
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(Modifier.height(8.dp))
+            OutlinedTextField(
+                value = cardNumber ,
+                onValueChange = { cardNumber = it } ,
+                label = { Text("Votre numéro de carte") } ,
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(Modifier.height(8.dp))
+            OutlinedTextField(
+                value = address ,
+                onValueChange = { address = it } ,
+                label = { Text("Adresse de livraison") } ,
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(Modifier.height(16.dp))
+            Button(
+                onClick = {
+                    if (itemId.isNotBlank()) {
+                        db.collection("Post").document(itemId)
+                            .update("available" , false)
+                            .addOnSuccessListener {
+                                navController.navigate(VintedScreen.MonCompte.name) {
+                                    popUpTo(0)
+                                }
                             }
+                            .addOnFailureListener { e ->
+                                Log.e("PurchaseScreen" , "Erreur mise à jour disponibilité" , e)
+                            }
+                    } else {
+                        navController.navigate(VintedScreen.MonCompte.name) {
+                            popUpTo(0)
                         }
-                        .addOnFailureListener { e ->
-                            Log.e("PurchaseScreen", "Erreur mise à jour disponibilité", e)
-                        }
-                } else {
-                    navController.navigate(VintedScreen.MonCompte.name) {
-                        popUpTo(0)
                     }
                 }
+            ) {
+                Text("Acheter")
             }
-        ) {
-            Text("Acheter")
-        }
-        Spacer(Modifier.height(16.dp))
-        Text("Carte :", style = MaterialTheme.typography.titleMedium)
-        GoogleMap(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(300.dp),
-            cameraPositionState = cameraPositionState,
-            properties = MapProperties(isMyLocationEnabled = hasLocationPermission)
-        ) {
-            Marker(
-                state = MarkerState(position = deliveryLocation),
-                title = "Adresse de livraison"
-            )
-            userLocation?.let {
+            Spacer(Modifier.height(16.dp))
+            Text("Carte :" , style = MaterialTheme.typography.titleMedium)
+            GoogleMap(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(300.dp) ,
+                cameraPositionState = cameraPositionState ,
+                properties = MapProperties(isMyLocationEnabled = hasLocationPermission)
+            ) {
                 Marker(
-                    state = MarkerState(position = it),
-                    title = "Votre position"
+                    state = MarkerState(position = deliveryLocation) ,
+                    title = "Adresse de livraison"
                 )
+                userLocation?.let {
+                    Marker(
+                        state = MarkerState(position = it) ,
+                        title = "Votre position"
+                    )
+                }
             }
         }
     }
-        }
 }

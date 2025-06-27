@@ -71,7 +71,7 @@ class ConversationViewModel : ViewModel() {
     // --- Initialization ---
     fun initialize(conversationId: String) {
         if (this.currentConversationId == conversationId && _conversationDetails.value != null) {
-            Log.d("ConvVM", "ViewModel already initialized for conversation: $conversationId")
+            Log.d("ConvVM" , "ViewModel already initialized for conversation: $conversationId")
             if (messagesListenerJob == null || messagesListenerJob?.isActive == false) {
                 fetchMessagesForCurrentConversation()
             }
@@ -80,7 +80,7 @@ class ConversationViewModel : ViewModel() {
 
         this.currentConversationId = conversationId
         _error.value = null
-        Log.d("ConvVM", "Initializing for conversation: $conversationId")
+        Log.d("ConvVM" , "Initializing for conversation: $conversationId")
 
         // Initialize dependencies if not already done
         if (!this::auth.isInitialized) {
@@ -88,7 +88,7 @@ class ConversationViewModel : ViewModel() {
         }
         if (!this::conversationRepository.isInitialized) {
             val firestore = FirebaseFirestore.getInstance()
-            conversationRepository = ConversationRepository(firestore, auth)
+            conversationRepository = ConversationRepository(firestore , auth)
         }
 
         if (conversationId.isNotBlank()) {
@@ -97,7 +97,7 @@ class ConversationViewModel : ViewModel() {
             loadAcceptedOffers() // Nouvelle ligne ajoutée
         } else {
             _error.value = "Conversation ID is missing."
-            Log.e("ConvVM", "Conversation ID is blank in initialize.")
+            Log.e("ConvVM" , "Conversation ID is blank in initialize.")
         }
     }
 
@@ -106,18 +106,18 @@ class ConversationViewModel : ViewModel() {
         val convId = currentConversationId ?: return
         viewModelScope.launch {
             _isLoadingDetails.value = true
-            Log.d("ConvVM", "Fetching details for $convId")
+            Log.d("ConvVM" , "Fetching details for $convId")
 
             conversationRepository.getConversationDetails(convId)
                 .onSuccess { details ->
                     _conversationDetails.value = details
-                    Log.d("ConvVM", "Details fetched: $details")
+                    Log.d("ConvVM" , "Details fetched: $details")
 
                     updateOtherParticipantInfo(details)
                 }
                 .onFailure { e ->
                     _error.value = "Failed to load conversation details: ${e.message}"
-                    Log.e("ConvVM", "Error fetching conversation details", e)
+                    Log.e("ConvVM" , "Error fetching conversation details" , e)
                 }
             _isLoadingDetails.value = false
         }
@@ -139,28 +139,32 @@ class ConversationViewModel : ViewModel() {
                     conversationRepository.getUserName(otherParticipantId)
                         .onSuccess { userName ->
                             _otherParticipantDisplayName.value = userName
-                            Log.d("ConvVM", "Other participant name updated: $userName")
+                            Log.d("ConvVM" , "Other participant name updated: $userName")
                         }
                         .onFailure { e ->
                             _otherParticipantDisplayName.value = "Utilisateur inconnu"
-                            Log.e("ConvVM", "Error fetching user name for $otherParticipantId", e)
+                            Log.e("ConvVM" , "Error fetching user name for $otherParticipantId" , e)
                         }
 
                     if (!details.productId.isNullOrBlank()) {
-                        val productImagesResult = conversationRepository.fetchProductImagesInBatch(listOf(details.productId))
+                        val productImagesResult =
+                            conversationRepository.fetchProductImagesInBatch(listOf(details.productId))
                         productImagesResult.onSuccess { imagesMap ->
                             _productImageUrl.value = imagesMap[details.productId]
-                            Log.d("ConvVM", "Product image URL updated: ${_productImageUrl.value}")
+                            Log.d("ConvVM" , "Product image URL updated: ${_productImageUrl.value}")
                         }
                     }
                 } catch (e: Exception) {
                     _otherParticipantDisplayName.value = "Utilisateur inconnu"
-                    Log.e("ConvVM", "Error updating participant info", e)
+                    Log.e("ConvVM" , "Error updating participant info" , e)
                 }
             }
         } else {
             _otherParticipantDisplayName.value = "Utilisateur inconnu"
-            Log.w("ConvVM", "Could not determine other participant. CurrentUID: $currentUid, Participants: ${details.participants}")
+            Log.w(
+                "ConvVM" ,
+                "Could not determine other participant. CurrentUID: $currentUid, Participants: ${details.participants}"
+            )
         }
     }
 
@@ -168,15 +172,15 @@ class ConversationViewModel : ViewModel() {
         val convId = currentConversationId ?: return
         messagesListenerJob?.cancel()
 
-        Log.d("ConvVM", "Setting up messages listener for $convId")
+        Log.d("ConvVM" , "Setting up messages listener for $convId")
         messagesListenerJob = viewModelScope.launch {
             conversationRepository.getMessagesForConversation(convId)
                 .onStart {
                     _isLoadingMessages.value = true
-                    Log.d("ConvVM", "Message fetching flow started for $convId...")
+                    Log.d("ConvVM" , "Message fetching flow started for $convId...")
                 }
                 .catch { e ->
-                    Log.e("ConvVM", "Error in messages flow for $convId", e)
+                    Log.e("ConvVM" , "Error in messages flow for $convId" , e)
                     _error.value = "Connection error fetching messages: ${e.message}"
                     _isLoadingMessages.value = false
                 }
@@ -185,12 +189,15 @@ class ConversationViewModel : ViewModel() {
                         onSuccess = { messageList ->
                             _messages.value = messageList
                             _isLoadingMessages.value = false
-                            Log.d("ConvVM", "Messages updated for $convId: ${messageList.size} messages")
-                        },
+                            Log.d(
+                                "ConvVM" ,
+                                "Messages updated for $convId: ${messageList.size} messages"
+                            )
+                        } ,
                         onFailure = { e ->
                             _error.value = "Error processing messages for $convId: ${e.message}"
                             _isLoadingMessages.value = false
-                            Log.e("ConvVM", "Failure collecting messages result for $convId", e)
+                            Log.e("ConvVM" , "Failure collecting messages result for $convId" , e)
                         }
                     )
                 }
@@ -222,18 +229,18 @@ class ConversationViewModel : ViewModel() {
     fun sendTextMessage() {
         val convId = currentConversationId ?: run {
             _error.value = "Cannot send message: Conversation ID not set."
-            Log.w("ConvVM", "sendTextMessage: currentConversationId is null.")
+            Log.w("ConvVM" , "sendTextMessage: currentConversationId is null.")
             return
         }
         val userId = auth.currentUser?.uid ?: run {
             _error.value = "Cannot send message: User not authenticated."
-            Log.w("ConvVM", "sendTextMessage: User not authenticated.")
+            Log.w("ConvVM" , "sendTextMessage: User not authenticated.")
             return
         }
         val textToSend = _currentMessageText.value.trim()
         if (textToSend.isBlank()) {
             _error.value = "Message cannot be empty."
-            Log.w("ConvVM", "sendTextMessage: Attempted to send blank message.")
+            Log.w("ConvVM" , "sendTextMessage: Attempted to send blank message.")
             return
         }
 
@@ -241,21 +248,24 @@ class ConversationViewModel : ViewModel() {
         _error.value = null
 
         viewModelScope.launch {
-            Log.d("ConvVM", "Attempting to send text message: '$textToSend' to conversation $convId")
+            Log.d(
+                "ConvVM" ,
+                "Attempting to send text message: '$textToSend' to conversation $convId"
+            )
             val result = conversationRepository.sendTextMessage(
-                conversationId = convId,
-                text = textToSend,
+                conversationId = convId ,
+                text = textToSend ,
                 senderId = userId
             )
 
             result.fold(
                 onSuccess = {
                     _currentMessageText.value = ""
-                    Log.d("ConvVM", "Text message sent successfully to $convId.")
-                },
+                    Log.d("ConvVM" , "Text message sent successfully to $convId.")
+                } ,
                 onFailure = { e ->
                     _error.value = "Failed to send message: ${e.message}"
-                    Log.e("ConvVM", "Error sending text message to $convId", e)
+                    Log.e("ConvVM" , "Error sending text message to $convId" , e)
                 }
             )
             _isSendingMessage.value = false
@@ -265,12 +275,12 @@ class ConversationViewModel : ViewModel() {
     fun sendOfferMessage() {
         val convId = currentConversationId ?: run {
             _error.value = "Cannot send offer: Conversation ID not set."
-            Log.w("ConvVM", "sendOfferMessage: currentConversationId is null.")
+            Log.w("ConvVM" , "sendOfferMessage: currentConversationId is null.")
             return
         }
         val userId = auth.currentUser?.uid ?: run {
             _error.value = "Cannot send offer: User not authenticated."
-            Log.w("ConvVM", "sendOfferMessage: User not authenticated.")
+            Log.w("ConvVM" , "sendOfferMessage: User not authenticated.")
             return
         }
 
@@ -279,14 +289,14 @@ class ConversationViewModel : ViewModel() {
 
         if (priceString.isBlank()) {
             _error.value = "Offer price cannot be empty."
-            Log.w("ConvVM", "sendOfferMessage: Offer price is blank.")
+            Log.w("ConvVM" , "sendOfferMessage: Offer price is blank.")
             return
         }
 
         val proposedPrice = priceString.toDoubleOrNull()
         if (proposedPrice == null || proposedPrice < 0) {
             _error.value = "Invalid offer price entered."
-            Log.w("ConvVM", "sendOfferMessage: Invalid offer price '$priceString'.")
+            Log.w("ConvVM" , "sendOfferMessage: Invalid offer price '$priceString'.")
             return
         }
 
@@ -294,12 +304,15 @@ class ConversationViewModel : ViewModel() {
         _error.value = null
 
         viewModelScope.launch {
-            Log.d("ConvVM", "Attempting to send offer. Price: $proposedPrice, Text: '$optionalText'")
+            Log.d(
+                "ConvVM" ,
+                "Attempting to send offer. Price: $proposedPrice, Text: '$optionalText'"
+            )
             val result = conversationRepository.sendOfferMessage(
-                conversationId = convId,
-                proposedPrice = proposedPrice,
-                optionalText = optionalText.ifBlank { null },
-                senderId = userId,
+                conversationId = convId ,
+                proposedPrice = proposedPrice ,
+                optionalText = optionalText.ifBlank { null } ,
+                senderId = userId ,
                 productImageUrl = _productImageUrl.value // Inclure l'image du produit
             )
 
@@ -308,18 +321,18 @@ class ConversationViewModel : ViewModel() {
                     _currentOfferPrice.value = ""
                     _currentOfferOptionalText.value = ""
                     _showOfferSection.value = false
-                    Log.d("ConvVM", "Offer message sent successfully to $convId.")
-                },
+                    Log.d("ConvVM" , "Offer message sent successfully to $convId.")
+                } ,
                 onFailure = { e ->
                     _error.value = "Failed to send offer: ${e.message}"
-                    Log.e("ConvVM", "Error sending offer message to $convId", e)
+                    Log.e("ConvVM" , "Error sending offer message to $convId" , e)
                 }
             )
             _isSendingMessage.value = false
         }
     }
 
-    fun acceptOffer(messageId: String, proposedPrice: Double) {
+    fun acceptOffer(messageId: String , proposedPrice: Double) {
         val convId = currentConversationId ?: return
         val userId = auth.currentUser?.uid ?: return
 
@@ -327,8 +340,8 @@ class ConversationViewModel : ViewModel() {
             _isSendingMessage.value = true
 
             val result = conversationRepository.acceptOffer(
-                conversationId = convId,
-                messageId = messageId,
+                conversationId = convId ,
+                messageId = messageId ,
                 acceptingUserId = userId
             )
 
@@ -339,16 +352,16 @@ class ConversationViewModel : ViewModel() {
 
                     // Envoyer un message de confirmation
                     conversationRepository.sendTextMessage(
-                        conversationId = convId,
-                        text = "Votre proposition a été acceptée",
+                        conversationId = convId ,
+                        text = "Votre proposition a été acceptée" ,
                         senderId = userId
                     )
 
-                    Log.d("ConvVM", "Offer accepted successfully")
-                },
+                    Log.d("ConvVM" , "Offer accepted successfully")
+                } ,
                 onFailure = { e ->
                     _error.value = "Failed to accept offer: ${e.message}"
-                    Log.e("ConvVM", "Error accepting offer", e)
+                    Log.e("ConvVM" , "Error accepting offer" , e)
                 }
             )
             _isSendingMessage.value = false
@@ -369,7 +382,7 @@ class ConversationViewModel : ViewModel() {
     }
 
 
-    // NOUVELLE FONCTION : Vérifier si une offre est acceptée
+
     fun isOfferAccepted(messageId: String): Boolean {
         return _acceptedOffers.value.contains(messageId)
     }
@@ -381,10 +394,10 @@ class ConversationViewModel : ViewModel() {
             conversationRepository.getAcceptedOffers(convId)
                 .onSuccess { acceptedOfferIds ->
                     _acceptedOffers.value = acceptedOfferIds.toSet()
-                    Log.d("ConvVM", "Loaded ${acceptedOfferIds.size} accepted offers")
+                    Log.d("ConvVM" , "Loaded ${acceptedOfferIds.size} accepted offers")
                 }
                 .onFailure { e ->
-                    Log.e("ConvVM", "Error loading accepted offers", e)
+                    Log.e("ConvVM" , "Error loading accepted offers" , e)
                 }
         }
     }
@@ -395,18 +408,24 @@ class ConversationViewModel : ViewModel() {
 
         return when (message.type) {
             "text" -> {
-                val prefix = if (isFromCurrentUser) "Moi" else (_otherParticipantDisplayName.value?.split(" ")?.firstOrNull() ?: "Utilisateur")
+                val prefix =
+                    if (isFromCurrentUser) "Moi" else (_otherParticipantDisplayName.value?.split(" ")
+                        ?.firstOrNull() ?: "Utilisateur")
                 "$prefix : ${message.text ?: ""}"
             }
+
             "offer" -> {
-                val prefix = if (isFromCurrentUser) "Moi" else (_otherParticipantDisplayName.value?.split(" ")?.firstOrNull() ?: "Utilisateur")
+                val prefix =
+                    if (isFromCurrentUser) "Moi" else (_otherParticipantDisplayName.value?.split(" ")
+                        ?.firstOrNull() ?: "Utilisateur")
                 val offerText = if (!message.text.isNullOrBlank()) {
                     message.text
                 } else {
-                    "Offre: $${String.format("%.2f", message.proposedPrice ?: 0.0)}"
+                    "Offre: $${String.format("%.2f" , message.proposedPrice ?: 0.0)}"
                 }
                 "$prefix : $offerText"
             }
+
             else -> message.text ?: "Message non supporté"
         }
     }
@@ -429,19 +448,18 @@ class ConversationViewModel : ViewModel() {
     }
 
     fun refreshConversation() {
-        val convId = currentConversationId ?: return
+        currentConversationId ?: return
         fetchConversationDetails()
         fetchMessagesForCurrentConversation()
     }
 
     override fun onCleared() {
         super.onCleared()
-        Log.d("ConvVM", "ViewModel cleared for conversation: $currentConversationId")
+        Log.d("ConvVM" , "ViewModel cleared for conversation: $currentConversationId")
         messagesListenerJob?.cancel()
         messagesListenerJob = null
-        Log.d("ConvVM", "Messages listener job cancelled.")
+        Log.d("ConvVM" , "Messages listener job cancelled.")
     }
-
 
 
 }

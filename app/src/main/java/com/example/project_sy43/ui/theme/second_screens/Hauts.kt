@@ -26,36 +26,36 @@ import com.example.project_sy43.viewmodel.SellViewModel
 
 object Hauts {
     val womanType = listOf(
-        "Chemises",
-        "Blouses",
-        "T-shirts",
-        "Débardeurs",
-        "Tuniques",
-        "Tops courts",
-        "Blouses manches courtes",
-        "Blouses 3/4",
-        "Blouses manches longues",
-        "Bodies",
-        "Bodies",
-        "Tops épaules dénudées",
-        "Cols roulés",
-        "Tops peplum",
-        "Tops dos nu",
+        "Chemises" ,
+        "Blouses" ,
+        "T-shirts" ,
+        "Débardeurs" ,
+        "Tuniques" ,
+        "Tops courts" ,
+        "Blouses manches courtes" ,
+        "Blouses 3/4" ,
+        "Blouses manches longues" ,
+        "Bodies" ,
+        "Bodies" ,
+        "Tops épaules dénudées" ,
+        "Cols roulés" ,
+        "Tops peplum" ,
+        "Tops dos nu" ,
         "Autres hauts"
     )
     val manType = listOf(
-        "Chemises à carreaux",
-        "Chemises en jeans",
-        "Chemises unies",
-        "Chemises à motifs",
-        "Chemises à rayures",
-        "Autres Chemises",
-        "T-shirts unies",
-        "T-shirts imprimés",
-        "T-shirts à rayures",
-        "T-shirts à manches longues",
-        "T-shirts sans manches",
-        "Polos",
+        "Chemises à carreaux" ,
+        "Chemises en jeans" ,
+        "Chemises unies" ,
+        "Chemises à motifs" ,
+        "Chemises à rayures" ,
+        "Autres Chemises" ,
+        "T-shirts unies" ,
+        "T-shirts imprimés" ,
+        "T-shirts à rayures" ,
+        "T-shirts à manches longues" ,
+        "T-shirts sans manches" ,
+        "Polos" ,
         "Autres t-shirts"
 
     )
@@ -65,7 +65,7 @@ object Hauts {
 }
 
 @Composable
-fun HautScreen(navController: NavController, sellViewModel: SellViewModel) {
+fun HautScreen(navController: NavController , sellViewModel: SellViewModel) {
 
     var selectedType by sellViewModel.selectedType
 
@@ -78,7 +78,7 @@ fun HautScreen(navController: NavController, sellViewModel: SellViewModel) {
 
     Scaffold(
         topBar = {
-            VintedTopBar(title = "Hauts et t-shirts", navController, true)
+            VintedTopBar(title = "Hauts et t-shirts" , navController , true)
         }
     ) { innerPadding ->
         LazyColumn(
@@ -90,24 +90,24 @@ fun HautScreen(navController: NavController, sellViewModel: SellViewModel) {
                 typeList
             ) { type ->
                 Row(
-                    verticalAlignment = Alignment.CenterVertically,
+                    verticalAlignment = Alignment.CenterVertically ,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                        .padding(horizontal = 16.dp , vertical = 8.dp)
                         .clickable {
                             selectedType = type
                             sellViewModel.setProductType(type)
-                            navController.popBackStack("Sell", inclusive = false)
+                            navController.popBackStack("Sell" , inclusive = false)
                         }
                 ) {
-                    Text(text = type, fontWeight = FontWeight.Bold)
+                    Text(text = type , fontWeight = FontWeight.Bold)
                     Spacer(modifier = Modifier.weight(1f))
                     RadioButton(
-                        selected = selectedType == type,
+                        selected = selectedType == type ,
                         onClick = null // on désactive onClick
                     )
                 }
-                Divider(thickness = 1.dp, color = Color.Gray)
+                Divider(thickness = 1.dp , color = Color.Gray)
             }
         }
     }

@@ -30,12 +30,12 @@ import com.example.project_sy43.ui.theme.components.VintedTopBar
 import com.example.project_sy43.viewmodel.SellViewModel
 
 @Composable
-fun ManteauxEtVestesScreen(navController: NavController, sellViewModel: SellViewModel) {
+fun ManteauxEtVestesScreen(navController: NavController , sellViewModel: SellViewModel) {
     var selectedType by sellViewModel.selectedType
 
     Scaffold(
         topBar = {
-            VintedTopBar(title = "Manteaux et vestes", navController, true)
+            VintedTopBar(title = "Manteaux et vestes" , navController , true)
         }
     ) { innerPadding ->
         LazyColumn(
@@ -45,53 +45,53 @@ fun ManteauxEtVestesScreen(navController: NavController, sellViewModel: SellView
         ) {
             items(
                 listOf(
-                    "Manteaux" to VintedScreen.Manteaux.name,
+                    "Manteaux" to VintedScreen.Manteaux.name ,
                     "Vestes" to VintedScreen.Vestes.name
                 )
-            ) { (type, screen ) ->
+            ) { (type , screen) ->
 
                 Row(
-                    verticalAlignment = Alignment.CenterVertically,
+                    verticalAlignment = Alignment.CenterVertically ,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                        .padding(horizontal = 16.dp , vertical = 8.dp)
                         .clickable {
                             navController.navigate(screen)
                         }
                 ) {
-                    Text(text = type, fontWeight = FontWeight.Bold)
+                    Text(text = type , fontWeight = FontWeight.Bold)
                     Spacer(modifier = Modifier.weight(1f))
                     Icon(
-                        imageVector = Icons.Outlined.KeyboardArrowRight,
+                        imageVector = Icons.Outlined.KeyboardArrowRight ,
                         contentDescription = "Arrow"
                     )
                 }
-                Divider(thickness = 1.dp, color = Color.Gray)
+                Divider(thickness = 1.dp , color = Color.Gray)
             }
             items(
                 listOf(
-                    "Capes et ponchos", "Vestes sans manches"
+                    "Capes et ponchos" , "Vestes sans manches"
                 )
             ) { type ->
                 Row(
-                    verticalAlignment = Alignment.CenterVertically,
+                    verticalAlignment = Alignment.CenterVertically ,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                        .padding(horizontal = 16.dp , vertical = 8.dp)
                         .clickable {
                             selectedType = type
                             sellViewModel.setProductType(type)
-                            navController.popBackStack("Sell", inclusive = false)
+                            navController.popBackStack("Sell" , inclusive = false)
                         }
                 ) {
-                    Text(text = type, fontWeight = FontWeight.Bold)
+                    Text(text = type , fontWeight = FontWeight.Bold)
                     Spacer(modifier = Modifier.weight(1f))
                     RadioButton(
-                        selected = selectedType == type,
+                        selected = selectedType == type ,
                         onClick = null // on désactive onClick
                     )
                 }
-                Divider(thickness = 1.dp, color = Color.Gray)
+                Divider(thickness = 1.dp , color = Color.Gray)
             }
             item {
                 Spacer(modifier = Modifier.height(16.dp))

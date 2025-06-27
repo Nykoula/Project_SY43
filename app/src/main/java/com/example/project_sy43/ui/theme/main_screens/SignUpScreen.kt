@@ -23,6 +23,8 @@ import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Phone
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -30,8 +32,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -40,6 +45,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -51,14 +57,8 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import java.text.SimpleDateFormat
 import java.util.Calendar
-import androidx.compose.material3.DatePicker
 import java.util.Date
 import java.util.Locale
-import androidx.compose.material3.DatePickerDialog
-import androidx.compose.material3.TextButton
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.ui.platform.LocalConfiguration
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -78,9 +78,9 @@ fun SignUpScreen(navController: NavController) {
         val dateOfBirth = selectedDateMillis?.let {
             val calendar = Calendar.getInstance(Locale.FRANCE).apply { timeInMillis = it }
             String.format(
-                "%02d/%02d/%d",
-                calendar.get(Calendar.DAY_OF_MONTH),
-                calendar.get(Calendar.MONTH) + 1,
+                "%02d/%02d/%d" ,
+                calendar.get(Calendar.DAY_OF_MONTH) ,
+                calendar.get(Calendar.MONTH) + 1 ,
                 calendar.get(Calendar.YEAR)
             )
         } ?: ""
@@ -89,7 +89,6 @@ fun SignUpScreen(navController: NavController) {
         var password by remember { mutableStateOf("") }
         var phoneNumber by remember { mutableStateOf("") }
         var address by remember { mutableStateOf("") }
-        var influencer by remember { mutableStateOf("") }
         val calendar = Calendar.getInstance(Locale.FRANCE) // Récupère la date et l'heure actuelles
         val dateFormat = SimpleDateFormat("dd-MM-yyyy") // Format désiré : "19-04-2025"
         val currentDate = dateFormat.format(calendar.time) // Convertit en chaîne formatée
@@ -179,7 +178,6 @@ fun SignUpScreen(navController: NavController) {
             return isValid
         }
 
-        var status by remember { mutableStateOf("") }
         val context = LocalContext.current
         val authentification = FirebaseAuth.getInstance()
         val db = FirebaseFirestore.getInstance()
@@ -187,11 +185,11 @@ fun SignUpScreen(navController: NavController) {
         println("Firebase connecté avec succès : ${authentification.app?.name}")
 
         Scaffold(
-            modifier = Modifier.fillMaxSize(),
-            containerColor = Color.White,
+            modifier = Modifier.fillMaxSize() ,
+            containerColor = Color.White ,
             //VintedTopBar("Sign Up",navController,)
             topBar = {
-                VintedTopBar("Sign Up", navController, true)
+                VintedTopBar("Sign Up" , navController , true)
             }
         ) { innerPadding ->
 
@@ -200,61 +198,61 @@ fun SignUpScreen(navController: NavController) {
                     .fillMaxWidth()
                     .verticalScroll(rememberScrollState())
                     .padding(innerPadding)
-                    .padding(top = 16.dp, start = 16.dp, end = 16.dp),
+                    .padding(top = 16.dp , start = 16.dp , end = 16.dp) ,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 // Nom
                 CreateField(
-                    value = lastName,
+                    value = lastName ,
                     onValueChange = {
                         lastName = it
                         lastNameError = ""
-                    },
-                    label = "Last Name",
-                    placeholder = "Last Name",
-                    icon = Icons.Outlined.Person,
-                    keyboardType = KeyboardType.Text,
+                    } ,
+                    label = "Last Name" ,
+                    placeholder = "Last Name" ,
+                    icon = Icons.Outlined.Person ,
+                    keyboardType = KeyboardType.Text ,
                     error = lastNameError
                 )
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // Prénom
                 CreateField(
-                    value = firstName,
+                    value = firstName ,
                     onValueChange = {
                         firstName = it
                         firstNameError = ""
-                    },
-                    label = "First Name",
-                    placeholder = "First Name",
-                    icon = Icons.Outlined.Person,
-                    keyboardType = KeyboardType.Text,
+                    } ,
+                    label = "First Name" ,
+                    placeholder = "First Name" ,
+                    icon = Icons.Outlined.Person ,
+                    keyboardType = KeyboardType.Text ,
                     error = firstNameError
                 )
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // Date de naissance
                 OutlinedTextField(
-                    value = dateOfBirth,
-                    onValueChange = { },
-                    label = { Text("Date Of Birth") },
-                    placeholder = { Text("jj/mm/yyyy") },
-                    readOnly = true,
+                    value = dateOfBirth ,
+                    onValueChange = { } ,
+                    label = { Text("Date Of Birth") } ,
+                    placeholder = { Text("jj/mm/yyyy") } ,
+                    readOnly = true ,
                     trailingIcon = {
                         IconButton(onClick = { showDatePickerDialog = true }) {
                             Icon(
-                                imageVector = Icons.Default.DateRange,
-                                contentDescription = "Select date of birth",
+                                imageVector = Icons.Default.DateRange ,
+                                contentDescription = "Select date of birth" ,
                                 tint = Color(0xFF007782)
                             )
                         }
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    isError = dateOfBirthError.isNotEmpty(),
+                    } ,
+                    modifier = Modifier.fillMaxWidth() ,
+                    isError = dateOfBirthError.isNotEmpty() ,
                     supportingText = {
                         if (dateOfBirthError.isNotEmpty()) {
                             Text(
-                                text = dateOfBirthError,
+                                text = dateOfBirthError ,
                                 color = MaterialTheme.colorScheme.error
                             )
                         }
@@ -265,7 +263,7 @@ fun SignUpScreen(navController: NavController) {
                     DatePickerModal(
                         onDateSelected = {
                             selectedDateMillis = it
-                        },
+                        } ,
                         onDismiss = { showDatePickerDialog = false }
                     )
                 }
@@ -278,31 +276,31 @@ fun SignUpScreen(navController: NavController) {
 
                 // Email
                 CreateField(
-                    value = email,
+                    value = email ,
                     onValueChange = {
                         email = it
                         emailError = ""
-                    },
-                    label = "Email",
-                    placeholder = "Email",
-                    icon = Icons.Default.Email,
-                    keyboardType = KeyboardType.Email,
+                    } ,
+                    label = "Email" ,
+                    placeholder = "Email" ,
+                    icon = Icons.Default.Email ,
+                    keyboardType = KeyboardType.Email ,
                     error = emailError
                 )
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // Mot de passe
                 OutlinedTextField(
-                    value = password,
-                    onValueChange = { password = it },
+                    value = password ,
+                    onValueChange = { password = it } ,
                     leadingIcon = {
                         Icon(
-                            imageVector = Icons.Default.Lock,
-                            contentDescription = "Password Icon",
+                            imageVector = Icons.Default.Lock ,
+                            contentDescription = "Password Icon" ,
                             tint = Color(0xFF007782)
                         )
-                    },
-                    placeholder = { Text("Password") },
+                    } ,
+                    placeholder = { Text("Password") } ,
                     trailingIcon = {
                         IconButton(
                             onClick = {
@@ -310,68 +308,68 @@ fun SignUpScreen(navController: NavController) {
                             } // Bascule visibilité
                         ) {
                             Icon(
-                                imageVector = if (isPasswordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
-                                contentDescription = if (isPasswordVisible) "Hide password" else "Show password",
+                                imageVector = if (isPasswordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff ,
+                                contentDescription = if (isPasswordVisible) "Hide password" else "Show password" ,
                                 tint = Color.Gray
                             )
                         }
-                    },
+                    } ,
                     modifier = Modifier
-                        .fillMaxWidth(),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                        .fillMaxWidth() ,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password) ,
                     visualTransformation = if (isPasswordVisible) VisualTransformation.None
-                    else PasswordVisualTransformation(), // Texte masqué ou non
+                    else PasswordVisualTransformation() , // Texte masqué ou non
                 )
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // Numéro de téléphone
                 CreateField(
-                    value = phoneNumber,
+                    value = phoneNumber ,
                     onValueChange = {
                         phoneNumber = it
                         phoneNumberError = ""
-                    },
-                    label = "Phone Number",
-                    placeholder = "Phone Number",
-                    icon = Icons.Outlined.Phone,
-                    keyboardType = KeyboardType.Phone,
+                    } ,
+                    label = "Phone Number" ,
+                    placeholder = "Phone Number" ,
+                    icon = Icons.Outlined.Phone ,
+                    keyboardType = KeyboardType.Phone ,
                     error = phoneNumberError
                 )
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // Addresse
                 CreateField(
-                    value = address,
+                    value = address ,
                     onValueChange = {
                         address = it
                         addressError = ""
-                    },
-                    label = "Address",
-                    placeholder = "Address",
-                    icon = Icons.Outlined.Home,
-                    keyboardType = KeyboardType.Text,
+                    } ,
+                    label = "Address" ,
+                    placeholder = "Address" ,
+                    icon = Icons.Outlined.Home ,
+                    keyboardType = KeyboardType.Text ,
                     error = addressError
                 )
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Button(
-                    onClick =  {
+                    onClick = {
                         if (!validateFields()) return@Button
 
-                        authentification.createUserWithEmailAndPassword(email, password)
+                        authentification.createUserWithEmailAndPassword(email , password)
                             .addOnCompleteListener { task ->
                                 if (task.isSuccessful) {
                                     val userId = authentification.currentUser?.uid
                                         ?: return@addOnCompleteListener
                                     val user = mapOf(
-                                        "idPerson" to userId,
-                                        "lastName" to lastName,
-                                        "firstName" to firstName,
-                                        "age" to age,
-                                        "email" to email,
-                                        "phoneNumber" to phoneNumber,
-                                        "address" to address,
-                                        "dateCreation" to currentDate,
+                                        "idPerson" to userId ,
+                                        "lastName" to lastName ,
+                                        "firstName" to firstName ,
+                                        "age" to age ,
+                                        "email" to email ,
+                                        "phoneNumber" to phoneNumber ,
+                                        "address" to address ,
+                                        "dateCreation" to currentDate ,
                                         "dateOfBirth" to dateOfBirth
                                     )
 
@@ -379,8 +377,8 @@ fun SignUpScreen(navController: NavController) {
                                         .set(user)
                                         .addOnSuccessListener {
                                             Toast.makeText(
-                                                context,
-                                                "Utilisateur enregistré !",
+                                                context ,
+                                                "Utilisateur enregistré !" ,
                                                 Toast.LENGTH_LONG
                                             ).show()
                                             navController.navigate("login") {
@@ -389,25 +387,25 @@ fun SignUpScreen(navController: NavController) {
                                         }
                                         .addOnFailureListener {
                                             Toast.makeText(
-                                                context,
-                                                "Erreur enregistrement",
+                                                context ,
+                                                "Erreur enregistrement" ,
                                                 Toast.LENGTH_LONG
                                             ).show()
                                         }
                                 } else {
                                     Toast.makeText(
-                                        context,
-                                        "Erreur : ${task.exception?.message}",
+                                        context ,
+                                        "Erreur : ${task.exception?.message}" ,
                                         Toast.LENGTH_LONG
                                     ).show()
                                 }
                             }
-                    },
+                    } ,
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF007782),
+                        containerColor = Color(0xFF007782) ,
                         contentColor = Color.White
-                    ),
-                    shape = RoundedCornerShape(16.dp),
+                    ) ,
+                    shape = RoundedCornerShape(16.dp) ,
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text("Register")
@@ -419,45 +417,45 @@ fun SignUpScreen(navController: NavController) {
 
 @Composable
 fun CreateField(
-    value: String,
-    onValueChange: (String) -> Unit,
-    label: String,
-    placeholder: String,
-    icon: ImageVector,
-    keyboardType: KeyboardType = KeyboardType.Text,
+    value: String ,
+    onValueChange: (String) -> Unit ,
+    label: String ,
+    placeholder: String ,
+    icon: ImageVector ,
+    keyboardType: KeyboardType = KeyboardType.Text ,
     error: String = ""
 ) {
     Column {
         OutlinedTextField(
-            value = value,
-            onValueChange = onValueChange,
-            label = { Text(label) },
-            modifier = Modifier.fillMaxWidth(),
-            placeholder = { Text(placeholder) },
+            value = value ,
+            onValueChange = onValueChange ,
+            label = { Text(label) } ,
+            modifier = Modifier.fillMaxWidth() ,
+            placeholder = { Text(placeholder) } ,
             leadingIcon = {
                 Icon(
-                    imageVector = icon,
-                    contentDescription = label,
+                    imageVector = icon ,
+                    contentDescription = label ,
                     tint = Color(0xFF007782)
                 )
-            },
-            keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
+            } ,
+            keyboardOptions = KeyboardOptions(keyboardType = keyboardType) ,
             isError = error.isNotEmpty()
         )
 
         if (error.isNotEmpty()) {
             Text(
-                text = error,
-                color = MaterialTheme.colorScheme.error,
-                style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier.padding(start = 16.dp, top = 4.dp)
+                text = error ,
+                color = MaterialTheme.colorScheme.error ,
+                style = MaterialTheme.typography.bodySmall ,
+                modifier = Modifier.padding(start = 16.dp , top = 4.dp)
             )
         }
     }
 }
 
 fun convertMillisToDate(millis: Long): String {
-    val formatter = SimpleDateFormat("dd/mm/yyyy", Locale.FRANCE)
+    val formatter = SimpleDateFormat("dd/mm/yyyy" , Locale.FRANCE)
     return formatter.format(Date(millis))
 }
 
@@ -477,7 +475,7 @@ fun calculateAge(birthDateMillis: Long): Int {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DatePickerModal(
-    onDateSelected: (Long?) -> Unit,
+    onDateSelected: (Long?) -> Unit ,
     onDismiss: () -> Unit
 ) {
     val context = LocalContext.current
@@ -494,7 +492,7 @@ fun DatePickerModal(
     // Ici on utilise le context avec locale FR en composant la boîte
     CompositionLocalProvider(LocalContext provides localeContext) {
         DatePickerDialog(
-            onDismissRequest = onDismiss,
+            onDismissRequest = onDismiss ,
             confirmButton = {
                 TextButton(onClick = {
                     onDateSelected(datePickerState.selectedDateMillis)
@@ -502,7 +500,7 @@ fun DatePickerModal(
                 }) {
                     Text("OK")
                 }
-            },
+            } ,
             dismissButton = {
                 TextButton(onClick = onDismiss) {
                     Text("Cancel")

@@ -25,13 +25,13 @@ import com.example.project_sy43.ui.theme.components.VintedTopBar
 import com.example.project_sy43.viewmodel.SellViewModel
 
 @Composable
-fun SizeScreen(navController: NavController, sellViewModel: SellViewModel) {
+fun SizeScreen(navController: NavController , sellViewModel: SellViewModel) {
 
     var selectedSize by sellViewModel.selectedSize
 
     Scaffold(
         topBar = {
-            VintedTopBar(title = "Size", navController, true)
+            VintedTopBar(title = "Size" , navController , true)
         }
     ) { innerPadding ->
         LazyColumn(
@@ -41,44 +41,44 @@ fun SizeScreen(navController: NavController, sellViewModel: SellViewModel) {
         ) {
             items(
                 listOf(
-                    "XXXS/30/2",
-                    "XXS/32/4",
-                    "XS/34/6",
-                    "S/36/8",
-                    "M/38/10",
-                    "L/40/12",
-                    "XL/42/14",
-                    "XXL/44/16",
-                    "XXXL/46/18",
-                    "4XL/48/20",
-                    "5XL/50/22",
-                    "6XL/52/24",
-                    "7XL/54/26",
-                    "8XL/56/28",
-                    "9XL/58/30",
-                    "Unique size",
+                    "XXXS/30/2" ,
+                    "XXS/32/4" ,
+                    "XS/34/6" ,
+                    "S/36/8" ,
+                    "M/38/10" ,
+                    "L/40/12" ,
+                    "XL/42/14" ,
+                    "XXL/44/16" ,
+                    "XXXL/46/18" ,
+                    "4XL/48/20" ,
+                    "5XL/50/22" ,
+                    "6XL/52/24" ,
+                    "7XL/54/26" ,
+                    "8XL/56/28" ,
+                    "9XL/58/30" ,
+                    "Unique size" ,
                     "other"
                 )
             ) { size ->
                 Row(
-                    verticalAlignment = Alignment.CenterVertically,
+                    verticalAlignment = Alignment.CenterVertically ,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                        .padding(horizontal = 16.dp , vertical = 8.dp)
                         .clickable {
                             selectedSize = size
                             sellViewModel.setSelectedSize(size)
                             navController.popBackStack()
                         }
                 ) {
-                    Text(text = size, fontWeight = FontWeight.Bold)
+                    Text(text = size , fontWeight = FontWeight.Bold)
                     Spacer(modifier = Modifier.weight(1f))
                     RadioButton(
-                        selected = selectedSize == size,
+                        selected = selectedSize == size ,
                         onClick = null // on désactive onClick
                     )
                 }
-                Divider(thickness = 1.dp, color = Color.Gray)
+                Divider(thickness = 1.dp , color = Color.Gray)
             }
         }
     }

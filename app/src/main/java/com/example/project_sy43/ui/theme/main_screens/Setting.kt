@@ -46,19 +46,19 @@ import com.google.firebase.firestore.FirebaseFirestore
 
 @Composable
 fun Setting(
-    navController: NavController,
+    navController: NavController ,
     onCancel: () -> Unit
-){
+) {
     var showDeleteDialog by remember { mutableStateOf(false) }
 
     Scaffold(
-        modifier = Modifier.fillMaxSize(),
-        containerColor = Color.White,
+        modifier = Modifier.fillMaxSize() ,
+        containerColor = Color.White ,
         topBar = {
-            VintedTopBar(title = "Paramètres", navController, true)
-        },
+            VintedTopBar(title = "Paramètres" , navController , true)
+        } ,
         bottomBar = {
-            VintedBottomBar(navController, VintedScreen.Profile)
+            VintedBottomBar(navController , VintedScreen.Profile)
         }
     ) { innerPadding ->
         Column(
@@ -66,34 +66,37 @@ fun Setting(
                 .fillMaxSize()
                 .padding(innerPadding)
                 .verticalScroll(rememberScrollState())
-                .padding(16.dp),
+                .padding(16.dp) ,
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
 
             // Section Sécurité
             Card(
-                modifier = Modifier.fillMaxWidth(),
-                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                modifier = Modifier.fillMaxWidth() ,
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp) ,
                 colors = CardDefaults.cardColors(containerColor = Color.White)
             ) {
                 Column(
                     modifier = Modifier.padding(8.dp)
                 ) {
                     Text(
-                        text = "Sécurité",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = Color(0xFF007782),
+                        text = "Sécurité" ,
+                        style = MaterialTheme.typography.titleMedium ,
+                        fontWeight = FontWeight.Bold ,
+                        color = Color(0xFF007782) ,
                         modifier = Modifier.padding(16.dp)
                     )
 
-                    Divider(color = Color.LightGray, modifier = Modifier.padding(horizontal = 16.dp))
+                    Divider(
+                        color = Color.LightGray ,
+                        modifier = Modifier.padding(horizontal = 16.dp)
+                    )
 
                     // Modifier le mot de passe
                     SettingMenuItem(
-                        icon = Icons.Outlined.Lock,
-                        title = "Modifier le mot de passe",
-                        subtitle = "Changer votre mot de passe",
+                        icon = Icons.Outlined.Lock ,
+                        title = "Modifier le mot de passe" ,
+                        subtitle = "Changer votre mot de passe" ,
                         onClick = {
                             navController.navigate(VintedScreen.UpdatePassword.name)
                         }
@@ -103,28 +106,31 @@ fun Setting(
 
             // Section Notifications
             Card(
-                modifier = Modifier.fillMaxWidth(),
-                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                modifier = Modifier.fillMaxWidth() ,
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp) ,
                 colors = CardDefaults.cardColors(containerColor = Color.White)
             ) {
                 Column(
                     modifier = Modifier.padding(8.dp)
                 ) {
                     Text(
-                        text = "Notifications",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = Color(0xFF007782),
+                        text = "Notifications" ,
+                        style = MaterialTheme.typography.titleMedium ,
+                        fontWeight = FontWeight.Bold ,
+                        color = Color(0xFF007782) ,
                         modifier = Modifier.padding(16.dp)
                     )
 
-                    Divider(color = Color.LightGray, modifier = Modifier.padding(horizontal = 16.dp))
+                    Divider(
+                        color = Color.LightGray ,
+                        modifier = Modifier.padding(horizontal = 16.dp)
+                    )
 
                     // Gérer les notifications
                     SettingMenuItem(
-                        icon = Icons.Outlined.Notifications,
-                        title = "Gérer les notifications",
-                        subtitle = "Personnaliser vos préférences de notification",
+                        icon = Icons.Outlined.Notifications ,
+                        title = "Gérer les notifications" ,
+                        subtitle = "Personnaliser vos préférences de notification" ,
                         onClick = {
                             navController.navigate(VintedScreen.NotificationSettings.name)
                         }
@@ -134,31 +140,34 @@ fun Setting(
 
             // Section Compte
             Card(
-                modifier = Modifier.fillMaxWidth(),
-                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                modifier = Modifier.fillMaxWidth() ,
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp) ,
                 colors = CardDefaults.cardColors(containerColor = Color.White)
             ) {
                 Column(
                     modifier = Modifier.padding(8.dp)
                 ) {
                     Text(
-                        text = "Compte",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = Color(0xFF007782),
+                        text = "Compte" ,
+                        style = MaterialTheme.typography.titleMedium ,
+                        fontWeight = FontWeight.Bold ,
+                        color = Color(0xFF007782) ,
                         modifier = Modifier.padding(16.dp)
                     )
 
-                    Divider(color = Color.LightGray, modifier = Modifier.padding(horizontal = 16.dp))
+                    Divider(
+                        color = Color.LightGray ,
+                        modifier = Modifier.padding(horizontal = 16.dp)
+                    )
 
                     // Supprimer le compte
                     SettingMenuItem(
-                        icon = Icons.Outlined.Delete,
-                        title = "Supprimer le compte",
-                        subtitle = "Supprimer définitivement votre compte",
+                        icon = Icons.Outlined.Delete ,
+                        title = "Supprimer le compte" ,
+                        subtitle = "Supprimer définitivement votre compte" ,
                         onClick = {
                             showDeleteDialog = true
-                        },
+                        } ,
                         isDestructive = true
                     )
                 }
@@ -169,33 +178,33 @@ fun Setting(
     // Dialog de confirmation pour la suppression
     if (showDeleteDialog) {
         AlertDialog(
-            onDismissRequest = { showDeleteDialog = false },
+            onDismissRequest = { showDeleteDialog = false } ,
             title = {
                 Text(
-                    text = "Supprimer le compte",
-                    style = MaterialTheme.typography.titleLarge,
+                    text = "Supprimer le compte" ,
+                    style = MaterialTheme.typography.titleLarge ,
                     fontWeight = FontWeight.Bold
                 )
-            },
+            } ,
             text = {
                 Text(
-                    text = "Êtes-vous sûr de vouloir supprimer votre compte ? Cette action est irréversible et toutes vos données seront perdues.",
+                    text = "Êtes-vous sûr de vouloir supprimer votre compte ? Cette action est irréversible et toutes vos données seront perdues." ,
                     style = MaterialTheme.typography.bodyMedium
                 )
-            },
+            } ,
             confirmButton = {
                 Button(
                     onClick = {
                         deleteUserAccount(navController)
                         showDeleteDialog = false
-                    },
+                    } ,
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color.Red
                     )
                 ) {
                     Text("Supprimer")
                 }
-            },
+            } ,
             dismissButton = {
                 TextButton(
                     onClick = { showDeleteDialog = false }
@@ -209,10 +218,10 @@ fun Setting(
 
 @Composable
 fun SettingMenuItem(
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
-    title: String,
-    subtitle: String,
-    onClick: () -> Unit,
+    icon: androidx.compose.ui.graphics.vector.ImageVector ,
+    title: String ,
+    subtitle: String ,
+    onClick: () -> Unit ,
     isDestructive: Boolean = false
 ) {
     val textColor = if (isDestructive) Color.Red else Color.Black
@@ -222,13 +231,13 @@ fun SettingMenuItem(
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onClick() }
-            .padding(16.dp),
+            .padding(16.dp) ,
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
-            imageVector = icon,
-            contentDescription = title,
-            tint = iconColor,
+            imageVector = icon ,
+            contentDescription = title ,
+            tint = iconColor ,
             modifier = Modifier.size(24.dp)
         )
 
@@ -238,22 +247,22 @@ fun SettingMenuItem(
             modifier = Modifier.weight(1f)
         ) {
             Text(
-                text = title,
-                style = MaterialTheme.typography.bodyLarge,
-                fontWeight = FontWeight.Medium,
+                text = title ,
+                style = MaterialTheme.typography.bodyLarge ,
+                fontWeight = FontWeight.Medium ,
                 color = textColor
             )
             Text(
-                text = subtitle,
-                style = MaterialTheme.typography.bodyMedium,
+                text = subtitle ,
+                style = MaterialTheme.typography.bodyMedium ,
                 color = if (isDestructive) Color.Red.copy(alpha = 0.7f) else Color.Gray
             )
         }
 
         Icon(
-            imageVector = Icons.Outlined.KeyboardArrowRight,
-            contentDescription = "Arrow",
-            tint = Color.Gray,
+            imageVector = Icons.Outlined.KeyboardArrowRight ,
+            contentDescription = "Arrow" ,
+            tint = Color.Gray ,
             modifier = Modifier.size(20.dp)
         )
     }

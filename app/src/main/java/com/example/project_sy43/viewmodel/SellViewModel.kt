@@ -2,17 +2,14 @@ package com.example.project_sy43.viewmodel
 
 import android.net.Uri
 import android.util.Log
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
-import androidx.lifecycle.ViewModel
-import com.example.project_sy43.repository.ProductRepository
-import androidx.lifecycle.viewModelScope
-import com.google.firebase.firestore.FirebaseFirestore
-import kotlinx.coroutines.launch
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.project_sy43.repository.ProductRepository
+import kotlinx.coroutines.launch
 
-class SellViewModel : ViewModel(){
+class SellViewModel : ViewModel() {
 
     private val repository = ProductRepository()
 
@@ -140,10 +137,10 @@ class SellViewModel : ViewModel(){
 
     fun loadItem(itemId: String) {
         viewModelScope.launch {
-            Log.d("SellViewModel", "loadItem called with itemId=$itemId")
+            Log.d("SellViewModel" , "loadItem called with itemId=$itemId")
             val item = repository.getItemById(itemId)
             if (item != null) {
-                Log.d("SellViewModel", "Item loaded: $item")
+                Log.d("SellViewModel" , "Item loaded: $item")
                 productId.value = itemId
                 productTitle.value = item.title
                 productDescription.value = item.description
@@ -164,11 +161,11 @@ class SellViewModel : ViewModel(){
                 // Pour l'édition, on garde les URIs vides car on affichera les URLs
                 productPhotoUris.value = emptyList()
 
-                productPhotoUrls.value.forEachIndexed { index, url ->
-                    Log.d("SellViewModel", "Photo $index: $url")
+                productPhotoUrls.value.forEachIndexed { index , url ->
+                    Log.d("SellViewModel" , "Photo $index: $url")
                 }
             } else {
-                Log.e("SellViewModel", "Item not found for ID: $itemId")
+                Log.e("SellViewModel" , "Item not found for ID: $itemId")
             }
         }
     }

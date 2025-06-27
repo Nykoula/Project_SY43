@@ -31,27 +31,27 @@ import com.example.project_sy43.viewmodel.SellViewModel
 
 object Sport {
     val womanType = listOf(
-        "Vêtements d'extérieur",
-        "Survêtements",
-        "Joggings & leggings",
-        "Shorts",
-        "Robes de sports",
-        "Jupes de sports",
-        "Hauts & t-shirt de sports",
-        "Maillots de sports",
-        "Sweats & sweats à capuche",
-        "Brassières",
+        "Vêtements d'extérieur" ,
+        "Survêtements" ,
+        "Joggings & leggings" ,
+        "Shorts" ,
+        "Robes de sports" ,
+        "Jupes de sports" ,
+        "Hauts & t-shirt de sports" ,
+        "Maillots de sports" ,
+        "Sweats & sweats à capuche" ,
+        "Brassières" ,
         "Autres vêtements de sports"
     )
     val manType = listOf(
-        "Vêtements d'extérieur",
-        "Survêtements",
-        "Pantalons",
-        "Joggings",
-        "Shorts",
-        "Hauts & t-shirt de sports",
-        "Maillots de sports",
-        "Pulls & sweats",
+        "Vêtements d'extérieur" ,
+        "Survêtements" ,
+        "Pantalons" ,
+        "Joggings" ,
+        "Shorts" ,
+        "Hauts & t-shirt de sports" ,
+        "Maillots de sports" ,
+        "Pulls & sweats" ,
         "Autres vêtements de sports"
 
     )
@@ -61,7 +61,7 @@ object Sport {
 }
 
 @Composable
-fun SportScreen(navController: NavController, sellViewModel: SellViewModel) {
+fun SportScreen(navController: NavController , sellViewModel: SellViewModel) {
     var selectedType by sellViewModel.selectedType
 
     val typeList = when (sellViewModel.selectedCategory.value) {
@@ -73,7 +73,7 @@ fun SportScreen(navController: NavController, sellViewModel: SellViewModel) {
 
     Scaffold(
         topBar = {
-            VintedTopBar(title = "Vêtements de sports", navController, true)
+            VintedTopBar(title = "Vêtements de sports" , navController , true)
         }
     ) { innerPadding ->
         LazyColumn(
@@ -83,45 +83,45 @@ fun SportScreen(navController: NavController, sellViewModel: SellViewModel) {
         ) {
             item {
                 Row(
-                    verticalAlignment = Alignment.CenterVertically,
+                    verticalAlignment = Alignment.CenterVertically ,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                        .padding(horizontal = 16.dp , vertical = 8.dp)
                         .clickable {
                             navController.navigate(VintedScreen.AccessoireSport.name)
                         }
                 ) {
-                    Text(text = "Accessoires de sports", fontWeight = FontWeight.Bold)
+                    Text(text = "Accessoires de sports" , fontWeight = FontWeight.Bold)
                     Spacer(modifier = Modifier.weight(1f))
                     Icon(
-                        imageVector = Icons.Outlined.KeyboardArrowRight,
+                        imageVector = Icons.Outlined.KeyboardArrowRight ,
                         contentDescription = "Arrow"
                     )
                 }
-                Divider(thickness = 1.dp, color = Color.Gray)
+                Divider(thickness = 1.dp , color = Color.Gray)
             }
             items(
                 typeList
             ) { type ->
                 Row(
-                    verticalAlignment = Alignment.CenterVertically,
+                    verticalAlignment = Alignment.CenterVertically ,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                        .padding(horizontal = 16.dp , vertical = 8.dp)
                         .clickable {
                             selectedType = type
                             sellViewModel.setProductType(type)
-                            navController.popBackStack("Sell", inclusive = false)
+                            navController.popBackStack("Sell" , inclusive = false)
                         }
                 ) {
-                    Text(text = type, fontWeight = FontWeight.Bold)
+                    Text(text = type , fontWeight = FontWeight.Bold)
                     Spacer(modifier = Modifier.weight(1f))
                     RadioButton(
-                        selected = selectedType == type,
+                        selected = selectedType == type ,
                         onClick = null // on désactive onClick
                     )
                 }
-                Divider(thickness = 1.dp, color = Color.Gray)
+                Divider(thickness = 1.dp , color = Color.Gray)
             }
             item {
                 Spacer(modifier = Modifier.height(16.dp))

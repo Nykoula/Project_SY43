@@ -30,12 +30,12 @@ import com.example.project_sy43.ui.theme.components.VintedTopBar
 import com.example.project_sy43.viewmodel.SellViewModel
 
 @Composable
-fun MaterniteScreen(navController: NavController, sellViewModel: SellViewModel) {
+fun MaterniteScreen(navController: NavController , sellViewModel: SellViewModel) {
     var selectedType by sellViewModel.selectedType
 
     Scaffold(
         topBar = {
-            VintedTopBar(title = "Maternité", navController, true)
+            VintedTopBar(title = "Maternité" , navController , true)
         }
     ) { innerPadding ->
         LazyColumn(
@@ -45,56 +45,56 @@ fun MaterniteScreen(navController: NavController, sellViewModel: SellViewModel) 
         ) {
             item {
                 Row(
-                    verticalAlignment = Alignment.CenterVertically,
+                    verticalAlignment = Alignment.CenterVertically ,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                        .padding(horizontal = 16.dp , vertical = 8.dp)
                         .clickable {
                             navController.navigate(VintedScreen.LingerieMaternite.name)
                         }
                 ) {
-                    Text(text = "Sous-vêtements maternité", fontWeight = FontWeight.Bold)
+                    Text(text = "Sous-vêtements maternité" , fontWeight = FontWeight.Bold)
                     Spacer(modifier = Modifier.weight(1f))
                     Icon(
-                        imageVector = Icons.Outlined.KeyboardArrowRight,
+                        imageVector = Icons.Outlined.KeyboardArrowRight ,
                         contentDescription = "Arrow"
                     )
                 }
-                Divider(thickness = 1.dp, color = Color.Gray)
+                Divider(thickness = 1.dp , color = Color.Gray)
             }
             items(
                 listOf(
-                    "Tops maternité",
-                    "Robes maternité",
-                    "Jupes maternité",
-                    "Pantalons maternité",
-                    "Shorts maternité",
-                    "Combinaisons & combi shorts maternité",
-                    "Pulls à capuche & pulls maternité",
-                    "Manteaux & vestes maternité",
-                    "Maillot & tenues de plage maternité",
+                    "Tops maternité" ,
+                    "Robes maternité" ,
+                    "Jupes maternité" ,
+                    "Pantalons maternité" ,
+                    "Shorts maternité" ,
+                    "Combinaisons & combi shorts maternité" ,
+                    "Pulls à capuche & pulls maternité" ,
+                    "Manteaux & vestes maternité" ,
+                    "Maillot & tenues de plage maternité" ,
                     "Vêtements de sport maternité"
                 )
             ) { type ->
                 Row(
-                    verticalAlignment = Alignment.CenterVertically,
+                    verticalAlignment = Alignment.CenterVertically ,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                        .padding(horizontal = 16.dp , vertical = 8.dp)
                         .clickable {
                             selectedType = type
                             sellViewModel.setProductType(type)
-                            navController.popBackStack("Sell", inclusive = false)
+                            navController.popBackStack("Sell" , inclusive = false)
                         }
                 ) {
-                    Text(text = type, fontWeight = FontWeight.Bold)
+                    Text(text = type , fontWeight = FontWeight.Bold)
                     Spacer(modifier = Modifier.weight(1f))
                     RadioButton(
-                        selected = selectedType == type,
+                        selected = selectedType == type ,
                         onClick = null // on désactive onClick
                     )
                 }
-                Divider(thickness = 1.dp, color = Color.Gray)
+                Divider(thickness = 1.dp , color = Color.Gray)
             }
             item {
                 Spacer(modifier = Modifier.height(16.dp))

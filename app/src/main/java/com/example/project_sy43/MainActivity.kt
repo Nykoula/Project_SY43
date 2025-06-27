@@ -1,19 +1,18 @@
 package com.example.project_sy43
 
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
 import com.example.project_sy43.navigation.VintedNavGraph
 import com.example.project_sy43.ui.theme.theme.Project_SY43Theme
+import com.example.project_sy43.viewmodel.ConversationViewModel
 import com.example.project_sy43.viewmodel.PersonViewModel
 import com.example.project_sy43.viewmodel.ProductViewModel
 import com.example.project_sy43.viewmodel.SellViewModel
 import com.example.project_sy43.viewmodel.SharedViewModel
-import com.example.project_sy43.viewmodel.ConversationViewModel
-
 
 
 class MainActivity : ComponentActivity() {
@@ -25,10 +24,15 @@ class MainActivity : ComponentActivity() {
                 val navController = rememberNavController()
                 val productViewModel: ProductViewModel = viewModel()
                 val sellViewModel: SellViewModel = viewModel()
-                val sharedViewModel: SharedViewModel = viewModel()
                 val personViewModel: PersonViewModel = viewModel()
                 val conversationViewModel: ConversationViewModel = viewModel()
-                VintedNavGraph(navController, productViewModel, sellViewModel, personViewModel, conversationViewModel)
+                VintedNavGraph(
+                    navController ,
+                    productViewModel ,
+                    sellViewModel ,
+                    personViewModel ,
+                    conversationViewModel
+                )
             }
         }
     }
