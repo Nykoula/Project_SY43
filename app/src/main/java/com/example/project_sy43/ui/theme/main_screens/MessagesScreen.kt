@@ -157,6 +157,11 @@ fun Messages(
                                 conversation = conversation,
                                 onItemClick = { conversationId ->
                                     navController.navigate("${VintedScreen.Conversation.name}/$conversationId")
+                                },
+                                onImageClick = { productId ->
+                                    productId?.let {
+                                        navController.navigate("${VintedScreen.ArticleDetail.name}/$it")
+                                    }
                                 }
                             )
                         }
@@ -170,7 +175,8 @@ fun Messages(
 @Composable
 fun ConversationItem(
     conversation: Conversation,
-    onItemClick: (String) -> Unit
+    onItemClick: (String) -> Unit,
+    onImageClick: (String?) -> Unit // nullable car productId peut être null
 ) {
     val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
 
@@ -186,7 +192,10 @@ fun ConversationItem(
             modifier = Modifier
                 .size(60.dp)
                 .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.surfaceVariant),
+                .background(MaterialTheme.colorScheme.surfaceVariant)
+                .clickable {
+                    onImageClick(conversation.productId)
+                },
             contentAlignment = Alignment.Center
         ) {
             if (!conversation.productImageUrl.isNullOrBlank()) {
