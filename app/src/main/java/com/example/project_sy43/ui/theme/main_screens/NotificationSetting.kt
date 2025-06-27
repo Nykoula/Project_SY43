@@ -47,8 +47,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 
 @Composable
 fun NotificationSetting(
-    navController: NavController ,
-    onCancel: () -> Unit
+    navController: NavController
 ) {
     val db = FirebaseFirestore.getInstance()
     val currentUser = FirebaseAuth.getInstance().currentUser
@@ -308,7 +307,6 @@ private fun saveNotificationPreferences(
             }
             .addOnFailureListener {
                 onSaving(false)
-                // TODO: Gérer l'erreur de sauvegarde
             }
     }
 }

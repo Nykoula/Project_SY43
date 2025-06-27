@@ -57,7 +57,6 @@ import java.util.Locale
 @Composable
 fun Search(
     navController: NavController ,
-    onCancel: () -> Unit ,
     searchViewModel: SellViewModel = viewModel() ,
     sharedViewModel: SharedViewModel = viewModel()
 ) {

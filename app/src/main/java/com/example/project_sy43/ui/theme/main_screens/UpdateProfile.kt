@@ -72,9 +72,7 @@ import java.util.Locale
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun UpdateProfile(
-    personViewModel: PersonViewModel = viewModel() ,
-    navController: NavController ,
-    onCancel: () -> Unit
+    navController: NavController
 ) {
     CompositionLocalProvider(LocalConfiguration provides LocalConfiguration.current.apply {
         setLocale(Locale.FRANCE)

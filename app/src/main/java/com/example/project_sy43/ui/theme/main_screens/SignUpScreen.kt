@@ -71,8 +71,6 @@ fun SignUpScreen(navController: NavController) {
         var firstName by remember { mutableStateOf("") }
         var showDatePickerDialog by remember { mutableStateOf(false) }
         var age by remember { mutableStateOf(0) }
-        //var selectedDateMillis by remember { mutableStateOf<Long?>(null) }
-        //var dateOfBirth = selectedDateMillis?.let { convertMillisToDate(it) } ?: ""
 
         var selectedDateMillis by remember { mutableStateOf<Long?>(null) }
         val dateOfBirth = selectedDateMillis?.let {

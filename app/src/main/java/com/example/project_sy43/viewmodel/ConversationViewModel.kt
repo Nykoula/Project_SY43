@@ -368,19 +368,10 @@ class ConversationViewModel : ViewModel() {
         }
     }
 
-    // NOUVELLE FONCTION : Vérifier si l'utilisateur actuel est l'acheteur
     fun isCurrentUserBuyer(): Boolean {
         val currentUserId = auth.currentUser?.uid
         return _conversationDetails.value?.buyerId == currentUserId
     }
-
-    fun isCurrentUserSeller(): Boolean {
-        val currentUserId = auth.currentUser?.uid ?: return false
-        val participants = _conversationDetails.value?.participants ?: return false
-        val buyerId = _conversationDetails.value?.buyerId ?: return false
-        return currentUserId != buyerId && participants.contains(currentUserId)
-    }
-
 
 
     fun isOfferAccepted(messageId: String): Boolean {
@@ -402,56 +393,6 @@ class ConversationViewModel : ViewModel() {
         }
     }
 
-    fun formatMessageForDisplay(message: Message): String {
-        val currentUserId = auth.currentUser?.uid
-        val isFromCurrentUser = message.senderId == currentUserId
-
-        return when (message.type) {
-            "text" -> {
-                val prefix =
-                    if (isFromCurrentUser) "Moi" else (_otherParticipantDisplayName.value?.split(" ")
-                        ?.firstOrNull() ?: "Utilisateur")
-                "$prefix : ${message.text ?: ""}"
-            }
-
-            "offer" -> {
-                val prefix =
-                    if (isFromCurrentUser) "Moi" else (_otherParticipantDisplayName.value?.split(" ")
-                        ?.firstOrNull() ?: "Utilisateur")
-                val offerText = if (!message.text.isNullOrBlank()) {
-                    message.text
-                } else {
-                    "Offre: $${String.format("%.2f" , message.proposedPrice ?: 0.0)}"
-                }
-                "$prefix : $offerText"
-            }
-
-            else -> message.text ?: "Message non supporté"
-        }
-    }
-
-    fun isMessageFromCurrentUser(message: Message): Boolean {
-        return message.senderId == auth.currentUser?.uid
-    }
-
-    fun getMessageSenderName(message: Message): String {
-        val currentUserId = auth.currentUser?.uid
-        return if (message.senderId == currentUserId) {
-            "Moi"
-        } else {
-            _otherParticipantDisplayName.value?.split(" ")?.firstOrNull() ?: "Utilisateur"
-        }
-    }
-
-    fun clearError() {
-        _error.value = null
-    }
-
-    fun refreshConversation() {
-        currentConversationId ?: return
-        fetchConversationDetails()
-        fetchMessagesForCurrentConversation()
-    }
 
     override fun onCleared() {
         super.onCleared()

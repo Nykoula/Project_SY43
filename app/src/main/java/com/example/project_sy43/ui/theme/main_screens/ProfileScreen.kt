@@ -68,8 +68,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 @Composable
 fun Profile(
     personViewModel: PersonViewModel = viewModel() ,
-    navController: NavController ,
-    onCancel: () -> Unit
+    navController: NavController
 ) {
     val db = FirebaseFirestore.getInstance()
     val currentUser = FirebaseAuth.getInstance().currentUser

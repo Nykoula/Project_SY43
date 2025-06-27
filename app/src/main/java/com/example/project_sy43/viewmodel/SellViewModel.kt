@@ -88,14 +88,6 @@ class SellViewModel : ViewModel() {
         selectedSize.value = size
     }
 
-    fun setProductColis(colis: String) {
-        selectedColis.value = colis
-    }
-
-    fun setProductAvailability(available: Boolean) {
-        isAvailable.value = available
-    }
-
     fun setdateCreation(date: String) {
         dateCreation.value = date
     }
@@ -114,20 +106,6 @@ class SellViewModel : ViewModel() {
         val currentList = productPhotoUris.value.toMutableList()
         currentList.remove(uri)
         productPhotoUris.value = currentList
-    }
-
-    // Remplacer toutes les URIs locales
-    fun setProductPhotoUris(uris: List<Uri>) {
-        productPhotoUris.value = uris
-    }
-
-    // Ajouter une URL Firebase (pour la DB)
-    fun addProductPhotoUrl(url: String) {
-        val currentList = productPhotoUrls.value.toMutableList()
-        if (!currentList.contains(url)) {
-            currentList.add(url)
-            productPhotoUrls.value = currentList
-        }
     }
 
     // Remplacer toutes les URLs Firebase

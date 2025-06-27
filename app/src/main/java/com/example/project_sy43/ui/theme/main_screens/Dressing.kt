@@ -71,9 +71,7 @@ data class SoldClothingItem(
 
 @Composable
 fun Dressing(
-    personViewModel: PersonViewModel = viewModel() ,
-    navController: NavController ,
-    onCancel: () -> Unit
+    navController: NavController
 ) {
     val db = FirebaseFirestore.getInstance()
     val currentUser = FirebaseAuth.getInstance().currentUser

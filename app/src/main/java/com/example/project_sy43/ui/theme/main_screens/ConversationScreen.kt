@@ -56,8 +56,7 @@ import java.util.Locale
 fun ConversationScreen(
     viewModel: ConversationViewModel = viewModel() ,
     navController: NavController ,
-    conversationId: String ,
-    onCancel: () -> Unit
+    conversationId: String
 ) {
     val auth = FirebaseAuth.getInstance()
     val currentUserId = auth.currentUser?.uid
@@ -303,7 +302,7 @@ fun OfferMessageContent(
     onAcceptOffer: (String , Double) -> Unit ,
     canAcceptOffer: Boolean ,
     isOfferAccepted: Boolean ,
-    showBuyButton: Boolean , // <-- Ajouté
+    showBuyButton: Boolean ,
     onBuy: () -> Unit
 ) {
     Column {

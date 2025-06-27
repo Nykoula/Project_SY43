@@ -54,9 +54,7 @@ data class Post(
 
 @Composable
 fun MonCompte(
-    viewModel: ProductViewModel ,
-    navController: NavController ,
-    onCancel: () -> Unit
+    navController: NavController
 ) {
     var posts by remember { mutableStateOf<List<Post>>(emptyList()) }
     var displayCount by remember { mutableStateOf(10) }

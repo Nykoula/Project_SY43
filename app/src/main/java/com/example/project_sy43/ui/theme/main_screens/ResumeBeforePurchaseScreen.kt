@@ -31,8 +31,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 fun PurchaseScreenWithNegotiatedPrice(
     productId: String ,
     negotiatedPrice: Double ,
-    navController: NavController ,
-    onBackClick: () -> Unit
+    navController: NavController
 ) {
     var clothing by remember { mutableStateOf<Product?>(null) }
 
@@ -84,7 +83,6 @@ fun PurchaseScreenWithNegotiatedPrice(
                 ClothingDetailView(
                     navController = navController ,
                     itemId = productId ,
-                    onCancel = onBackClick ,
                     menuDeroulant = true ,
                     topBar = false
                 )

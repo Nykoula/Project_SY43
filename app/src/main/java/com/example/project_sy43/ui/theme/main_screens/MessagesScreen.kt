@@ -56,8 +56,7 @@ import java.util.Locale
 @Composable
 fun Messages(
     messagesViewModel: MessagesViewModel = viewModel() ,
-    navController: NavController ,
-    onCancel: () -> Unit
+    navController: NavController
 ) {
     val conversations by messagesViewModel.conversations.collectAsState(emptyList())
     val isLoading by messagesViewModel.isLoading.collectAsState()
@@ -193,7 +192,7 @@ fun Messages(
 fun ConversationItem(
     conversation: Conversation ,
     onItemClick: (String) -> Unit ,
-    onImageClick: (String?) -> Unit // nullable car productId peut être null
+    onImageClick: (String?) -> Unit
 ) {
     val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
 
@@ -258,7 +257,6 @@ fun ConversationItem(
 
             Spacer(modifier = Modifier.height(4.dp))
 
-            // AMÉLIORATION : Affichage du dernier message avec le préfixe "Moi :" ou "Nom :"
             val lastMessageDisplay = formatLastMessage(
                 conversation.lastMessageText ,
                 conversation.lastMessageSenderId ,
@@ -270,12 +268,11 @@ fun ConversationItem(
                 text = lastMessageDisplay ,
                 style = MaterialTheme.typography.bodyMedium ,
                 color = MaterialTheme.colorScheme.onSurfaceVariant ,
-                maxLines = 2 , // Augmenté à 2 lignes pour permettre l'affichage complet
+                maxLines = 2 ,
                 overflow = TextOverflow.Ellipsis
             )
         }
 
-        // Timestamp du dernier message (optionnel)
         if (conversation.lastMessageTimestamp != null) {
             Column(
                 horizontalAlignment = Alignment.End
@@ -290,9 +287,6 @@ fun ConversationItem(
     }
 }
 
-/**
- * NOUVELLE FONCTION : Formate le dernier message avec le préfixe approprié
- */
 private fun formatLastMessage(
     lastMessageText: String? ,
     lastMessageSenderId: String? ,
@@ -315,9 +309,6 @@ private fun formatLastMessage(
     }
 }
 
-/**
- * Formate un timestamp en chaîne lisible
- */
 private fun formatTimestamp(timestamp: Any?): String {
     return try {
         when (timestamp) {

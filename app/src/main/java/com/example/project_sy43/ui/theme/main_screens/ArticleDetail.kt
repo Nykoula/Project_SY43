@@ -61,11 +61,9 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun ClothingDetailView(
-    personViewModel: PersonViewModel = viewModel() ,
     messagesViewModel: MessagesViewModel = viewModel() , // Injection du ViewModel Messages
     navController: NavController ,
     itemId: String? ,
-    onCancel: () -> Unit ,
     menuDeroulant: Boolean = false ,
     topBar: Boolean? = true
 ) {
