@@ -30,6 +30,9 @@ import coil.compose.rememberImagePainter
 import com.example.project_sy43.viewmodel.ProductViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+
 
 data class Post(
     val title: String = "",
@@ -48,11 +51,14 @@ fun MonCompte(
 ) {
     var posts by remember { mutableStateOf<List<Post>>(emptyList()) }
     var displayCount by remember { mutableStateOf(10) }
+    var isRefreshing by remember { mutableStateOf(false) }
 
-    LaunchedEffect(Unit) {
-        val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
-        val db = FirebaseFirestore.getInstance()
+    val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
+    val db = FirebaseFirestore.getInstance()
 
+    // Fonction pour charger les posts
+    fun loadPosts() {
+        isRefreshing = true
         db.collection("Post")
             .whereEqualTo("available", true)
             .get()
@@ -71,13 +77,22 @@ fun MonCompte(
                     } else {
                         null
                     }
-                }
+                }.shuffled()
                 posts = fetchedPosts
+                isRefreshing = false
             }
             .addOnFailureListener { exception ->
                 Log.e("Firestore", "Erreur lors de la récupération des posts : $exception")
+                isRefreshing = false
             }
     }
+
+    // Chargement initial
+    LaunchedEffect(Unit) {
+        loadPosts()
+    }
+
+    val swipeRefreshState = rememberSwipeRefreshState(isRefreshing = isRefreshing)
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -86,148 +101,155 @@ fun MonCompte(
             VintedBottomBar(navController, VintedScreen.MonCompte)
         }
     ) { innerPadding ->
-        LazyColumn(
+        SwipeRefresh(
+            state = swipeRefreshState,
+            onRefresh = { loadPosts() },
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            item {
-                Text("Recommandations", style = MaterialTheme.typography.headlineSmall)
-            }
-            item {
-                LazyRow(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    modifier = Modifier.fillMaxWidth(),
-                ) {
-                    items(posts.take(10)) { post ->
-                        Card(
-                            modifier = Modifier
-                                .width(170.dp)
-                                .height(350.dp),
-                            elevation = CardDefaults.cardElevation(4.dp),
-                            onClick = {
-                                navController.navigate("${VintedScreen.ArticleDetail.name}/${post.id}")
-                            }
-                        ) {
-                            Column(
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                item {
+                    Text("Recommandations", style = MaterialTheme.typography.headlineSmall)
+                }
+                item {
+                    LazyRow(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        items(posts.take(10)) { post ->
+                            Card(
                                 modifier = Modifier
-                                    .fillMaxSize()
-                                    .padding(8.dp),
-                                verticalArrangement = Arrangement.Top,
-                                horizontalAlignment = Alignment.CenterHorizontally
+                                    .width(170.dp)
+                                    .height(350.dp),
+                                elevation = CardDefaults.cardElevation(4.dp),
+                                onClick = {
+                                    navController.navigate("${VintedScreen.ArticleDetail.name}/${post.id}")
+                                }
                             ) {
-                                if (post.photos.isNotEmpty()) {
-                                    Image(
-                                        painter = rememberImagePainter(post.photos[0]),
-                                        contentDescription = "Post Image",
-                                        modifier = Modifier
-                                            .width(150.dp)
-                                            .height(200.dp)
-                                            .clip(RoundedCornerShape(4.dp)),
-                                        contentScale = ContentScale.Crop
-                                    )
-                                }
-                                if (post.title.isNotEmpty()) {
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .padding(8.dp),
+                                    verticalArrangement = Arrangement.Top,
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    if (post.photos.isNotEmpty()) {
+                                        Image(
+                                            painter = rememberImagePainter(post.photos[0]),
+                                            contentDescription = "Post Image",
+                                            modifier = Modifier
+                                                .width(150.dp)
+                                                .height(200.dp)
+                                                .clip(RoundedCornerShape(4.dp)),
+                                            contentScale = ContentScale.Crop
+                                        )
+                                    }
+                                    if (post.title.isNotEmpty()) {
+                                        Text(
+                                            text = post.title,
+                                            textAlign = TextAlign.Center,
+                                            modifier = Modifier.fillMaxWidth()
+                                        )
+                                    }
+                                    if (post.taille.isNotEmpty()) {
+                                        Text(
+                                            text = post.taille,
+                                            textAlign = TextAlign.Center,
+                                            modifier = Modifier.fillMaxWidth()
+                                        )
+                                    }
+                                    if (post.state.isNotEmpty()) {
+                                        Text(
+                                            text = post.state,
+                                            textAlign = TextAlign.Center,
+                                            modifier = Modifier.fillMaxWidth()
+                                        )
+                                    }
                                     Text(
-                                        text = post.title,
+                                        text = "${post.price}€",
                                         textAlign = TextAlign.Center,
                                         modifier = Modifier.fillMaxWidth()
                                     )
                                 }
-                                if (post.taille.isNotEmpty()) {
-                                    Text(
-                                        text = post.taille,
-                                        textAlign = TextAlign.Center,
-                                        modifier = Modifier.fillMaxWidth()
-                                    )
-                                }
-                                if (post.state.isNotEmpty()) {
-                                    Text(
-                                        text = post.state,
-                                        textAlign = TextAlign.Center,
-                                        modifier = Modifier.fillMaxWidth()
-                                    )
-                                }
+                            }
+                        }
+                    }
+                }
+                item {
+                    Text("You might be interested in", style = MaterialTheme.typography.headlineSmall)
+                }
+                items(posts.drop(10).take(displayCount)) { post ->
+                    Card(
+                        modifier = Modifier
+                            .width(400.dp)
+                            .height(410.dp),
+                        elevation = CardDefaults.cardElevation(4.dp),
+                        onClick = {
+                            navController.navigate("${VintedScreen.ArticleDetail.name}/${post.id}")
+                        }
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(8.dp),
+                            verticalArrangement = Arrangement.Top,
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            if (post.photos.isNotEmpty()) {
+                                Image(
+                                    painter = rememberImagePainter(post.photos[0]),
+                                    contentDescription = "Post Image",
+                                    modifier = Modifier
+                                        .width(380.dp)
+                                        .height(300.dp)
+                                        .clip(RoundedCornerShape(10.dp)),
+                                    contentScale = ContentScale.Crop
+                                )
+                            }
+                            if (post.title.isNotEmpty()) {
                                 Text(
-                                    text = "${post.price}€",
+                                    text = post.title,
                                     textAlign = TextAlign.Center,
                                     modifier = Modifier.fillMaxWidth()
                                 )
                             }
+                            if (post.taille.isNotEmpty()) {
+                                Text(
+                                    text = post.taille,
+                                    textAlign = TextAlign.Center,
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                            }
+                            if (post.state.isNotEmpty()) {
+                                Text(
+                                    text = post.state,
+                                    textAlign = TextAlign.Center,
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                            }
+                            Text(
+                                text = "${post.price}€",
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.fillMaxWidth()
+                            )
                         }
                     }
                 }
-            }
-            item {
-                Text("You might be interested in", style = MaterialTheme.typography.headlineSmall)
-            }
-            items(posts.drop(10).take(displayCount)) { post ->
-                Card(
-                    modifier = Modifier
-                        .width(400.dp)
-                        .height(410.dp),
-                    elevation = CardDefaults.cardElevation(4.dp),
-                    onClick = {
-                        navController.navigate("${VintedScreen.ArticleDetail.name}/${post.id}")
-                    }
-                ) {
-                    Column(
+                item {
+                    Button(
+                        onClick = { displayCount += 10 },
                         modifier = Modifier
-                            .fillMaxSize()
-                            .padding(8.dp),
-                        verticalArrangement = Arrangement.Top,
-                        horizontalAlignment = Alignment.CenterHorizontally
+                            .fillMaxWidth()
+                            .padding(16.dp)
                     ) {
-                        if (post.photos.isNotEmpty()) {
-                            Image(
-                                painter = rememberImagePainter(post.photos[0]),
-                                contentDescription = "Post Image",
-                                modifier = Modifier
-                                    .width(380.dp)
-                                    .height(300.dp)
-                                    .clip(RoundedCornerShape(10.dp)),
-                                contentScale = ContentScale.Crop
-                            )
-                        }
-                        if (post.title.isNotEmpty()) {
-                            Text(
-                                text = post.title,
-                                textAlign = TextAlign.Center,
-                                modifier = Modifier.fillMaxWidth()
-                            )
-                        }
-                        if (post.taille.isNotEmpty()) {
-                            Text(
-                                text = post.taille,
-                                textAlign = TextAlign.Center,
-                                modifier = Modifier.fillMaxWidth()
-                            )
-                        }
-                        if (post.state.isNotEmpty()) {
-                            Text(
-                                text = post.state,
-                                textAlign = TextAlign.Center,
-                                modifier = Modifier.fillMaxWidth()
-                            )
-                        }
-                        Text(
-                            text = "${post.price}€",
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier.fillMaxWidth()
-                        )
+                        Text("More")
                     }
-                }
-            }
-            item {
-                Button(
-                    onClick = { displayCount += 10 },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp)
-                ) {
-                    Text("More")
                 }
             }
         }
